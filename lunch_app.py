@@ -6,8 +6,7 @@ Part of the SignalTrust-AI-Scanner project.
 
 import random
 import argparse
-from datetime import datetime
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 class LunchApp:
@@ -30,7 +29,7 @@ class LunchApp:
         """Return all menu items."""
         return self.menu_items
     
-    def get_recommendation(self, max_calories: int = None, max_price: float = None) -> Dict:
+    def get_recommendation(self, max_calories: int = None, max_price: float = None) -> Optional[Dict]:
         """
         Get a random lunch recommendation based on constraints.
         
