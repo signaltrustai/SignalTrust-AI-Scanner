@@ -16,6 +16,7 @@ from market_analyzer import MarketAnalyzer
 from ai_predictor import AIPredictor
 from user_auth import UserAuth
 from payment_processor import PaymentProcessor
+from coupon_manager import CouponManager
 
 app = Flask(__name__)
 CORS(app)
@@ -26,6 +27,7 @@ market_analyzer = MarketAnalyzer()
 ai_predictor = AIPredictor()
 user_auth = UserAuth()
 payment_processor = PaymentProcessor()
+coupon_manager = CouponManager()
 
 # Configuration
 app.config['SECRET_KEY'] = 'signaltrust-ai-scanner-2026'
@@ -559,6 +561,82 @@ def cancel_subscription():
                 user_auth.update_user_plan(email, 'free', 'cancelled')
         
         return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - Coupon Codes
+# ============================================================================
+
+@app.route('/api/coupons/validate', methods=['POST'])
+def validate_coupon():
+    """Validate a coupon code."""
+    try:
+        data = request.get_json()
+        code = data.get('code')
+        plan_id = data.get('plan_id')
+        
+        result = coupon_manager.validate_coupon(code, plan_id)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/coupons/apply', methods=['POST'])
+def apply_coupon():
+    """Apply coupon and get discounted price."""
+    try:
+        data = request.get_json()
+        code = data.get('code')
+        plan_id = data.get('plan_id')
+        original_price = data.get('original_price')
+        
+        result = coupon_manager.apply_coupon(code, plan_id, original_price)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/coupons/list', methods=['GET'])
+def list_coupons():
+    """Get list of active public coupons."""
+    try:
+        result = coupon_manager.list_active_coupons()
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/coupons/generate-referral', methods=['POST'])
+def generate_referral():
+    """Generate a referral code for user."""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        
+        code = coupon_manager.generate_referral_code(user_id)
+        
+        return jsonify({
+            'success': True,
+            'referral_code': code
+        })
         
     except Exception as e:
         return jsonify({

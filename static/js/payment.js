@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const errorMessage = document.getElementById('errorMessage');
     const successMessage = document.getElementById('successMessage');
     const cardNumber = document.getElementById('cardNumber');
+    const applyCouponBtn = document.getElementById('applyCouponBtn');
+    
+    let appliedCoupon = null;
+    let originalPrice = 0;
     
     // Get user and plan info
     const pendingUser = JSON.parse(localStorage.getItem('pendingUser') || '{}');
@@ -12,6 +16,79 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load plan details
     loadPlanDetails(selectedPlan);
+    
+    // Apply Coupon Button
+    if (applyCouponBtn) {
+        applyCouponBtn.addEventListener('click', async function() {
+            const couponCode = document.getElementById('couponCode').value.trim();
+            const couponMessage = document.getElementById('couponMessage');
+            
+            if (!couponCode) {
+                couponMessage.textContent = 'Please enter a coupon code';
+                couponMessage.style.color = '#ef4444';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/coupons/apply', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: couponCode,
+                        plan_id: selectedPlan,
+                        original_price: originalPrice
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.valid) {
+                    appliedCoupon = data;
+                    couponMessage.textContent = `✓ ${data.description} - Save $${data.discount_amount.toFixed(2)}!`;
+                    couponMessage.style.color = '#10b981';
+                    
+                    // Update prices
+                    document.getElementById('subtotal').textContent = `$${data.original_price.toFixed(2)}`;
+                    
+                    // Show discount line
+                    const discountRow = document.createElement('div');
+                    discountRow.className = 'summary-row';
+                    discountRow.id = 'discountRow';
+                    discountRow.innerHTML = `
+                        <span style="color: #10b981;">Discount (${couponCode})</span>
+                        <span style="color: #10b981;">-$${data.discount_amount.toFixed(2)}</span>
+                    `;
+                    
+                    const existingDiscount = document.getElementById('discountRow');
+                    if (existingDiscount) existingDiscount.remove();
+                    
+                    const taxRow = document.querySelector('.summary-row:has(#tax)').parentElement;
+                    taxRow.insertBefore(discountRow, taxRow.querySelector('.summary-divider'));
+                    
+                    // Update total
+                    const tax = data.final_price * 0.1;
+                    const total = data.final_price + tax;
+                    document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+                    document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+                    
+                    if (data.is_trial) {
+                        couponMessage.textContent += ` | ${data.trial_days} days free trial`;
+                    }
+                    
+                } else {
+                    appliedCoupon = null;
+                    couponMessage.textContent = `✗ ${data.error}`;
+                    couponMessage.style.color = '#ef4444';
+                }
+            } catch (error) {
+                couponMessage.textContent = '✗ Error validating coupon';
+                couponMessage.style.color = '#ef4444';
+                console.error('Coupon error:', error);
+            }
+        });
+    }
     
     // Payment method switching
     const paymentTypeRadios = document.getElementsByName('paymentType');
@@ -87,7 +164,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     email: pendingUser.email || user.email,
                     plan_id: selectedPlan,
                     payment_method: paymentMethod,
-                    billing_info: billingInfo
+                    billing_info: billingInfo,
+                    coupon_code: appliedCoupon ? document.getElementById('couponCode').value.trim() : null
                 })
             });
             
@@ -160,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (data.success && data.plans[planId]) {
                 const plan = data.plans[planId];
+                originalPrice = plan.price;
                 
                 document.getElementById('planName').textContent = plan.name;
                 document.getElementById('planPrice').textContent = `$${plan.price.toFixed(2)}`;

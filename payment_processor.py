@@ -17,13 +17,13 @@ class PaymentProcessor:
     # Subscription plans
     PLANS = {
         'free': {
-            'name': 'Free Plan',
+            'name': 'Starter',
             'price': 0,
             'currency': 'USD',
             'features': [
-                'Basic market scanning',
-                'Limited to 10 scans per day',
-                'Basic technical indicators',
+                'Basic crypto market scanning',
+                '10 scans per day',
+                'Basic price alerts',
                 'Community support'
             ],
             'limits': {
@@ -33,36 +33,40 @@ class PaymentProcessor:
             }
         },
         'basic': {
-            'name': 'Basic Plan',
-            'price': 29.99,
+            'name': 'Trader Plan',
+            'price': 49.00,
             'currency': 'USD',
             'billing_period': 'monthly',
             'features': [
-                'Unlimited market scanning',
-                'Advanced technical analysis',
-                'Real-time alerts',
+                'Unlimited crypto scanning',
+                'Basic NFT tracking',
+                'Real-time price alerts',
+                'Technical analysis tools',
+                '100 AI predictions per month',
                 'Email support',
-                '50 AI predictions per month'
+                'TradingView charts'
             ],
             'limits': {
-                'scans_per_day': -1,  # Unlimited
-                'symbols_per_scan': 20,
-                'ai_predictions': 50
+                'scans_per_day': -1,
+                'symbols_per_scan': 50,
+                'ai_predictions': 100
             }
         },
         'pro': {
             'name': 'Professional Plan',
-            'price': 79.99,
+            'price': 149.00,
             'currency': 'USD',
             'billing_period': 'monthly',
             'features': [
-                'Everything in Basic',
-                'AI-powered predictions',
-                'Pattern recognition',
-                'Portfolio management',
-                'Priority support',
+                'Everything in Trader',
+                'Advanced NFT whale tracking',
                 'Unlimited AI predictions',
-                'API access'
+                'Smart contract analysis',
+                'Multi-chain support',
+                'Portfolio tracker',
+                'Priority support',
+                'API access',
+                'Custom alerts'
             ],
             'limits': {
                 'scans_per_day': -1,
@@ -71,18 +75,20 @@ class PaymentProcessor:
             }
         },
         'enterprise': {
-            'name': 'Enterprise Plan',
-            'price': 299.99,
+            'name': 'Institution Plan',
+            'price': 499.00,
             'currency': 'USD',
             'billing_period': 'monthly',
             'features': [
                 'Everything in Pro',
                 'Custom AI models',
-                'Dedicated support',
-                'White-label options',
-                'Multiple user accounts',
-                'Advanced API access',
-                'Custom integrations'
+                'Dedicated account manager',
+                'White-label solutions',
+                '10 team accounts',
+                'Advanced API (unlimited)',
+                'Custom integrations',
+                'OTC desk integration',
+                '24/7 premium support'
             ],
             'limits': {
                 'scans_per_day': -1,
