@@ -1,0 +1,100 @@
+{
+  "CRYPTO2026": {
+    "code": "CRYPTO2026",
+    "type": "percentage",
+    "value": 50,
+    "description": "New Year Crypto Special - 50% off",
+    "valid_plans": [
+      "basic",
+      "pro"
+    ],
+    "max_uses": 1000,
+    "used_count": 0,
+    "expires_at": "2026-12-31",
+    "is_active": true
+  },
+  "WHALE50": {
+    "code": "WHALE50",
+    "type": "percentage",
+    "value": 50,
+    "description": "Whale Watcher Special - 50% off first month",
+    "valid_plans": [
+      "pro"
+    ],
+    "max_uses": 500,
+    "used_count": 0,
+    "expires_at": "2026-06-30",
+    "is_active": true
+  },
+  "NFT25": {
+    "code": "NFT25",
+    "type": "percentage",
+    "value": 25,
+    "description": "NFT Trader Discount - 25% off",
+    "valid_plans": [
+      "basic",
+      "pro"
+    ],
+    "max_uses": -1,
+    "used_count": 0,
+    "expires_at": "2026-12-31",
+    "is_active": true
+  },
+  "FOUNDER100": {
+    "code": "FOUNDER100",
+    "type": "percentage",
+    "value": 100,
+    "description": "Founder Member - Free for life",
+    "valid_plans": [
+      "basic",
+      "pro",
+      "enterprise"
+    ],
+    "max_uses": 100,
+    "used_count": 0,
+    "expires_at": "2027-12-31",
+    "is_active": true,
+    "lifetime": true
+  },
+  "EARLYBIRD": {
+    "code": "EARLYBIRD",
+    "type": "fixed",
+    "value": 30,
+    "description": "Early Bird Special - $30 off",
+    "valid_plans": [
+      "basic",
+      "pro"
+    ],
+    "max_uses": 200,
+    "used_count": 0,
+    "expires_at": "2026-03-31",
+    "is_active": true
+  },
+  "VIP500": {
+    "code": "VIP500",
+    "type": "fixed",
+    "value": 500,
+    "description": "VIP Enterprise Discount",
+    "valid_plans": [
+      "enterprise"
+    ],
+    "max_uses": 50,
+    "used_count": 0,
+    "expires_at": "2026-12-31",
+    "is_active": true
+  },
+  "TRIAL30": {
+    "code": "TRIAL30",
+    "type": "trial",
+    "value": 30,
+    "description": "30-Day Free Trial",
+    "valid_plans": [
+      "basic",
+      "pro"
+    ],
+    "max_uses": -1,
+    "used_count": 0,
+    "expires_at": "2026-12-31",
+    "is_active": true
+  }
+}
