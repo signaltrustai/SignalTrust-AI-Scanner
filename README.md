@@ -1,38 +1,50 @@
-# SignalTrust AI Scanner
+# SignalTrust AI Market Scanner
 
-An AI-powered content scanning and analysis tool designed to detect security issues, analyze text, and provide intelligent insights.
+The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
 
-## Features
+## 🚀 Features
 
-- **File Scanning**: Analyze files for security vulnerabilities and content issues
-- **Text Analysis**: Scan text content for sensitive information
-- **Security Alerts**: Detect potential sensitive data patterns (passwords, API keys, tokens, etc.)
-- **Multiple Output Formats**: Export results in JSON or text format
+### Market Analysis
+- **Real-time Market Scanning**: Scan stocks, crypto, forex, and indices simultaneously
+- **AI-Powered Predictions**: Machine learning algorithms for price forecasting
+- **Technical Analysis**: Advanced indicators, patterns, and signals
+- **Sentiment Analysis**: AI-driven market sentiment evaluation
+- **Risk Assessment**: Comprehensive risk analysis and scoring
+
+### User Features
+- **User Authentication**: Secure registration and login system
+- **Multiple Subscription Plans**: Free, Basic, Pro, and Enterprise tiers
+- **Secure Payment Processing**: Credit card, PayPal, and cryptocurrency support
+- **Personalized Dashboard**: Track your investments and watchlists
+- **Real-time Alerts**: Get notified of important market movements
+
+### Platform Capabilities
+- **Web-Based Interface**: Modern, responsive design
+- **RESTful API**: Full API access for Pro and Enterprise users
+- **Multiple Payment Methods**: Flexible payment options
 - **Cross-Platform**: Works on Windows, Linux, and macOS
 
-## Requirements
+## 📋 Requirements
 
 - Python 3.7 or higher
-- No additional dependencies required for basic functionality
+- pip (Python package manager)
 
-## Installation
+## 🔧 Installation
 
-1. Clone the repository:
+1. **Clone the repository**:
 ```bash
 git clone https://github.com/signaltrustai/SignalTrust-AI-Scanner.git
 cd SignalTrust-AI-Scanner
 ```
 
-2. (Optional) Install dependencies:
+2. **Install dependencies**:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+## 🎯 Quick Start
 
-### Quick Start
-
-The easiest way to start the scanner is using the provided startup scripts:
+### Start the Web Application
 
 **Linux/Mac:**
 ```bash
@@ -50,189 +62,230 @@ start.bat
 python3 start.py
 ```
 
-### Command Line Usage
+The application will be available at: **http://localhost:5000**
 
-You can also run the scanner directly:
+### Command Line Scanner (Legacy)
 
+You can still use the CLI scanner:
 ```bash
-# Interactive mode (displays help)
-python3 scanner.py
-
-# Scan a file
-python3 scanner.py /path/to/file.txt
-
-# Scan text directly
-python3 scanner.py "Your text content here"
-
-# Scan with verbose output
-python3 scanner.py -v /path/to/file.txt
-
-# Save results to a file
-python3 scanner.py -o results.json /path/to/file.txt
-
-# Save results in text format
-python3 scanner.py -o results.txt -f text /path/to/file.txt
+python3 scanner.py --help
+python3 scanner.py -v myfile.txt
 ```
 
-### Using Startup Scripts with Arguments
+## 📚 Documentation
 
-You can pass arguments to the startup scripts:
+### Web Application Routes
 
-**Linux/Mac:**
-```bash
-./start.sh -v myfile.txt
-./start.sh -o results.json "text to scan"
-```
+#### Public Pages
+- `/` - Homepage
+- `/register` - User registration
+- `/login` - User login
+- `/pricing` - Subscription plans
+- `/payment` - Payment processing
 
-**Windows:**
-```cmd
-start.bat -v myfile.txt
-start.bat -o results.json "text to scan"
-```
+#### Protected Pages (Require Login)
+- `/dashboard` - User dashboard
+- `/scanner` - Market scanner interface
+- `/analyzer` - Technical analysis tools
+- `/predictions` - AI predictions
+- `/settings` - Account settings
 
-**Python:**
-```bash
-python3 start.py -v myfile.txt
-python3 start.py -o results.json "text to scan"
-```
+### API Endpoints
 
-## Configuration
+#### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login user
+- `POST /api/auth/logout` - Logout user
+- `POST /api/auth/verify` - Verify session
 
-You can customize the scanner behavior by editing `config.json`:
+#### Market Data
+- `GET /api/markets/overview` - Get markets overview
+- `POST /api/markets/scan` - Scan specific markets
+- `GET /api/markets/trending` - Get trending assets
 
-```json
-{
-  "scanner": {
-    "version": "1.0.0",
-    "name": "SignalTrust AI Scanner"
-  },
-  "settings": {
-    "verbose": false,
-    "output_format": "json",
-    "max_file_size": 10485760
-  },
-  "security": {
-    "enable_security_checks": true,
-    "sensitive_patterns": [
-      "password",
-      "api_key",
-      "secret"
-    ]
-  }
-}
-```
+#### Analysis
+- `POST /api/analyze/technical` - Technical analysis
+- `POST /api/analyze/sentiment` - Sentiment analysis
+- `POST /api/analyze/patterns` - Pattern detection
 
-## Examples
+#### AI Predictions
+- `POST /api/predict/price` - Price predictions
+- `POST /api/predict/signals` - Trading signals
+- `POST /api/predict/risk` - Risk assessment
 
-### Example 1: Scan a Text File
+#### Payment
+- `GET /api/payment/plans` - Get subscription plans
+- `POST /api/payment/process` - Process payment
+- `POST /api/payment/validate-card` - Validate card
+- `GET /api/payment/transactions` - Get transactions
+- `POST /api/payment/cancel` - Cancel subscription
 
-```bash
-python3 scanner.py -v example.txt
-```
+## 💳 Subscription Plans
 
-Output:
-```
-============================================================
-SignalTrust AI Scanner v1.0.0
-============================================================
+### Free Plan - $0/month
+- Basic market scanning
+- Limited to 10 scans per day
+- Basic technical indicators
+- Community support
 
-Scanning target: example.txt
+### Basic Plan - $29.99/month
+- Unlimited market scanning
+- Advanced technical analysis
+- Real-time alerts
+- 50 AI predictions/month
+- Email support
 
-Scan completed for: example.txt
-Status: completed
-Scan type: file
-Findings: 2
+### Professional Plan - $79.99/month ⭐ Most Popular
+- Everything in Basic
+- Unlimited AI predictions
+- Pattern recognition
+- Portfolio management
+- API access
+- Priority support
 
-Detailed findings:
+### Enterprise Plan - $299.99/month
+- Everything in Pro
+- Custom AI models
+- Dedicated support
+- White-label options
+- 10 user accounts
+- Custom integrations
 
-1. file_analysis: File scanned: example.txt
-   - size: 1234
-   - lines: 50
-   - encoding: utf-8
-
-2. text_analysis: Text content analyzed
-   - word_count: 200
-   - character_count: 1234
-```
-
-### Example 2: Scan and Export Results
-
-```bash
-python3 scanner.py -o scan_results.json myfile.py
-```
-
-This will scan `myfile.py` and save the results to `scan_results.json`.
-
-### Example 3: Detect Sensitive Information
-
-```bash
-python3 scanner.py "My password is secret123"
-```
-
-The scanner will detect the word "password" and flag it as a potential security issue.
-
-## Output Format
-
-### JSON Output
-
-```json
-[
-  {
-    "target": "example.txt",
-    "status": "completed",
-    "findings": [
-      {
-        "type": "file_analysis",
-        "description": "File scanned: example.txt",
-        "details": {
-          "size": 1234,
-          "lines": 50,
-          "encoding": "utf-8"
-        }
-      }
-    ],
-    "metadata": {
-      "scanner_version": "1.0.0",
-      "scan_type": "file"
-    }
-  }
-]
-```
-
-## Development
-
-### Project Structure
+## 🏗️ Project Structure
 
 ```
 SignalTrust-AI-Scanner/
-├── scanner.py          # Main scanner module
-├── start.py           # Python startup script
-├── start.sh           # Linux/Mac startup script
-├── start.bat          # Windows startup script
-├── config.json        # Configuration file
-├── requirements.txt   # Python dependencies
-└── README.md          # This file
+├── app.py                  # Main Flask application
+├── market_scanner.py       # Market scanning module
+├── market_analyzer.py      # Technical analysis module
+├── ai_predictor.py         # AI prediction module
+├── user_auth.py            # User authentication
+├── payment_processor.py    # Payment processing
+├── scanner.py              # CLI scanner (legacy)
+├── config.json             # Configuration
+├── requirements.txt        # Dependencies
+├── templates/              # HTML templates
+│   ├── index.html
+│   ├── register.html
+│   ├── login.html
+│   ├── pricing.html
+│   ├── payment.html
+│   ├── dashboard.html
+│   ├── scanner.html
+│   ├── analyzer.html
+│   ├── predictions.html
+│   └── settings.html
+├── static/                 # Static files
+│   ├── css/
+│   │   └── style.css
+│   └── js/
+│       ├── main.js
+│       ├── register.js
+│       ├── login.js
+│       ├── pricing.js
+│       └── payment.js
+├── data/                   # User and transaction data (created automatically)
+├── start.sh                # Linux/Mac startup script
+├── start.bat               # Windows startup script
+└── start.py                # Python startup script
 ```
 
-### Contributing
+## 🔐 Security Features
+
+- Password hashing with PBKDF2
+- Secure session management
+- HTTPS support
+- Card validation (Luhn algorithm)
+- XSS and CSRF protection
+- Encrypted data storage
+
+## 🛠️ Development
+
+### Running in Development Mode
+
+```bash
+export DEBUG=True
+python3 app.py
+```
+
+### Environment Variables
+
+- `PORT` - Server port (default: 5000)
+- `DEBUG` - Debug mode (default: False)
+
+## 📊 API Usage Examples
+
+### Register a New User
+
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepass123",
+    "full_name": "John Doe",
+    "plan": "pro"
+  }'
+```
+
+### Scan Markets
+
+```bash
+curl -X POST http://localhost:5000/api/markets/scan \
+  -H "Content-Type: application/json" \
+  -d '{
+    "market_type": "stocks",
+    "symbols": ["AAPL", "GOOGL", "MSFT"]
+  }'
+```
+
+### Get AI Price Prediction
+
+```bash
+curl -X POST http://localhost:5000/api/predict/price \
+  -H "Content-Type: application/json" \
+  -d '{
+    "symbol": "AAPL",
+    "days": 7
+  }'
+```
+
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
+## 📝 License
 
-Copyright © 2026 SignalTrust AI
+Copyright © 2026 SignalTrust AI. All rights reserved.
 
-## Support
+## 📧 Support
 
-For issues, questions, or contributions, please visit:
-https://github.com/signaltrustai/SignalTrust-AI-Scanner
+For support, email support@signaltrust.ai or visit our support portal.
 
-## Version History
+## 🔗 Links
+
+- **Website**: https://signaltrust.ai
+- **GitHub**: https://github.com/signaltrustai/SignalTrust-AI-Scanner
+- **Documentation**: https://docs.signaltrust.ai
+
+## 📈 Version History
+
+### v2.0.0 (2026-02-02)
+- 🌐 Complete web application with modern UI
+- 👤 User registration and authentication system
+- 💳 Payment processing with multiple payment methods
+- 📊 Market scanner for stocks, crypto, forex
+- 🤖 AI-powered predictions and analysis
+- 📱 Responsive design for mobile and desktop
+- 🔐 Secure payment and data handling
+- 📡 RESTful API for all features
 
 ### v1.0.0 (2026-02-02)
-- Initial release
-- File and text scanning capabilities
+- Initial CLI-based scanner
+- Basic file and text scanning
 - Security pattern detection
-- Cross-platform startup scripts
-- JSON and text output formats
+
+---
+
+**Made with ❤️ by SignalTrust AI**
 

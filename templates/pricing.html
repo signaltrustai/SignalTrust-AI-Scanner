@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - SignalTrust AI Market Scanner</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">SignalTrust AI</div>
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/pricing" class="active">Pricing</a>
+                <a href="/login">Login</a>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="pricing-page">
+            <div class="pricing-header">
+                <h1>Choose Your Plan</h1>
+                <p>Select the perfect plan for your trading needs</p>
+            </div>
+            
+            <div class="pricing-cards">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>Free</h3>
+                        <div class="price">
+                            <span class="amount">$0</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Basic market scanning</li>
+                        <li>✓ Limited to 10 scans per day</li>
+                        <li>✓ Basic technical indicators</li>
+                        <li>✓ Community support</li>
+                        <li>✗ No AI predictions</li>
+                        <li>✗ No real-time alerts</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="selectPlan('free')">
+                        Get Started
+                    </button>
+                </div>
+                
+                <!-- Basic Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>Basic</h3>
+                        <div class="price">
+                            <span class="amount">$29.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Unlimited market scanning</li>
+                        <li>✓ Advanced technical analysis</li>
+                        <li>✓ Real-time alerts</li>
+                        <li>✓ Email support</li>
+                        <li>✓ 50 AI predictions/month</li>
+                        <li>✓ Up to 20 symbols per scan</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="selectPlan('basic')">
+                        Choose Basic
+                    </button>
+                </div>
+                
+                <!-- Pro Plan (Popular) -->
+                <div class="pricing-card featured">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="plan-header">
+                        <h3>Professional</h3>
+                        <div class="price">
+                            <span class="amount">$79.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Basic</li>
+                        <li>✓ AI-powered predictions</li>
+                        <li>✓ Pattern recognition</li>
+                        <li>✓ Portfolio management</li>
+                        <li>✓ Priority support</li>
+                        <li>✓ Unlimited AI predictions</li>
+                        <li>✓ API access</li>
+                        <li>✓ Unlimited symbols</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="selectPlan('pro')">
+                        Choose Pro
+                    </button>
+                </div>
+                
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>Enterprise</h3>
+                        <div class="price">
+                            <span class="amount">$299.99</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Pro</li>
+                        <li>✓ Custom AI models</li>
+                        <li>✓ Dedicated support</li>
+                        <li>✓ White-label options</li>
+                        <li>✓ Multiple user accounts (10)</li>
+                        <li>✓ Advanced API access</li>
+                        <li>✓ Custom integrations</li>
+                        <li>✓ Priority data feed</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="selectPlan('enterprise')">
+                        Choose Enterprise
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pricing-footer">
+                <p>All plans include a 14-day money-back guarantee</p>
+                <p>Need a custom plan? <a href="/contact">Contact us</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/pricing.js"></script>
+</body>
+</html>

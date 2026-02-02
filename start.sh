@@ -1,8 +1,8 @@
 #!/bin/bash
-# SignalTrust AI Scanner Startup Script for Linux/Mac
+# SignalTrust AI Market Scanner Startup Script for Linux/Mac
 
 echo "========================================"
-echo "SignalTrust AI Scanner - Starting..."
+echo "SignalTrust AI Market Scanner - Starting..."
 echo "========================================"
 echo ""
 
@@ -18,7 +18,7 @@ PYTHON_VERSION=$(python3 --version)
 echo "Using $PYTHON_VERSION"
 echo ""
 
-# Check if requirements are installed (optional, since we have no required packages)
+# Check if requirements are installed
 if [ -f "requirements.txt" ]; then
     echo "Installing dependencies..."
     python3 -m pip install -r requirements.txt --quiet
@@ -26,18 +26,10 @@ if [ -f "requirements.txt" ]; then
     echo ""
 fi
 
-# Check for command line arguments
-if [ $# -eq 0 ]; then
-    echo "Starting SignalTrust AI Scanner in interactive mode..."
-    echo ""
-    python3 scanner.py
-else
-    echo "Starting SignalTrust AI Scanner with arguments..."
-    echo ""
-    python3 scanner.py "$@"
-fi
-
+echo "Starting SignalTrust AI Market Scanner Web Application..."
+echo "Access the application at: http://localhost:5000"
+echo "Press CTRL+C to stop the server"
 echo ""
-echo "========================================"
-echo "SignalTrust AI Scanner - Finished"
-echo "========================================"
+
+# Start the Flask web application
+python3 app.py

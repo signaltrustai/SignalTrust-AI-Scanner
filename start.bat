@@ -1,8 +1,8 @@
 @echo off
-REM SignalTrust AI Scanner Startup Script for Windows
+REM SignalTrust AI Market Scanner Startup Script for Windows
 
 echo ========================================
-echo SignalTrust AI Scanner - Starting...
+echo SignalTrust AI Market Scanner - Starting...
 echo ========================================
 echo.
 
@@ -20,7 +20,7 @@ echo Using Python:
 python --version
 echo.
 
-REM Check if requirements are installed (optional, since we have no required packages)
+REM Check if requirements are installed
 if exist requirements.txt (
     echo Installing dependencies...
     python -m pip install -r requirements.txt --quiet
@@ -28,19 +28,12 @@ if exist requirements.txt (
     echo.
 )
 
-REM Check for command line arguments
-if "%~1"=="" (
-    echo Starting SignalTrust AI Scanner in interactive mode...
-    echo.
-    python scanner.py
-) else (
-    echo Starting SignalTrust AI Scanner with arguments...
-    echo.
-    python scanner.py %*
-)
-
+echo Starting SignalTrust AI Market Scanner Web Application...
+echo Access the application at: http://localhost:5000
+echo Press CTRL+C to stop the server
 echo.
-echo ========================================
-echo SignalTrust AI Scanner - Finished
-echo ========================================
+
+REM Start the Flask web application
+python app.py
+
 pause

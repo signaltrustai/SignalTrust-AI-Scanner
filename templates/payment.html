@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - SignalTrust AI Market Scanner</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="payment-page">
+            <div class="payment-container">
+                <div class="payment-header">
+                    <h1>Complete Your Payment</h1>
+                    <p>Secure checkout - Your information is protected</p>
+                </div>
+                
+                <div class="payment-layout">
+                    <!-- Left Side - Payment Form -->
+                    <div class="payment-form-section">
+                        <form id="paymentForm">
+                            <div class="section-title">Payment Method</div>
+                            
+                            <div class="payment-methods">
+                                <label class="payment-method-option">
+                                    <input type="radio" name="paymentType" value="card" checked>
+                                    <span>💳 Credit/Debit Card</span>
+                                </label>
+                                <label class="payment-method-option">
+                                    <input type="radio" name="paymentType" value="paypal">
+                                    <span>🅿️ PayPal</span>
+                                </label>
+                                <label class="payment-method-option">
+                                    <input type="radio" name="paymentType" value="crypto">
+                                    <span>₿ Cryptocurrency</span>
+                                </label>
+                            </div>
+                            
+                            <!-- Card Payment Fields -->
+                            <div id="cardFields" class="payment-fields">
+                                <div class="form-group">
+                                    <label for="cardNumber">Card Number</label>
+                                    <input type="text" id="cardNumber" name="cardNumber" 
+                                           placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                    <div id="cardValidation" class="validation-message"></div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expMonth">Expiry Month</label>
+                                        <select id="expMonth" name="expMonth" required>
+                                            <option value="">MM</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="expYear">Expiry Year</label>
+                                        <select id="expYear" name="expYear" required>
+                                            <option value="">YYYY</option>
+                                            <option value="2026">2026</option>
+                                            <option value="2027">2027</option>
+                                            <option value="2028">2028</option>
+                                            <option value="2029">2029</option>
+                                            <option value="2030">2030</option>
+                                            <option value="2031">2031</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="cvv">CVV</label>
+                                        <input type="text" id="cvv" name="cvv" 
+                                               placeholder="123" maxlength="4" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="cardName">Cardholder Name</label>
+                                    <input type="text" id="cardName" name="cardName" 
+                                           placeholder="Name on card" required>
+                                </div>
+                            </div>
+                            
+                            <!-- PayPal Fields -->
+                            <div id="paypalFields" class="payment-fields" style="display:none;">
+                                <div class="form-group">
+                                    <label for="paypalEmail">PayPal Email</label>
+                                    <input type="email" id="paypalEmail" name="paypalEmail" 
+                                           placeholder="your@email.com">
+                                </div>
+                                <p class="info-text">You will be redirected to PayPal to complete your payment.</p>
+                            </div>
+                            
+                            <!-- Crypto Fields -->
+                            <div id="cryptoFields" class="payment-fields" style="display:none;">
+                                <div class="form-group">
+                                    <label for="walletAddress">Wallet Address</label>
+                                    <input type="text" id="walletAddress" name="walletAddress" 
+                                           placeholder="Your crypto wallet address">
+                                </div>
+                                <p class="info-text">We accept Bitcoin, Ethereum, and USDT</p>
+                            </div>
+                            
+                            <div class="section-title">Billing Information</div>
+                            
+                            <div class="form-group">
+                                <label for="billingEmail">Email Address</label>
+                                <input type="email" id="billingEmail" name="billingEmail" 
+                                       placeholder="your@email.com" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="billingAddress">Billing Address</label>
+                                <input type="text" id="billingAddress" name="billingAddress" 
+                                       placeholder="Street address" required>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city" placeholder="City" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="zipCode">ZIP Code</label>
+                                    <input type="text" id="zipCode" name="zipCode" placeholder="12345" required>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="country">Country</label>
+                                <select id="country" name="country" required>
+                                    <option value="">Select Country</option>
+                                    <option value="US">United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="FR">France</option>
+                                    <option value="DE">Germany</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <label>
+                                    <input type="checkbox" id="savePayment">
+                                    Save payment method for future purchases
+                                </label>
+                            </div>
+                            
+                            <div id="errorMessage" class="error-message" style="display: none;"></div>
+                            <div id="successMessage" class="success-message" style="display: none;"></div>
+                            
+                            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                                Complete Payment
+                            </button>
+                        </form>
+                        
+                        <div class="security-notice">
+                            <span>🔒</span>
+                            <p>Your payment information is encrypted and secure. We never store your full card details.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Side - Order Summary -->
+                    <div class="order-summary">
+                        <h3>Order Summary</h3>
+                        
+                        <div class="summary-item">
+                            <div class="item-details">
+                                <strong id="planName">Professional Plan</strong>
+                                <p>Monthly subscription</p>
+                            </div>
+                            <div class="item-price" id="planPrice">$79.99</div>
+                        </div>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">$79.99</span>
+                        </div>
+                        
+                        <div class="summary-row">
+                            <span>Tax (10%)</span>
+                            <span id="tax">$8.00</span>
+                        </div>
+                        
+                        <div class="summary-divider"></div>
+                        
+                        <div class="summary-row total">
+                            <strong>Total</strong>
+                            <strong id="total">$87.99</strong>
+                        </div>
+                        
+                        <div class="plan-features">
+                            <p><strong>Included Features:</strong></p>
+                            <ul id="featuresList">
+                                <li>✓ AI-powered predictions</li>
+                                <li>✓ Unlimited market scanning</li>
+                                <li>✓ Pattern recognition</li>
+                                <li>✓ Portfolio management</li>
+                                <li>✓ API access</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="money-back">
+                            <p>💰 14-day money-back guarantee</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/payment.js"></script>
+</body>
+</html>
