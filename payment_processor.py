@@ -115,7 +115,7 @@ class PaymentProcessor:
             try:
                 with open(self.transactions_file, 'r') as f:
                     self.transactions = json.load(f)
-            except:
+            except (json.JSONDecodeError, IOError, FileNotFoundError):
                 self.transactions = []
         else:
             self.transactions = []

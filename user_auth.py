@@ -38,7 +38,7 @@ class UserAuth:
             try:
                 with open(self.users_file, 'r') as f:
                     self.users = json.load(f)
-            except:
+            except (json.JSONDecodeError, IOError, FileNotFoundError):
                 self.users = {}
         else:
             self.users = {}
