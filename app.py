@@ -22,6 +22,7 @@ from realtime_market_data import RealTimeMarketData
 from notification_center import NotificationCenter, NotificationType, NotificationPriority
 from whale_watcher import WhaleWatcher
 from ai_market_intelligence import AIMarketIntelligence
+from ai_chat_system import AIChatSystem
 
 app = Flask(__name__)
 CORS(app)
@@ -42,6 +43,13 @@ whale_watcher = WhaleWatcher()
 ai_intelligence = AIMarketIntelligence(
     asi1_integration=asi1_ai,
     realtime_data=realtime_data,
+    whale_watcher=whale_watcher
+)
+
+# Initialize AI Chat System
+ai_chat = AIChatSystem(
+    asi1_integration=asi1_ai,
+    ai_intelligence=ai_intelligence,
     whale_watcher=whale_watcher
 )
 
@@ -130,6 +138,83 @@ def notifications_page():
 def ai_intelligence_page():
     """AI Market Intelligence page."""
     return render_template('ai_intelligence.html')
+
+
+@app.route('/ai-chat')
+def ai_chat_page():
+    """AI Chat page (owner-only access)."""
+    return render_template('ai_chat.html')
+
+
+# ============================================================================
+# PWA Support Routes
+# ============================================================================
+
+@app.route('/manifest.json')
+def manifest():
+    """PWA manifest for mobile app support."""
+    return jsonify({
+        "name": "SignalTrust AI Scanner",
+        "short_name": "SignalTrust",
+        "description": "Ultimate AI-powered crypto & market scanner",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#0a0e27",
+        "theme_color": "#ffd700",
+        "orientation": "any",
+        "icons": [
+            {
+                "src": "/static/icons/icon-72x72.png",
+                "sizes": "72x72",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-96x96.png",
+                "sizes": "96x96",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-128x128.png",
+                "sizes": "128x128",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-144x144.png",
+                "sizes": "144x144",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-152x152.png",
+                "sizes": "152x152",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-192x192.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-384x384.png",
+                "sizes": "384x384",
+                "type": "image/png"
+            },
+            {
+                "src": "/static/icons/icon-512x512.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ],
+        "categories": ["finance", "productivity"],
+        "screenshots": [],
+        "related_applications": [],
+        "prefer_related_applications": False
+    })
+
+
+@app.route('/service-worker.js')
+def service_worker():
+    """Service worker for PWA offline capability."""
+    return send_from_directory('static/js', 'service-worker.js')
 
 
 # ============================================================================
@@ -1008,6 +1093,111 @@ def get_market_predictions():
         else:
             return jsonify(result), 500
             
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - AI Chat System
+# ============================================================================
+
+@app.route('/api/ai-chat/modes', methods=['GET'])
+def get_ai_chat_modes():
+    """Get available AI chat modes."""
+    try:
+        modes = ai_chat.get_ai_modes()
+        return jsonify({
+            'success': True,
+            'modes': modes
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai-chat/message', methods=['POST'])
+def send_ai_chat_message():
+    """Send message to AI chat system."""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id', '')
+        message = data.get('message', '')
+        ai_mode = data.get('ai_mode', 'auto')
+        
+        if not message:
+            return jsonify({
+                'success': False,
+                'error': 'Message is required'
+            }), 400
+        
+        # Check access
+        if not ai_chat.check_access(user_id):
+            return jsonify({
+                'success': False,
+                'error': 'Access denied',
+                'message': 'AI Chat is currently restricted to owner only. Contact administrator for access.'
+            }), 403
+        
+        # Process chat message
+        result = ai_chat.chat(user_id, message, ai_mode)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai-chat/history', methods=['GET'])
+def get_ai_chat_history():
+    """Get conversation history for user."""
+    try:
+        user_id = request.args.get('user_id', '')
+        
+        if not ai_chat.check_access(user_id):
+            return jsonify({
+                'success': False,
+                'error': 'Access denied'
+            }), 403
+        
+        history = ai_chat.get_conversation_history(user_id)
+        
+        return jsonify({
+            'success': True,
+            'history': history
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai-chat/clear', methods=['POST'])
+def clear_ai_chat_history():
+    """Clear conversation history for user."""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id', '')
+        
+        if not ai_chat.check_access(user_id):
+            return jsonify({
+                'success': False,
+                'error': 'Access denied'
+            }), 403
+        
+        ai_chat.clear_history(user_id)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Chat history cleared'
+        })
     except Exception as e:
         return jsonify({
             'success': False,
