@@ -1,0 +1,23 @@
+{
+  "scanner": {
+    "version": "1.0.0",
+    "name": "SignalTrust AI Scanner",
+    "description": "AI-powered content scanning and analysis tool"
+  },
+  "settings": {
+    "verbose": false,
+    "output_format": "json",
+    "max_file_size": 10485760
+  },
+  "security": {
+    "enable_security_checks": true,
+    "sensitive_patterns": [
+      "password",
+      "api_key",
+      "secret",
+      "token",
+      "private_key",
+      "credential"
+    ]
+  }
+}

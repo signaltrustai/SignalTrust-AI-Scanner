@@ -1,0 +1,8 @@
+# SignalTrust AI Scanner Dependencies
+# Python 3.7+
+
+# Core dependencies (none required for basic functionality)
+# Add additional dependencies as needed:
+# requests>=2.28.0  # For URL scanning
+# beautifulsoup4>=4.11.0  # For HTML parsing
+# numpy>=1.21.0  # For advanced analysis
