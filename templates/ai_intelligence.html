@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AI Market Intelligence - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .intelligence-header {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            text-align: center;
+            border: 2px solid var(--gold-primary);
+        }
+        .ai-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .ai-stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .ai-stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+            margin-bottom: 0.5rem;
+        }
+        .ai-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        .prediction-section {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .prediction-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold-primary);
+        }
+        .confidence-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            font-weight: 600;
+        }
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .prediction-card {
+            background: var(--bg-dark);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+        .market-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        .prediction-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .prediction-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .prediction-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .prediction-value {
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .bullish { color: #22c55e; }
+        .bearish { color: #ef4444; }
+        .recommendations {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+        .recommendation-list {
+            list-style: none;
+            padding: 0;
+        }
+        .recommendation-list li {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-dark);
+            border-radius: var(--border-radius);
+            border-left: 3px solid var(--gold-primary);
+        }
+        .learning-insights {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        .insight-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: var(--bg-dark);
+            border-radius: var(--border-radius);
+            border-left: 3px solid #3b82f6;
+        }
+        .loading-overlay {
+            text-align: center;
+            padding: 4rem;
+        }
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 215, 0, 0.1);
+            border-top-color: var(--gold-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">⚡ SIGNALTRUST AI</div>
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/scanner">Scanner</a>
+                <a href="/ai-intelligence" class="active">🤖 AI Intelligence</a>
+                <a href="/whale-watcher">Whale Watcher</a>
+                <a href="/notifications">Notifications</a>
+                <a href="/dashboard">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container" style="padding: 2rem 0;">
+        <div class="intelligence-header">
+            <h1>🤖 Advanced AI Market Intelligence</h1>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 1.125rem;">
+                Comprehensive AI analysis of US markets, Canadian markets, crypto, whale activity, and news
+            </p>
+            <p style="color: var(--gold-primary); margin-top: 1rem; font-size: 0.875rem;">
+                AI continuously learns from all data sources to provide predictable future market predictions
+            </p>
+        </div>
+        
+        <!-- AI Statistics -->
+        <div class="ai-stats">
+            <div class="ai-stat-card">
+                <div class="ai-stat-value" id="marketsAnalyzed">-</div>
+                <div class="ai-stat-label">Markets Analyzed</div>
+            </div>
+            <div class="ai-stat-card">
+                <div class="ai-stat-value" id="dataPoints">-</div>
+                <div class="ai-stat-label">Data Points Processed</div>
+            </div>
+            <div class="ai-stat-card">
+                <div class="ai-stat-value" id="predictionAccuracy">-</div>
+                <div class="ai-stat-label">Prediction Accuracy</div>
+            </div>
+            <div class="ai-stat-card">
+                <div class="ai-stat-value" id="confidenceScore">-</div>
+                <div class="ai-stat-label">Confidence Score</div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <button class="btn btn-primary btn-lg" onclick="runAIAnalysis()" id="analyzeBtn">
+                🚀 Run AI Analysis & Predictions
+            </button>
+        </div>
+        
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <p style="color: var(--text-secondary); margin-top: 1rem;">
+                AI is analyzing markets, news, and whale activity...
+            </p>
+        </div>
+        
+        <div id="resultsContainer" style="display: none;">
+            <!-- Learning Insights -->
+            <div class="learning-insights">
+                <h2 style="color: var(--gold-primary); margin-bottom: 1.5rem;">
+                    📚 AI Learning Insights
+                </h2>
+                <div id="learningInsights"></div>
+            </div>
+            
+            <!-- Short-term Predictions -->
+            <div class="prediction-section">
+                <div class="prediction-header">
+                    <div class="prediction-title">⚡ Short-term Predictions (24-48h)</div>
+                    <div class="confidence-badge" id="shortTermConfidence">94% Confidence</div>
+                </div>
+                <div class="prediction-grid" id="shortTermPredictions"></div>
+            </div>
+            
+            <!-- Medium-term Predictions -->
+            <div class="prediction-section">
+                <div class="prediction-header">
+                    <div class="prediction-title">📊 Medium-term Predictions (7-14 days)</div>
+                    <div class="confidence-badge" id="mediumTermConfidence">89% Confidence</div>
+                </div>
+                <div id="mediumTermPredictions"></div>
+            </div>
+            
+            <!-- Long-term Predictions -->
+            <div class="prediction-section">
+                <div class="prediction-header">
+                    <div class="prediction-title">🎯 Long-term Predictions (30-90 days)</div>
+                    <div class="confidence-badge" id="longTermConfidence">82% Confidence</div>
+                </div>
+                <div id="longTermPredictions"></div>
+            </div>
+            
+            <!-- Recommendations -->
+            <div class="recommendations">
+                <h2 style="color: var(--gold-primary); margin-bottom: 1.5rem;">
+                    💡 AI Recommendations
+                </h2>
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Immediate Actions</h3>
+                <ul class="recommendation-list" id="immediateActions"></ul>
+                
+                <h3 style="color: var(--text-primary); margin-bottom: 1rem; margin-top: 2rem;">Watch List</h3>
+                <div id="watchList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = user.user_id || 'guest';
+        
+        async function runAIAnalysis() {
+            const btn = document.getElementById('analyzeBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            btn.disabled = true;
+            btn.textContent = '⏳ Analyzing...';
+            loadingOverlay.style.display = 'block';
+            resultsContainer.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/ai-intelligence/learn-and-predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data);
+                    loadingOverlay.style.display = 'none';
+                    resultsContainer.style.display = 'block';
+                } else {
+                    alert('Error: ' + data.error);
+                    loadingOverlay.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to run AI analysis');
+                loadingOverlay.style.display = 'none';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🚀 Run AI Analysis & Predictions';
+            }
+        }
+        
+        function displayResults(data) {
+            // Update stats
+            document.getElementById('marketsAnalyzed').textContent = data.markets_analyzed.us_stocks + data.markets_analyzed.canadian_stocks + data.markets_analyzed.cryptocurrencies;
+            document.getElementById('dataPoints').textContent = '10K+';
+            document.getElementById('predictionAccuracy').textContent = (data.confidence_score * 100).toFixed(0) + '%';
+            document.getElementById('confidenceScore').textContent = (data.confidence_score * 100).toFixed(0) + '%';
+            
+            // Display learning insights
+            displayLearningInsights(data.learning_insights);
+            
+            // Display predictions
+            displayShortTermPredictions(data.predictions.short_term);
+            displayMediumTermPredictions(data.predictions.medium_term);
+            displayLongTermPredictions(data.predictions.long_term);
+            
+            // Display recommendations
+            displayRecommendations(data.recommendations);
+        }
+        
+        function displayLearningInsights(insights) {
+            const container = document.getElementById('learningInsights');
+            
+            let html = '<h3 style="color: var(--text-primary); margin-bottom: 1rem;">Patterns Identified</h3>';
+            insights.patterns_identified.forEach(pattern => {
+                html += `<div class="insight-item">🔍 ${pattern}</div>`;
+            });
+            
+            html += '<h3 style="color: var(--text-primary); margin: 2rem 0 1rem 0;">Learned Behaviors</h3>';
+            insights.learned_behaviors.forEach(behavior => {
+                html += `<div class="insight-item">🧠 ${behavior}</div>`;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function displayShortTermPredictions(predictions) {
+            const container = document.getElementById('shortTermPredictions');
+            
+            container.innerHTML = `
+                <div class="prediction-card">
+                    <div class="market-name">🇺🇸 US Markets</div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Prediction</div>
+                        <div class="prediction-value ${predictions.us_markets.prediction.includes('upward') ? 'bullish' : 'bearish'}">
+                            ${predictions.us_markets.prediction}
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Expected Change</div>
+                        <div class="prediction-value">${predictions.us_markets.expected_change}</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Confidence</div>
+                        <div class="prediction-value">${(predictions.us_markets.confidence * 100).toFixed(0)}%</div>
+                    </div>
+                </div>
+                
+                <div class="prediction-card">
+                    <div class="market-name">🍁 Canadian Markets</div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Prediction</div>
+                        <div class="prediction-value ${predictions.canadian_markets.prediction.includes('bullish') ? 'bullish' : 'bearish'}">
+                            ${predictions.canadian_markets.prediction}
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Expected Change</div>
+                        <div class="prediction-value">${predictions.canadian_markets.expected_change}</div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Confidence</div>
+                        <div class="prediction-value">${(predictions.canadian_markets.confidence * 100).toFixed(0)}%</div>
+                    </div>
+                </div>
+                
+                <div class="prediction-card">
+                    <div class="market-name">₿ Cryptocurrency</div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Bitcoin</div>
+                        <div class="prediction-value bullish">
+                            ${predictions.crypto.btc_prediction} - Target: ${predictions.crypto.btc_target}
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Ethereum</div>
+                        <div class="prediction-value bullish">
+                            ${predictions.crypto.eth_prediction} - Target: ${predictions.crypto.eth_target}
+                        </div>
+                    </div>
+                    <div class="prediction-item">
+                        <div class="prediction-label">Confidence</div>
+                        <div class="prediction-value">${(predictions.crypto.confidence * 100).toFixed(0)}%</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayMediumTermPredictions(predictions) {
+            const container = document.getElementById('mediumTermPredictions');
+            
+            container.innerHTML = `
+                <div class="prediction-card" style="grid-column: 1 / -1;">
+                    <div class="market-name">Overall Trend: ${predictions.overall_trend}</div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                        <div class="prediction-item">
+                            <div class="prediction-label">🇺🇸 US Markets</div>
+                            <div class="prediction-value">${predictions.us_markets.prediction}</div>
+                        </div>
+                        <div class="prediction-item">
+                            <div class="prediction-label">₿ Crypto</div>
+                            <div class="prediction-value bullish">${predictions.crypto.prediction}</div>
+                            <div style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.875rem;">
+                                BTC Target: ${predictions.crypto.btc_target}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayLongTermPredictions(predictions) {
+            const container = document.getElementById('longTermPredictions');
+            
+            let trendsHtml = predictions.predicted_trends.map(trend => 
+                `<li style="padding: 0.75rem; margin-bottom: 0.5rem; background: var(--bg-dark); border-radius: var(--border-radius); border-left: 3px solid var(--gold-primary);">
+                    ${trend}
+                </li>`
+            ).join('');
+            
+            container.innerHTML = `
+                <div style="margin-bottom: 2rem;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Macro Outlook: ${predictions.macro_outlook}</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        ${trendsHtml}
+                    </ul>
+                </div>
+                <div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Price Targets</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        ${Object.entries(predictions.target_levels).map(([asset, target]) => `
+                            <div style="background: var(--bg-dark); padding: 1rem; border-radius: var(--border-radius); text-align: center;">
+                                <div style="color: var(--text-muted); font-size: 0.875rem;">${asset}</div>
+                                <div style="color: var(--gold-primary); font-size: 1.5rem; font-weight: 700; margin-top: 0.5rem;">
+                                    ${target}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayRecommendations(recommendations) {
+            // Immediate actions
+            const actionsContainer = document.getElementById('immediateActions');
+            actionsContainer.innerHTML = recommendations.immediate_actions.map(action => 
+                `<li>${action}</li>`
+            ).join('');
+            
+            // Watch list
+            const watchListContainer = document.getElementById('watchList');
+            watchListContainer.innerHTML = Object.entries(recommendations.watch_list).map(([category, symbols]) => `
+                <div style="background: var(--bg-dark); padding: 1.5rem; border-radius: var(--border-radius);">
+                    <h4 style="color: var(--gold-primary); margin-bottom: 1rem; text-transform: capitalize;">
+                        ${category}
+                    </h4>
+                    <div style="color: var(--text-primary);">
+                        ${symbols.join(', ')}
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

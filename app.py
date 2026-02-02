@@ -21,6 +21,7 @@ from asi1_integration import ASI1AIIntegration
 from realtime_market_data import RealTimeMarketData
 from notification_center import NotificationCenter, NotificationType, NotificationPriority
 from whale_watcher import WhaleWatcher
+from ai_market_intelligence import AIMarketIntelligence
 
 app = Flask(__name__)
 CORS(app)
@@ -36,6 +37,13 @@ asi1_ai = ASI1AIIntegration()
 realtime_data = RealTimeMarketData()
 notification_center = NotificationCenter()
 whale_watcher = WhaleWatcher()
+
+# Initialize Advanced AI Intelligence System
+ai_intelligence = AIMarketIntelligence(
+    asi1_integration=asi1_ai,
+    realtime_data=realtime_data,
+    whale_watcher=whale_watcher
+)
 
 # Configuration
 app.config['SECRET_KEY'] = 'signaltrust-ai-scanner-2026'
@@ -116,6 +124,12 @@ def whale_watcher_page():
 def notifications_page():
     """Notifications center page."""
     return render_template('notifications.html')
+
+
+@app.route('/ai-intelligence')
+def ai_intelligence_page():
+    """AI Market Intelligence page."""
+    return render_template('ai_intelligence.html')
 
 
 # ============================================================================
@@ -902,6 +916,98 @@ def ai_market_summary():
         summary = asi1_ai.get_ai_market_summary(markets)
         
         return jsonify(summary)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - Advanced AI Intelligence System
+# ============================================================================
+
+@app.route('/api/ai-intelligence/comprehensive-scan', methods=['GET'])
+def ai_comprehensive_scan():
+    """Perform comprehensive AI market scan of all markets."""
+    try:
+        intelligence = ai_intelligence.comprehensive_market_scan()
+        
+        return jsonify({
+            'success': True,
+            'intelligence': intelligence,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai-intelligence/learn-and-predict', methods=['POST'])
+def ai_learn_and_predict():
+    """AI learns from all data and generates predictions."""
+    try:
+        data = request.get_json() or {}
+        user_id = data.get('user_id')
+        
+        result = ai_intelligence.learn_and_predict(user_id)
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai-intelligence/learning-stats', methods=['GET'])
+def ai_learning_stats():
+    """Get AI learning statistics."""
+    try:
+        stats = ai_intelligence.get_learning_statistics()
+        
+        return jsonify({
+            'success': True,
+            'statistics': stats,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai-intelligence/market-predictions', methods=['GET'])
+def get_market_predictions():
+    """Get comprehensive market predictions from AI."""
+    try:
+        user_id = request.args.get('user_id')
+        
+        # Get predictions
+        result = ai_intelligence.learn_and_predict(user_id)
+        
+        if result['success']:
+            # Create notification for user if provided
+            if user_id:
+                notification_center.create_ai_insight(
+                    user_id=user_id,
+                    insight=f"New AI predictions available with {result['confidence_score']*100}% confidence",
+                    symbol=None
+                )
+            
+            return jsonify({
+                'success': True,
+                'predictions': result['predictions'],
+                'recommendations': result['recommendations'],
+                'confidence': result['confidence_score'],
+                'timestamp': datetime.now().isoformat()
+            })
+        else:
+            return jsonify(result), 500
+            
     except Exception as e:
         return jsonify({
             'success': False,

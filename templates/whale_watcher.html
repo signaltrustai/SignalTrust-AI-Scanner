@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐋 Whale Watcher - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .whale-header {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .whale-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .whale-stat-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+        }
+        .whale-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        .whale-stat-value {
+            color: var(--gold-primary);
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+        .transaction-card {
+            background: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+        }
+        .transaction-card:hover {
+            border-color: var(--gold-primary);
+            transform: translateX(5px);
+        }
+        .tx-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .tx-amount {
+            color: var(--gold-primary);
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .tx-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-critical { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .badge-high { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .badge-medium { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .access-denied {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            text-align: center;
+            border: 2px solid var(--border-color);
+        }
+        .upgrade-btn {
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">⚡ SIGNALTRUST AI</div>
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/scanner">Scanner</a>
+                <a href="/whale-watcher" class="active">🐋 Whale Watcher</a>
+                <a href="/notifications">Notifications</a>
+                <a href="/dashboard">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container" style="padding: 2rem 0;">
+        <div class="whale-header">
+            <h1>🐋 Whale Watcher</h1>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem;">
+                Track large crypto & NFT transactions in real-time
+            </p>
+            <p style="color: var(--gold-primary); font-size: 0.875rem; margin-top: 0.5rem;">
+                🔒 Premium Feature - Pro & Enterprise Plans Only
+            </p>
+        </div>
+        
+        <div id="accessDenied" class="access-denied" style="display: none;">
+            <h2 style="color: var(--gold-primary); margin-bottom: 1rem;">🔒 Access Restricted</h2>
+            <p style="color: var(--text-secondary); font-size: 1.125rem; margin-bottom: 1rem;">
+                Whale Watcher is available exclusively for Pro and Enterprise subscribers.
+            </p>
+            <p style="color: var(--text-secondary);">
+                Upgrade your plan to track whale movements and gain insights into large market transactions.
+            </p>
+            <a href="/pricing" class="btn btn-primary btn-lg upgrade-btn">
+                Upgrade to Pro Plan
+            </a>
+        </div>
+        
+        <div id="whaleContent" style="display: none;">
+            <!-- Whale Statistics -->
+            <div class="whale-stats">
+                <div class="whale-stat-card">
+                    <div class="whale-stat-label">24h Transactions</div>
+                    <div class="whale-stat-value" id="stat24hTx">-</div>
+                </div>
+                <div class="whale-stat-card">
+                    <div class="whale-stat-label">24h Volume</div>
+                    <div class="whale-stat-value" id="stat24hVol">-</div>
+                </div>
+                <div class="whale-stat-card">
+                    <div class="whale-stat-label">Avg Transaction</div>
+                    <div class="whale-stat-value" id="statAvgTx">-</div>
+                </div>
+                <div class="whale-stat-card">
+                    <div class="whale-stat-label">Active Whales</div>
+                    <div class="whale-stat-value" id="statActiveWhales">-</div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <button class="btn btn-primary" onclick="loadWhaleTransactions()">
+                    🔄 Refresh Transactions
+                </button>
+                <button class="btn btn-outline" onclick="loadNFTMovements()">
+                    🎨 NFT Movements
+                </button>
+            </div>
+            
+            <!-- Recent Whale Transactions -->
+            <h2 style="color: var(--gold-primary); margin-bottom: 1.5rem;">
+                Recent Whale Transactions
+            </h2>
+            <div id="whaleTransactions">
+                <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                    Loading whale transactions...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Get user info from localStorage
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = user.user_id || '';
+        const userPlan = user.plan || 'free';
+        
+        // Check access
+        const hasAccess = ['pro', 'enterprise'].includes(userPlan) || userId === 'owner_admin_001';
+        
+        if (hasAccess) {
+            document.getElementById('whaleContent').style.display = 'block';
+            loadWhaleData();
+        } else {
+            document.getElementById('accessDenied').style.display = 'block';
+        }
+        
+        async function loadWhaleData() {
+            await loadWhaleStatistics();
+            await loadWhaleTransactions();
+        }
+        
+        async function loadWhaleStatistics() {
+            try {
+                const response = await fetch(`/api/whale/statistics?user_id=${userId}&user_plan=${userPlan}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.stats;
+                    document.getElementById('stat24hTx').textContent = stats.total_transactions_24h;
+                    document.getElementById('stat24hVol').textContent = stats.total_value_24h_usd;
+                    document.getElementById('statAvgTx').textContent = stats.avg_transaction_size;
+                    document.getElementById('statActiveWhales').textContent = stats.whale_count_active;
+                }
+            } catch (error) {
+                console.error('Error loading whale statistics:', error);
+            }
+        }
+        
+        async function loadWhaleTransactions() {
+            try {
+                const response = await fetch(`/api/whale/transactions?user_id=${userId}&user_plan=${userPlan}&limit=20`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayTransactions(data.transactions);
+                } else {
+                    document.getElementById('whaleTransactions').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: var(--red);">
+                            ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading whale transactions:', error);
+            }
+        }
+        
+        async function loadNFTMovements() {
+            try {
+                const response = await fetch(`/api/whale/nft-movements?user_id=${userId}&user_plan=${userPlan}&limit=15`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayNFTMovements(data.movements);
+                }
+            } catch (error) {
+                console.error('Error loading NFT movements:', error);
+            }
+        }
+        
+        function displayTransactions(transactions) {
+            const container = document.getElementById('whaleTransactions');
+            
+            if (!transactions || transactions.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No transactions found</p>';
+                return;
+            }
+            
+            container.innerHTML = transactions.map(tx => `
+                <div class="transaction-card">
+                    <div class="tx-header">
+                        <div>
+                            <div class="tx-amount">$${tx.value_usd.toLocaleString()}</div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                                ${tx.amount} ${tx.token}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="tx-badge ${getBadgeClass(tx.value_usd)}">
+                                ${tx.type}
+                            </span>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.875rem;">
+                        <div>
+                            <div style="color: var(--text-muted);">Chain</div>
+                            <div style="color: var(--text-primary);">${tx.chain}</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-muted);">Time</div>
+                            <div style="color: var(--text-primary);">${formatTime(tx.timestamp)}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-muted);">
+                        TX: ${tx.tx_hash.substring(0, 20)}...
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function displayNFTMovements(movements) {
+            const container = document.getElementById('whaleTransactions');
+            
+            if (!movements || movements.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No NFT movements found</p>';
+                return;
+            }
+            
+            container.innerHTML = movements.map(nft => `
+                <div class="transaction-card">
+                    <div class="tx-header">
+                        <div>
+                            <div style="font-size: 1.25rem; font-weight: 700; color: var(--gold-primary);">
+                                ${nft.collection}
+                            </div>
+                            <div style="color: var(--text-secondary); font-size: 0.875rem;">
+                                ${nft.token_id}
+                            </div>
+                        </div>
+                        <div class="tx-amount" style="font-size: 1.25rem;">
+                            ${nft.sale_price_eth} ETH
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-top: 1rem; font-size: 0.875rem;">
+                        <div>
+                            <div style="color: var(--text-muted);">USD Price</div>
+                            <div style="color: var(--text-primary);">$${nft.sale_price_usd.toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-muted);">Floor</div>
+                            <div style="color: var(--text-primary);">${nft.floor_price_eth} ETH</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-muted);">Premium</div>
+                            <div style="color: ${nft.premium > 0 ? 'var(--green)' : 'var(--red)'};">
+                                ${nft.premium > 0 ? '+' : ''}${nft.premium}%
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
+                        ${nft.marketplace} • ${formatTime(nft.timestamp)}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getBadgeClass(value) {
+            if (value > 1000000) return 'badge-critical';
+            if (value > 500000) return 'badge-high';
+            return 'badge-medium';
+        }
+        
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000 / 60); // minutes
+            
+            if (diff < 60) return `${diff}m ago`;
+            if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+            return `${Math.floor(diff / 1440)}d ago`;
+        }
+    </script>
+</body>
+</html>
