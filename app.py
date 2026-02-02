@@ -17,6 +17,10 @@ from ai_predictor import AIPredictor
 from user_auth import UserAuth
 from payment_processor import PaymentProcessor
 from coupon_manager import CouponManager
+from asi1_integration import ASI1AIIntegration
+from realtime_market_data import RealTimeMarketData
+from notification_center import NotificationCenter, NotificationType, NotificationPriority
+from whale_watcher import WhaleWatcher
 
 app = Flask(__name__)
 CORS(app)
@@ -28,6 +32,10 @@ ai_predictor = AIPredictor()
 user_auth = UserAuth()
 payment_processor = PaymentProcessor()
 coupon_manager = CouponManager()
+asi1_ai = ASI1AIIntegration()
+realtime_data = RealTimeMarketData()
+notification_center = NotificationCenter()
+whale_watcher = WhaleWatcher()
 
 # Configuration
 app.config['SECRET_KEY'] = 'signaltrust-ai-scanner-2026'
@@ -96,6 +104,18 @@ def payment_page():
 def dashboard_page():
     """User dashboard page."""
     return render_template('dashboard.html')
+
+
+@app.route('/whale-watcher')
+def whale_watcher_page():
+    """Whale watcher page (restricted access)."""
+    return render_template('whale_watcher.html')
+
+
+@app.route('/notifications')
+def notifications_page():
+    """Notifications center page."""
+    return render_template('notifications.html')
 
 
 # ============================================================================
@@ -638,6 +658,429 @@ def generate_referral():
             'referral_code': code
         })
         
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - Real-Time Market Data
+# ============================================================================
+
+@app.route('/api/markets/canadian-stocks', methods=['GET'])
+def get_canadian_stocks():
+    """Get Canadian stock market data."""
+    try:
+        limit = int(request.args.get('limit', 20))
+        stocks = realtime_data.get_canadian_stocks(limit)
+        
+        return jsonify({
+            'success': True,
+            'data': stocks,
+            'total': len(stocks),
+            'market': 'TSX',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/markets/us-stocks', methods=['GET'])
+def get_us_stocks():
+    """Get US stock market data."""
+    try:
+        limit = int(request.args.get('limit', 50))
+        stocks = realtime_data.get_us_stocks(limit)
+        
+        return jsonify({
+            'success': True,
+            'data': stocks,
+            'total': len(stocks),
+            'markets': ['NYSE', 'NASDAQ'],
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/markets/all-crypto', methods=['GET'])
+def get_all_crypto():
+    """Get all cryptocurrency data."""
+    try:
+        limit = int(request.args.get('limit', 60))
+        cryptos = realtime_data.get_all_crypto(limit)
+        
+        return jsonify({
+            'success': True,
+            'data': cryptos,
+            'total': len(cryptos),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/markets/defi-tokens', methods=['GET'])
+def get_defi_tokens():
+    """Get DeFi token data."""
+    try:
+        tokens = realtime_data.get_defi_tokens()
+        
+        return jsonify({
+            'success': True,
+            'data': tokens,
+            'total': len(tokens),
+            'category': 'DeFi',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/markets/nft-tokens', methods=['GET'])
+def get_nft_tokens():
+    """Get NFT/Metaverse token data."""
+    try:
+        tokens = realtime_data.get_nft_tokens()
+        
+        return jsonify({
+            'success': True,
+            'data': tokens,
+            'total': len(tokens),
+            'category': 'NFT/Metaverse',
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/markets/summary', methods=['GET'])
+def get_complete_market_summary():
+    """Get comprehensive market summary."""
+    try:
+        summary = realtime_data.get_market_summary()
+        
+        return jsonify({
+            'success': True,
+            'summary': summary,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/markets/search', methods=['GET'])
+def search_markets():
+    """Search markets by symbol or name."""
+    try:
+        query = request.args.get('q', '')
+        
+        if not query:
+            return jsonify({
+                'success': False,
+                'error': 'Search query required'
+            }), 400
+        
+        results = realtime_data.search_symbol(query)
+        
+        return jsonify({
+            'success': True,
+            'results': results,
+            'query': query,
+            'count': len(results),
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - ASI1 AI Integration
+# ============================================================================
+
+@app.route('/api/ai/analyze-market', methods=['POST'])
+def ai_analyze_market():
+    """Analyze market data using ASI1 AI."""
+    try:
+        data = request.get_json()
+        market_data = data.get('market_data', {})
+        context = data.get('context', '')
+        
+        analysis = asi1_ai.analyze_market_with_ai(market_data, context)
+        
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai/whale-analysis', methods=['POST'])
+def ai_whale_analysis():
+    """Analyze whale transactions using AI."""
+    try:
+        data = request.get_json()
+        whale_data = data.get('whale_data', {})
+        
+        analysis = asi1_ai.whale_watch_analysis(whale_data)
+        
+        return jsonify(analysis)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai/predict-price', methods=['POST'])
+def ai_predict_price():
+    """Predict price movement using AI."""
+    try:
+        data = request.get_json()
+        symbol = data.get('symbol')
+        historical_data = data.get('historical_data', [])
+        
+        prediction = asi1_ai.predict_price_movement(symbol, historical_data)
+        
+        return jsonify(prediction)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai/agent-communicate', methods=['POST'])
+def ai_agent_communicate():
+    """Communicate with ASI1 agent."""
+    try:
+        data = request.get_json()
+        message = data.get('message')
+        agent_context = data.get('context', {})
+        
+        response = asi1_ai.communicate_with_agent(message, agent_context)
+        
+        return jsonify(response)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/ai/market-summary', methods=['POST'])
+def ai_market_summary():
+    """Get AI-powered market summary."""
+    try:
+        data = request.get_json()
+        markets = data.get('markets', {})
+        
+        summary = asi1_ai.get_ai_market_summary(markets)
+        
+        return jsonify(summary)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - Whale Watcher
+# ============================================================================
+
+@app.route('/api/whale/transactions', methods=['GET'])
+def get_whale_transactions():
+    """Get whale transactions (restricted access)."""
+    try:
+        user_id = request.args.get('user_id', '')
+        user_plan = request.args.get('user_plan', 'free')
+        limit = int(request.args.get('limit', 20))
+        min_value = float(request.args.get('min_value', 100000))
+        
+        result = whale_watcher.get_whale_transactions(user_id, user_plan, limit, min_value)
+        
+        if not result['success']:
+            return jsonify(result), 403
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/whale/track-wallet', methods=['POST'])
+def track_whale_wallet():
+    """Track a whale wallet (restricted access)."""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id', '')
+        user_plan = data.get('user_plan', 'free')
+        wallet_address = data.get('wallet_address')
+        label = data.get('label', '')
+        
+        result = whale_watcher.track_wallet(user_id, user_plan, wallet_address, label)
+        
+        if not result['success']:
+            return jsonify(result), 403
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/whale/nft-movements', methods=['GET'])
+def get_nft_whale_movements():
+    """Get NFT whale movements (restricted access)."""
+    try:
+        user_id = request.args.get('user_id', '')
+        user_plan = request.args.get('user_plan', 'free')
+        limit = int(request.args.get('limit', 15))
+        
+        result = whale_watcher.get_nft_whale_movements(user_id, user_plan, limit)
+        
+        if not result['success']:
+            return jsonify(result), 403
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/whale/statistics', methods=['GET'])
+def get_whale_statistics():
+    """Get whale activity statistics (restricted access)."""
+    try:
+        user_id = request.args.get('user_id', '')
+        user_plan = request.args.get('user_plan', 'free')
+        
+        result = whale_watcher.get_whale_statistics(user_id, user_plan)
+        
+        if not result['success']:
+            return jsonify(result), 403
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+# ============================================================================
+# API Routes - Notifications
+# ============================================================================
+
+@app.route('/api/notifications', methods=['GET'])
+def get_notifications():
+    """Get user notifications."""
+    try:
+        user_id = request.args.get('user_id')
+        unread_only = request.args.get('unread_only', 'false').lower() == 'true'
+        limit = int(request.args.get('limit', 50))
+        
+        notifications = notification_center.get_user_notifications(user_id, unread_only, limit)
+        stats = notification_center.get_notification_stats(user_id)
+        
+        return jsonify({
+            'success': True,
+            'notifications': notifications,
+            'stats': stats,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/notifications/mark-read', methods=['POST'])
+def mark_notification_read():
+    """Mark notification as read."""
+    try:
+        data = request.get_json()
+        notification_id = data.get('notification_id')
+        
+        success = notification_center.mark_as_read(notification_id)
+        
+        return jsonify({
+            'success': success,
+            'message': 'Notification marked as read' if success else 'Notification not found'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/notifications/mark-all-read', methods=['POST'])
+def mark_all_notifications_read():
+    """Mark all notifications as read for a user."""
+    try:
+        data = request.get_json()
+        user_id = data.get('user_id')
+        
+        count = notification_center.mark_all_as_read(user_id)
+        
+        return jsonify({
+            'success': True,
+            'marked_count': count,
+            'message': f'{count} notifications marked as read'
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/notifications/delete', methods=['POST'])
+def delete_notification():
+    """Delete a notification."""
+    try:
+        data = request.get_json()
+        notification_id = data.get('notification_id')
+        
+        success = notification_center.delete_notification(notification_id)
+        
+        return jsonify({
+            'success': success,
+            'message': 'Notification deleted' if success else 'Notification not found'
+        })
     except Exception as e:
         return jsonify({
             'success': False,
