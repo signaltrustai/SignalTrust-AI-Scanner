@@ -222,36 +222,46 @@ class AIChatSystem:
         Returns:
             Intelligence AI response
         """
-        # Analyze current market state
-        analysis = self.ai_intelligence.analyze_all_markets()
+        # Perform comprehensive scan
+        intelligence = self.ai_intelligence.comprehensive_market_scan()
         
-        # Generate predictions
-        predictions = self.ai_intelligence.generate_predictions()
+        # Generate predictions through learn_and_predict
+        result = self.ai_intelligence.learn_and_predict()
         
         # Format response
         response = f"""🤖 **Market Intelligence AI Analysis**
 
 📊 **Current Market State:**
-- Markets Analyzed: {analysis.get('markets_analyzed', 0)}
-- Data Points: {analysis.get('data_points_processed', 0)}
-- Confidence: {analysis.get('confidence_score', 0)}%
+- Markets Analyzed: {intelligence.get('markets_scanned', {}).get('total', 0)}
+- Data Points: {intelligence.get('data_points_processed', 0)}
+- Confidence: {result.get('confidence_score', 0)*100:.1f}%
 
 🎯 **AI Predictions:**
 """
         
-        # Add short-term predictions
-        if predictions.get('short_term'):
+        # Add predictions
+        predictions = result.get('predictions', {})
+        short_term = predictions.get('short_term', []) if isinstance(predictions.get('short_term'), list) else []
+        medium_term = predictions.get('medium_term', []) if isinstance(predictions.get('medium_term'), list) else []
+        
+        if short_term:
             response += "\n**24-48h Outlook:**\n"
-            for pred in predictions['short_term'][:3]:
-                response += f"• {pred.get('asset', 'N/A')}: {pred.get('prediction', 'N/A')} (Confidence: {pred.get('confidence', 0)}%)\n"
+            for pred in short_term[:3]:
+                asset = pred.get('asset', 'N/A') if isinstance(pred, dict) else 'N/A'
+                prediction = pred.get('prediction', 'N/A') if isinstance(pred, dict) else 'N/A'
+                confidence = pred.get('confidence', 0) if isinstance(pred, dict) else 0
+                response += f"• {asset}: {prediction} (Confidence: {confidence}%)\n"
         
-        # Add medium-term predictions
-        if predictions.get('medium_term'):
+        if medium_term:
             response += "\n**7-14d Forecast:**\n"
-            for pred in predictions['medium_term'][:2]:
-                response += f"• {pred.get('trend', 'N/A')}\n"
+            for pred in medium_term[:2]:
+                trend = pred.get('trend', 'N/A') if isinstance(pred, dict) else str(pred)
+                response += f"• {trend}\n"
         
-        response += f"\n💡 **AI Insight:** {analysis.get('key_insight', 'Markets showing normal activity patterns.')}"
+        # Add key insights
+        insights = intelligence.get('key_insights', [])
+        if insights:
+            response += f"\n💡 **AI Insight:** {insights[0] if insights else 'Markets showing normal activity patterns.'}"
         
         return response
     
@@ -264,33 +274,69 @@ class AIChatSystem:
         Returns:
             Whale AI response
         """
-        # Get recent whale activity
-        transactions = self.whale_watcher.get_recent_transactions(limit=5)
-        nft_activity = self.whale_watcher.get_nft_whale_activity(limit=3)
-        stats = self.whale_watcher.get_whale_statistics()
+        # Get whale data (owner has full access)
+        tx_result = self.whale_watcher.get_whale_transactions(
+            user_id='owner_admin_001',
+            user_plan='enterprise',
+            limit=5
+        )
         
-        response = f"""🐋 **Whale Watcher AI**
+        nft_result = self.whale_watcher.get_nft_whale_movements(
+            user_id='owner_admin_001',
+            user_plan='enterprise',
+            limit=3
+        )
+        
+        stats_result = self.whale_watcher.get_whale_statistics(
+            user_id='owner_admin_001',
+            user_plan='enterprise'
+        )
+        
+        response = """🐋 **Whale Watcher AI**
 
-📈 **24h Whale Activity:**
-- Total Transactions: {stats.get('total_transactions_24h', 0)}
-- Total Volume: ${stats.get('total_volume_24h', 0):,.0f}
-- Buy Pressure: {stats.get('buy_percentage', 0)}%
-- Sell Pressure: {stats.get('sell_percentage', 0)}%
-
-🔥 **Recent Large Transactions:**
 """
         
-        for tx in transactions[:3]:
-            response += f"\n• **{tx.get('amount_usd', 0):,.0f}** {tx.get('asset', 'Unknown')}"
-            response += f" - {tx.get('type', 'Unknown').upper()} on {tx.get('chain', 'Unknown')}"
-            response += f" ({tx.get('time_ago', 'Recently')})"
-        
-        if nft_activity:
-            response += "\n\n🎨 **NFT Whale Activity:**\n"
-            for nft in nft_activity[:2]:
-                response += f"• {nft.get('collection', 'Unknown')}: {nft.get('price_eth', 0)} ETH\n"
-        
-        response += f"\n🎯 **AI Analysis:** {stats.get('sentiment', 'Neutral')} whale sentiment detected."
+        try:
+            if stats_result.get('success'):
+                stats = stats_result.get('statistics', {})
+                response += f"""📈 **24h Whale Activity:**
+- Total Transactions: {stats.get('total_transactions_24h', 0)}
+- Total Volume: ${stats.get('total_volume_24h', 0):,.0f}
+- Buy Pressure: {stats.get('buy_percentage', 0):.1f}%
+- Sell Pressure: {stats.get('sell_percentage', 0):.1f}%
+
+"""
+            
+            if tx_result.get('success'):
+                transactions = tx_result.get('transactions', [])
+                if transactions:
+                    response += "🔥 **Recent Large Transactions:**\n"
+                    for tx in transactions[:3]:
+                        if isinstance(tx, dict):
+                            amount = tx.get('amount_usd', 0)
+                            asset = tx.get('asset', 'Unknown')
+                            tx_type = tx.get('type', 'Unknown').upper()
+                            chain = tx.get('chain', 'Unknown')
+                            time_ago = tx.get('time_ago', 'Recently')
+                            response += f"\n• **${amount:,.0f}** {asset} - {tx_type} on {chain} ({time_ago})"
+            
+            if nft_result.get('success'):
+                nft_activity = nft_result.get('movements', [])
+                if nft_activity:
+                    response += "\n\n🎨 **NFT Whale Activity:**\n"
+                    for nft in nft_activity[:2]:
+                        if isinstance(nft, dict):
+                            collection = nft.get('collection', 'Unknown')
+                            price = nft.get('price_eth', 0)
+                            response += f"• {collection}: {price} ETH\n"
+            
+            if stats_result.get('success'):
+                stats = stats_result.get('statistics', {})
+                sentiment = stats.get('sentiment', 'Neutral')
+                response += f"\n🎯 **AI Analysis:** {sentiment} whale sentiment detected."
+            
+        except Exception as e:
+            response += f"\nError analyzing whale data: {str(e)}"
         
         return response
     
@@ -303,8 +349,7 @@ class AIChatSystem:
         Returns:
             Prediction AI response
         """
-        predictions = self.ai_intelligence.generate_predictions()
-        recommendations = self.ai_intelligence.get_recommendations()
+        result = self.ai_intelligence.learn_and_predict()
         
         response = """🔮 **Prediction AI**
 
@@ -312,24 +357,40 @@ Based on comprehensive market analysis, here are my predictions:
 
 """
         
-        # Add predictions by timeframe
-        if predictions.get('short_term'):
-            response += "**Next 24-48 Hours:**\n"
-            for pred in predictions['short_term'][:5]:
-                response += f"• {pred.get('asset', 'N/A')}: {pred.get('prediction', 'N/A')}\n"
-                response += f"  Confidence: {pred.get('confidence', 0)}% | Target: {pred.get('target', 'N/A')}\n"
-        
-        if predictions.get('medium_term'):
-            response += "\n**7-14 Day Forecast:**\n"
-            for pred in predictions['medium_term'][:3]:
-                response += f"• {pred.get('trend', 'N/A')}\n"
-        
-        # Add recommendations
-        if recommendations:
-            response += "\n💡 **AI Recommendations:**\n"
-            for rec in recommendations[:3]:
-                response += f"• {rec.get('action', 'N/A')}: {rec.get('asset', 'N/A')}\n"
-                response += f"  Reason: {rec.get('reason', 'N/A')}\n"
+        if result.get('success'):
+            predictions = result.get('predictions', {})
+            recommendations = result.get('recommendations', [])
+            
+            # Add predictions by timeframe
+            short_term = predictions.get('short_term', []) if isinstance(predictions.get('short_term'), list) else []
+            medium_term = predictions.get('medium_term', []) if isinstance(predictions.get('medium_term'), list) else []
+            
+            if short_term:
+                response += "**Next 24-48 Hours:**\n"
+                for pred in short_term[:5]:
+                    if isinstance(pred, dict):
+                        response += f"• {pred.get('asset', 'N/A')}: {pred.get('prediction', 'N/A')}\n"
+                        response += f"  Confidence: {pred.get('confidence', 0)}% | Target: {pred.get('target', 'N/A')}\n"
+            
+            if medium_term:
+                response += "\n**7-14 Day Forecast:**\n"
+                for pred in medium_term[:3]:
+                    if isinstance(pred, dict):
+                        response += f"• {pred.get('trend', 'N/A')}\n"
+                    else:
+                        response += f"• {str(pred)}\n"
+            
+            # Add recommendations
+            if recommendations and isinstance(recommendations, list):
+                response += "\n💡 **AI Recommendations:**\n"
+                for rec in recommendations[:3]:
+                    if isinstance(rec, dict):
+                        response += f"• {rec.get('action', 'N/A')}: {rec.get('asset', 'N/A')}\n"
+                        response += f"  Reason: {rec.get('reason', 'N/A')}\n"
+            
+            response += f"\n📊 **Overall Confidence:** {result.get('confidence_score', 0)*100:.1f}%"
+        else:
+            response += "Unable to generate predictions at this time. Please try again later."
         
         return response
     
