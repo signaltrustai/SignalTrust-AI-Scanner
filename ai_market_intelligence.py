@@ -89,11 +89,11 @@ class AIMarketIntelligence:
             'recommendations': recommendations,
             'confidence_score': self.prediction_accuracy,
             'markets_analyzed': {
-                'us_stocks': len(intelligence['us_markets']['top_opportunities']),
-                'canadian_stocks': len(intelligence['canadian_markets']['top_opportunities']),
-                'cryptocurrencies': len(intelligence['crypto_markets']['trending']),
-                'whale_transactions': intelligence['whale_activity']['transaction_count'],
-                'news_articles': len(intelligence['market_news']['articles'])
+                'us_stocks': len(intelligence['us_markets'].get('top_opportunities', [])),
+                'canadian_stocks': len(intelligence['canadian_markets'].get('top_opportunities', [])),
+                'cryptocurrencies': len(intelligence['crypto_markets'].get('top_gainers', [])),
+                'whale_transactions': intelligence['whale_activity'].get('transaction_count', 0),
+                'news_articles': len(intelligence['market_news'].get('articles', []))
             },
             'timestamp': datetime.now().isoformat()
         }
