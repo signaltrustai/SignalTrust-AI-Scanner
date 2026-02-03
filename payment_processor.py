@@ -1,0 +1,374 @@
+#!/usr/bin/env python3
+"""
+Payment Processing Module
+Handles subscription payments and billing
+"""
+
+import secrets
+import json
+import os
+from datetime import datetime, timedelta
+from typing import Dict, List
+
+
+class PaymentProcessor:
+    """Payment processing and subscription management"""
+    
+    # Subscription plans
+    PLANS = {
+        'free': {
+            'name': 'Starter',
+            'price': 0,
+            'currency': 'USD',
+            'features': [
+                'Basic crypto market scanning',
+                '10 scans per day',
+                'Basic price alerts',
+                'Community support'
+            ],
+            'limits': {
+                'scans_per_day': 10,
+                'symbols_per_scan': 5,
+                'ai_predictions': 0
+            }
+        },
+        'basic': {
+            'name': 'Trader Plan',
+            'price': 49.00,
+            'currency': 'USD',
+            'billing_period': 'monthly',
+            'features': [
+                'Unlimited crypto scanning',
+                'Basic NFT tracking',
+                'Real-time price alerts',
+                'Technical analysis tools',
+                '100 AI predictions per month',
+                'Email support',
+                'TradingView charts'
+            ],
+            'limits': {
+                'scans_per_day': -1,
+                'symbols_per_scan': 50,
+                'ai_predictions': 100
+            }
+        },
+        'pro': {
+            'name': 'Professional Plan',
+            'price': 149.00,
+            'currency': 'USD',
+            'billing_period': 'monthly',
+            'features': [
+                'Everything in Trader',
+                'Advanced NFT whale tracking',
+                'Unlimited AI predictions',
+                'Smart contract analysis',
+                'Multi-chain support',
+                'Portfolio tracker',
+                'Priority support',
+                'API access',
+                'Custom alerts'
+            ],
+            'limits': {
+                'scans_per_day': -1,
+                'symbols_per_scan': -1,
+                'ai_predictions': -1
+            }
+        },
+        'enterprise': {
+            'name': 'Institution Plan',
+            'price': 499.00,
+            'currency': 'USD',
+            'billing_period': 'monthly',
+            'features': [
+                'Everything in Pro',
+                'Custom AI models',
+                'Dedicated account manager',
+                'White-label solutions',
+                '10 team accounts',
+                'Advanced API (unlimited)',
+                'Custom integrations',
+                'OTC desk integration',
+                '24/7 premium support'
+            ],
+            'limits': {
+                'scans_per_day': -1,
+                'symbols_per_scan': -1,
+                'ai_predictions': -1,
+                'users': 10
+            }
+        }
+    }
+    
+    def __init__(self, transactions_file: str = 'data/transactions.json'):
+        """Initialize payment processor.
+        
+        Args:
+            transactions_file: Path to transactions database
+        """
+        self.transactions_file = transactions_file
+        self._ensure_data_dir()
+        self._load_transactions()
+    
+    def _ensure_data_dir(self):
+        """Ensure data directory exists."""
+        data_dir = os.path.dirname(self.transactions_file)
+        if data_dir and not os.path.exists(data_dir):
+            os.makedirs(data_dir)
+    
+    def _load_transactions(self):
+        """Load transactions from file."""
+        if os.path.exists(self.transactions_file):
+            try:
+                with open(self.transactions_file, 'r') as f:
+                    self.transactions = json.load(f)
+            except (json.JSONDecodeError, IOError, FileNotFoundError):
+                self.transactions = []
+        else:
+            self.transactions = []
+    
+    def _save_transactions(self):
+        """Save transactions to file."""
+        with open(self.transactions_file, 'w') as f:
+            json.dump(self.transactions, f, indent=2)
+    
+    def get_plans(self) -> Dict:
+        """Get all available subscription plans.
+        
+        Returns:
+            Dictionary of plans
+        """
+        return self.PLANS
+    
+    def get_plan(self, plan_id: str) -> Dict:
+        """Get specific plan details.
+        
+        Args:
+            plan_id: Plan identifier
+            
+        Returns:
+            Plan details
+        """
+        return self.PLANS.get(plan_id, {})
+    
+    def process_payment(self, user_id: str, email: str, plan_id: str, 
+                       payment_method: Dict) -> Dict:
+        """Process a payment.
+        
+        Args:
+            user_id: User ID
+            email: User email
+            plan_id: Plan to purchase
+            payment_method: Payment method details
+            
+        Returns:
+            Payment result
+        """
+        # Validate plan
+        if plan_id not in self.PLANS:
+            return {'success': False, 'error': 'Invalid plan'}
+        
+        plan = self.PLANS[plan_id]
+        
+        # Free plan doesn't require payment
+        if plan_id == 'free':
+            return {
+                'success': True,
+                'message': 'Free plan activated',
+                'transaction_id': None
+            }
+        
+        # Validate payment method
+        if not self._validate_payment_method(payment_method):
+            return {'success': False, 'error': 'Invalid payment method'}
+        
+        # Create transaction
+        transaction_id = secrets.token_hex(16)
+        transaction = {
+            'transaction_id': transaction_id,
+            'user_id': user_id,
+            'email': email,
+            'plan_id': plan_id,
+            'plan_name': plan['name'],
+            'amount': plan['price'],
+            'currency': plan['currency'],
+            'payment_method': {
+                'type': payment_method['type'],
+                'last4': payment_method.get('last4', '****')
+            },
+            'status': 'completed',
+            'created_at': datetime.now().isoformat(),
+            'next_billing_date': (datetime.now() + timedelta(days=30)).isoformat()
+        }
+        
+        self.transactions.append(transaction)
+        self._save_transactions()
+        
+        return {
+            'success': True,
+            'transaction_id': transaction_id,
+            'message': 'Payment processed successfully',
+            'next_billing_date': transaction['next_billing_date']
+        }
+    
+    def _validate_payment_method(self, payment_method: Dict) -> bool:
+        """Validate payment method.
+        
+        Args:
+            payment_method: Payment method details
+            
+        Returns:
+            True if valid
+        """
+        if not payment_method.get('type'):
+            return False
+        
+        payment_type = payment_method['type']
+        
+        if payment_type == 'card':
+            # Validate card details
+            required_fields = ['card_number', 'exp_month', 'exp_year', 'cvv']
+            return all(payment_method.get(f) for f in required_fields)
+        
+        elif payment_type == 'paypal':
+            return payment_method.get('paypal_email') is not None
+        
+        elif payment_type == 'crypto':
+            return payment_method.get('wallet_address') is not None
+        
+        return False
+    
+    def get_user_transactions(self, user_id: str) -> List[Dict]:
+        """Get user's transaction history.
+        
+        Args:
+            user_id: User ID
+            
+        Returns:
+            List of transactions
+        """
+        return [t for t in self.transactions if t['user_id'] == user_id]
+    
+    def cancel_subscription(self, user_id: str) -> Dict:
+        """Cancel user's subscription.
+        
+        Args:
+            user_id: User ID
+            
+        Returns:
+            Cancellation result
+        """
+        user_transactions = self.get_user_transactions(user_id)
+        
+        if not user_transactions:
+            return {'success': False, 'error': 'No active subscription'}
+        
+        # Mark last transaction as cancelled
+        last_transaction = user_transactions[-1]
+        last_transaction['status'] = 'cancelled'
+        last_transaction['cancelled_at'] = datetime.now().isoformat()
+        
+        self._save_transactions()
+        
+        return {
+            'success': True,
+            'message': 'Subscription cancelled',
+            'access_until': last_transaction.get('next_billing_date')
+        }
+    
+    def validate_card_number(self, card_number: str) -> Dict:
+        """Validate credit card number using Luhn algorithm.
+        
+        Args:
+            card_number: Card number to validate
+            
+        Returns:
+            Validation result
+        """
+        # Remove spaces and dashes
+        card_number = card_number.replace(' ', '').replace('-', '')
+        
+        # Check if all digits
+        if not card_number.isdigit():
+            return {'valid': False, 'error': 'Card number must contain only digits'}
+        
+        # Check length
+        if len(card_number) < 13 or len(card_number) > 19:
+            return {'valid': False, 'error': 'Invalid card number length'}
+        
+        # Luhn algorithm
+        def luhn_check(number):
+            digits = [int(d) for d in number]
+            checksum = digits[-1]
+            digits = digits[:-1]
+            digits.reverse()
+            
+            for i in range(len(digits)):
+                if i % 2 == 0:
+                    digits[i] *= 2
+                    if digits[i] > 9:
+                        digits[i] -= 9
+            
+            return (sum(digits) + checksum) % 10 == 0
+        
+        if not luhn_check(card_number):
+            return {'valid': False, 'error': 'Invalid card number'}
+        
+        # Determine card type
+        card_type = 'Unknown'
+        if card_number[0] == '4':
+            card_type = 'Visa'
+        elif card_number[0] == '5':
+            card_type = 'Mastercard'
+        elif card_number[:2] in ['34', '37']:
+            card_type = 'American Express'
+        elif card_number[:4] == '6011':
+            card_type = 'Discover'
+        
+        return {
+            'valid': True,
+            'card_type': card_type,
+            'last4': card_number[-4:]
+        }
+    
+    def generate_invoice(self, transaction_id: str) -> Dict:
+        """Generate invoice for a transaction.
+        
+        Args:
+            transaction_id: Transaction ID
+            
+        Returns:
+            Invoice data
+        """
+        # Find transaction
+        transaction = None
+        for t in self.transactions:
+            if t['transaction_id'] == transaction_id:
+                transaction = t
+                break
+        
+        if not transaction:
+            return {'success': False, 'error': 'Transaction not found'}
+        
+        invoice = {
+            'invoice_number': f'INV-{transaction_id[:8].upper()}',
+            'transaction_id': transaction_id,
+            'date': transaction['created_at'],
+            'user_id': transaction['user_id'],
+            'email': transaction['email'],
+            'items': [
+                {
+                    'description': transaction['plan_name'],
+                    'amount': transaction['amount'],
+                    'currency': transaction['currency']
+                }
+            ],
+            'subtotal': transaction['amount'],
+            'tax': round(transaction['amount'] * 0.1, 2),  # 10% tax
+            'total': round(transaction['amount'] * 1.1, 2),
+            'payment_status': transaction['status']
+        }
+        
+        return {
+            'success': True,
+            'invoice': invoice
+        }

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">⚡ SIGNALTRUST AI</div>
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/pricing" class="active">Plans</a>
+                <a href="/login">Login</a>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="pricing-page">
+            <div class="pricing-header">
+                <h1>Choose Your Plan</h1>
+                <p style="color: var(--text-secondary); font-size: 1.25rem;">Premium crypto & NFT market intelligence at your fingertips</p>
+            </div>
+            
+            <div class="pricing-cards">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>Starter</h3>
+                        <div class="price">
+                            <span class="amount">$0</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Basic crypto market scanning</li>
+                        <li>✓ 10 scans per day</li>
+                        <li>✓ Basic price alerts</li>
+                        <li>✓ Community support</li>
+                        <li>✗ No NFT tracking</li>
+                        <li>✗ No whale alerts</li>
+                        <li>✗ No AI predictions</li>
+                    </ul>
+                    <button class="btn btn-outline btn-block" onclick="selectPlan('free')">
+                        Start Free
+                    </button>
+                </div>
+                
+                <!-- Basic Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>Trader</h3>
+                        <div class="price">
+                            <span class="amount">$49</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Unlimited crypto scanning</li>
+                        <li>✓ Basic NFT tracking</li>
+                        <li>✓ Real-time price alerts</li>
+                        <li>✓ Technical analysis tools</li>
+                        <li>✓ 100 AI predictions/month</li>
+                        <li>✓ Email support</li>
+                        <li>✓ TradingView charts</li>
+                    </ul>
+                    <button class="btn btn-primary btn-block" onclick="selectPlan('basic')">
+                        Choose Trader
+                    </button>
+                </div>
+                
+                <!-- Pro Plan (Popular) -->
+                <div class="pricing-card featured">
+                    <div class="popular-badge">⚡ MOST POPULAR</div>
+                    <div class="plan-header">
+                        <h3>Professional</h3>
+                        <div class="price">
+                            <span class="amount">$149</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Trader</li>
+                        <li>✓ Advanced NFT whale tracking</li>
+                        <li>✓ Unlimited AI predictions</li>
+                        <li>✓ Smart contract analysis</li>
+                        <li>✓ Multi-chain support</li>
+                        <li>✓ Portfolio tracker</li>
+                        <li>✓ Priority support</li>
+                        <li>✓ API access</li>
+                        <li>✓ Custom alerts</li>
+                    </ul>
+                    <button class="btn btn-primary btn-block" onclick="selectPlan('pro')">
+                        Choose Pro
+                    </button>
+                </div>
+                
+                <!-- Enterprise Plan -->
+                <div class="pricing-card">
+                    <div class="plan-header">
+                        <h3>Institution</h3>
+                        <div class="price">
+                            <span class="amount">$499</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="plan-features">
+                        <li>✓ Everything in Pro</li>
+                        <li>✓ Custom AI models</li>
+                        <li>✓ Dedicated account manager</li>
+                        <li>✓ White-label solutions</li>
+                        <li>✓ 10 team accounts</li>
+                        <li>✓ Advanced API (unlimited)</li>
+                        <li>✓ Custom integrations</li>
+                        <li>✓ OTC desk integration</li>
+                        <li>✓ 24/7 premium support</li>
+                    </ul>
+                    <button class="btn btn-outline btn-block" onclick="selectPlan('enterprise')">
+                        Contact Sales
+                    </button>
+                </div>
+            </div>
+            
+            <div class="pricing-footer" style="text-align: center; margin-top: 4rem;">
+                <p style="color: var(--gold-primary); font-size: 1.125rem; margin-bottom: 1rem;">
+                    💎 All plans include 14-day money-back guarantee
+                </p>
+                <p style="color: var(--text-secondary);">
+                    Need a custom enterprise solution? <a href="/contact" style="color: var(--gold-primary);">Contact our team</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/pricing.js"></script>
+</body>
+</html>

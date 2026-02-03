@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AI Chat - SignalTrust AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .chat-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0a0e27 100%);
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .chat-header h1 {
+            color: #ffd700;
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+        }
+
+        .chat-header p {
+            color: #b8c5d6;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        .owner-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .ai-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .ai-mode-card {
+            background: #1a1f3a;
+            border: 2px solid #2a3555;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .ai-mode-card:hover {
+            border-color: #ffd700;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .ai-mode-card.active {
+            background: linear-gradient(135deg, #2a3555 0%, #1a1f3a 100%);
+            border-color: #ffd700;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .ai-mode-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .ai-mode-name {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .ai-mode-description {
+            color: #b8c5d6;
+            font-size: 0.85em;
+        }
+
+        .chat-box {
+            background: #1a1f3a;
+            border: 2px solid #2a3555;
+            border-radius: 15px;
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+
+        .message-user .message-avatar {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+        }
+
+        .message-assistant .message-avatar {
+            background: linear-gradient(135deg, #4a5578 0%, #2a3555 100%);
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            line-height: 1.6;
+        }
+
+        .message-user .message-content {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-assistant .message-content {
+            background: #2a3555;
+            color: #ffffff;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-meta {
+            font-size: 0.75em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: #0d1124;
+            border-top: 2px solid #2a3555;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #1a1f3a;
+            border: 2px solid #2a3555;
+            border-radius: 25px;
+            padding: 15px 25px;
+            color: #ffffff;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
+            border: none;
+            border-radius: 50%;
+            width: 55px;
+            height: 55px;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-send-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .chat-send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px 20px;
+            background: #2a3555;
+            border-radius: 12px;
+            width: fit-content;
+            margin-left: 52px;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .chat-action-btn {
+            background: #2a3555;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .chat-action-btn:hover {
+            background: #ffd700;
+            color: #0a0e27;
+        }
+
+        .access-restricted {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .access-restricted-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .access-restricted h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .access-restricted p {
+            color: #b8c5d6;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .chat-header h1 {
+                font-size: 1.8em;
+            }
+
+            .ai-modes {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .chat-box {
+                height: 400px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .chat-input {
+                padding: 12px 20px;
+                font-size: 0.95em;
+            }
+
+            .chat-send-btn {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .ai-modes {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-mode-icon {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">⚡ SIGNALTRUST AI</a>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/scanner">Scanner</a></li>
+                <li><a href="/whale-watcher">Whale Watcher</a></li>
+                <li><a href="/ai-intelligence">🤖 AI Intelligence</a></li>
+                <li><a href="/ai-chat" class="active">💬 AI Chat</a></li>
+                <li><a href="/notifications">🔔 Notifications</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>💬 AI Chat System</h1>
+            <p>Converse with our advanced AI systems for market insights and analysis</p>
+            <span class="owner-badge">👑 OWNER EXCLUSIVE ACCESS</span>
+        </div>
+
+        <div class="ai-modes" id="aiModes">
+            <!-- AI modes will be loaded here -->
+        </div>
+
+        <div class="chat-box">
+            <div class="chat-messages" id="chatMessages">
+                <div class="chat-message message-assistant">
+                    <div class="message-avatar">🤖</div>
+                    <div>
+                        <div class="message-content">
+                            <strong>Welcome to SignalTrust AI Chat! 👋</strong><br><br>
+                            I'm your AI assistant with access to multiple specialized AI systems. I can help you with:
+                            <br><br>
+                            • 📊 Market analysis and trends<br>
+                            • 🔮 Price predictions<br>
+                            • 🐋 Whale transaction tracking<br>
+                            • 💡 Trading recommendations<br>
+                            • 📈 Technical analysis<br>
+                            <br>
+                            Select an AI mode above or just ask me anything - I'll automatically route to the best AI for your question!
+                        </div>
+                        <div class="message-meta">ASI1 Agent • Just now</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="chatInput"
+                        placeholder="Ask me anything about markets, crypto, predictions..."
+                        autocomplete="off"
+                    >
+                    <button class="chat-send-btn" id="sendBtn">
+                        ⬆️
+                    </button>
+                </div>
+                <div class="chat-actions">
+                    <button class="chat-action-btn" onclick="quickQuestion('What are the top market trends today?')">📊 Market Trends</button>
+                    <button class="chat-action-btn" onclick="quickQuestion('Show me recent whale activity')">🐋 Whale Activity</button>
+                    <button class="chat-action-btn" onclick="quickQuestion('What are your top predictions?')">🔮 Predictions</button>
+                    <button class="chat-action-btn" onclick="clearChat()">🗑️ Clear Chat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        let currentAIMode = 'auto';
+        let userId = 'owner_admin_001'; // Owner ID
+
+        // Load AI modes
+        async function loadAIModes() {
+            try {
+                const response = await fetch('/api/ai-chat/modes');
+                const data = await response.json();
+                
+                const modesContainer = document.getElementById('aiModes');
+                modesContainer.innerHTML = data.modes.map(mode => `
+                    <div class="ai-mode-card ${mode.id === 'auto' ? 'active' : ''}" onclick="selectAIMode('${mode.id}')">
+                        <div class="ai-mode-icon">${mode.icon}</div>
+                        <div class="ai-mode-name">${mode.name}</div>
+                        <div class="ai-mode-description">${mode.description}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading AI modes:', error);
+            }
+        }
+
+        // Select AI mode
+        function selectAIMode(mode) {
+            currentAIMode = mode;
+            
+            // Update active state
+            document.querySelectorAll('.ai-mode-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            event.target.closest('.ai-mode-card').classList.add('active');
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Clear input
+            input.value = '';
+            
+            // Add user message to chat
+            addMessage('user', message);
+            
+            // Show typing indicator
+            document.getElementById('typingIndicator').classList.add('active');
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                // Send to API
+                const response = await fetch('/api/ai-chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        message: message,
+                        ai_mode: currentAIMode
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Hide typing indicator
+                document.getElementById('typingIndicator').classList.remove('active');
+                document.getElementById('sendBtn').disabled = false;
+                
+                if (data.success) {
+                    addMessage('assistant', data.response, data.ai_type);
+                } else {
+                    addMessage('assistant', data.error || 'Sorry, I encountered an error.', 'error');
+                }
+            } catch (error) {
+                document.getElementById('typingIndicator').classList.remove('active');
+                document.getElementById('sendBtn').disabled = false;
+                addMessage('assistant', 'Sorry, I encountered a connection error. Please try again.', 'error');
+            }
+        }
+
+        // Add message to chat
+        function addMessage(role, content, aiType = 'general') {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message message-${role}`;
+            
+            const avatar = role === 'user' ? '👤' : getAIIcon(aiType);
+            const aiName = role === 'user' ? 'You' : getAIName(aiType);
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div>
+                    <div class="message-content">${formatMessage(content)}</div>
+                    <div class="message-meta">${aiName} • Just now</div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Get AI icon
+        function getAIIcon(aiType) {
+            const icons = {
+                'asi1': '🧠',
+                'intelligence': '📊',
+                'whale': '🐋',
+                'prediction': '🔮',
+                'general': '🤖',
+                'error': '⚠️'
+            };
+            return icons[aiType] || '🤖';
+        }
+
+        // Get AI name
+        function getAIName(aiType) {
+            const names = {
+                'asi1': 'ASI1 Agent',
+                'intelligence': 'Market Intelligence',
+                'whale': 'Whale Watcher AI',
+                'prediction': 'Prediction AI',
+                'general': 'AI Assistant',
+                'error': 'System'
+            };
+            return names[aiType] || 'AI Assistant';
+        }
+
+        // Format message with markdown-like syntax
+        function formatMessage(content) {
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // Quick question
+        function quickQuestion(question) {
+            document.getElementById('chatInput').value = question;
+            sendMessage();
+        }
+
+        // Clear chat
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                const messagesContainer = document.getElementById('chatMessages');
+                messagesContainer.innerHTML = `
+                    <div class="chat-message message-assistant">
+                        <div class="message-avatar">🤖</div>
+                        <div>
+                            <div class="message-content">Chat cleared! How can I help you?</div>
+                            <div class="message-meta">AI Assistant • Just now</div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('sendBtn').addEventListener('click', sendMessage);
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialize
+        loadAIModes();
+    </script>
+</body>
+</html>

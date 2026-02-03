@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - SignalTrust AI Market Scanner</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-page">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Create Account</h1>
+                    <p>Join SignalTrust AI Market Scanner</p>
+                </div>
+                
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required 
+                               placeholder="Enter your full name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required 
+                               placeholder="Enter your email">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required 
+                               placeholder="Minimum 8 characters">
+                        <small>Must be at least 8 characters long</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required 
+                               placeholder="Confirm your password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="plan">Select Plan</label>
+                        <select id="plan" name="plan" required>
+                            <option value="free">Free Plan - $0/month</option>
+                            <option value="basic">Basic Plan - $29.99/month</option>
+                            <option value="pro" selected>Pro Plan - $79.99/month</option>
+                            <option value="enterprise">Enterprise - $299.99/month</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group checkbox-group">
+                        <label>
+                            <input type="checkbox" id="agreeTerms" required>
+                            I agree to the <a href="/terms">Terms of Service</a> and 
+                            <a href="/privacy">Privacy Policy</a>
+                        </label>
+                    </div>
+                    
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                    <div id="successMessage" class="success-message" style="display: none;"></div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Create Account
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>Already have an account? <a href="/login">Sign In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/register.js"></script>
+</body>
+</html>

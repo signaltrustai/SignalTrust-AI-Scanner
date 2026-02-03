@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="description" content="Ultimate AI-powered crypto & NFT market scanner with whale tracking, AI predictions, and real-time analytics">
+    <meta name="theme-color" content="#ffd700">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="SignalTrust AI">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/icon-180x180.png">
+    
+    <title>SignalTrust AI - Premium Crypto & NFT Market Scanner</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    <!-- Register Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">⚡ SIGNALTRUST AI</div>
+            <div class="nav-menu">
+                <a href="/" class="active">Home</a>
+                <a href="/scanner">Live Scanner</a>
+                <a href="/analyzer">Analysis</a>
+                <a href="/predictions">AI Predictions</a>
+                <a href="/pricing">Plans</a>
+                <a href="/login">Login</a>
+                <a href="/register" class="btn btn-primary">Get Started</a>
+            </div>
+        </div>
+    </nav>
+    
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>🚀 Ultimate AI-Powered<br>Crypto & NFT Scanner</h1>
+                <p class="hero-subtitle">Real-time market intelligence, whale tracking, NFT analytics, and AI-driven predictions for crypto traders and investors</p>
+                <div class="hero-buttons">
+                    <a href="/register" class="btn btn-primary btn-lg">Start Scanning Now</a>
+                    <a href="/pricing" class="btn btn-outline btn-lg">View Pricing</a>
+                </div>
+                <div class="hero-features">
+                    <div class="feature">⚡ Real-Time Crypto Scanning</div>
+                    <div class="feature">🐋 NFT Whale Tracker</div>
+                    <div class="feature">🤖 AI Price Predictions</div>
+                    <div class="feature">📊 TradingView Charts</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">50K+</div>
+                    <div class="stat-label">Crypto Assets Tracked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">5M+</div>
+                    <div class="stat-label">NFTs Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">94%</div>
+                    <div class="stat-label">Prediction Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Market Monitoring</div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title">Premium Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">💎</div>
+                    <h3>Crypto Market Scanner</h3>
+                    <p>Real-time scanning of Bitcoin, Ethereum, altcoins, and DeFi tokens with instant alerts on price movements and volume spikes</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🐋</div>
+                    <h3>NFT Whale Watcher</h3>
+                    <p>Track whale wallets, monitor large NFT transactions, and get alerts on blue-chip NFT movements across OpenSea, Blur, and more</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI Price Predictions</h3>
+                    <p>Advanced machine learning models analyze market data to predict price movements with industry-leading accuracy</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>TradingView Integration</h3>
+                    <p>Professional-grade charts with technical indicators, drawing tools, and custom strategies directly in your dashboard</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Lightning-Fast Alerts</h3>
+                    <p>Get instant notifications via email, SMS, or Telegram when opportunities arise or your targets are hit</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Institutional Security</h3>
+                    <p>Bank-grade encryption, 2FA authentication, and secure API keys keep your data and strategies protected</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Smart Contract Analysis</h3>
+                    <p>Automated smart contract auditing and risk assessment for tokens and NFT projects</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Portfolio Tracker</h3>
+                    <p>Track your crypto and NFT portfolio with real-time valuation, P&L analysis, and tax reporting</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Multi-Chain Support</h3>
+                    <p>Monitor assets across Ethereum, Binance Smart Chain, Polygon, Solana, Avalanche, and 20+ blockchains</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features-section" style="background: var(--bg-card); padding: 4rem 0;">
+        <div class="container">
+            <h2 class="section-title">Whale Activity Detected</h2>
+            <div class="whale-alert">
+                <h3 style="color: var(--gold-primary); margin-bottom: 1rem;">🐋 Recent Whale Movements</h3>
+                <p style="color: var(--text-secondary);">
+                    • <strong>2,500 ETH</strong> moved to Binance (5 minutes ago)<br>
+                    • <strong>Bored Ape #8423</strong> sold for 150 ETH (12 minutes ago)<br>
+                    • <strong>10M USDT</strong> transferred from Tether Treasury (25 minutes ago)<br>
+                    • <strong>Azuki #3302</strong> listed at floor price (1 hour ago)
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features-section">
+        <div class="container" style="text-align: center;">
+            <h2 class="section-title">Ready to Dominate Crypto Markets?</h2>
+            <p style="font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                Join thousands of professional traders using AI to gain the edge in crypto and NFT markets
+            </p>
+            <a href="/register" class="btn btn-primary btn-lg">Start Your Free Trial</a>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>⚡ SignalTrust AI</h4>
+                    <p style="color: var(--text-muted);">Premium AI-powered scanner for crypto, NFT, and traditional markets</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Features</h4>
+                    <a href="/scanner">Live Scanner</a>
+                    <a href="/analyzer">Technical Analysis</a>
+                    <a href="/predictions">AI Predictions</a>
+                    <a href="/pricing">Pricing Plans</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Markets</h4>
+                    <a href="#">Crypto Scanner</a>
+                    <a href="#">NFT Tracker</a>
+                    <a href="#">Whale Watcher</a>
+                    <a href="#">DeFi Analytics</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Contact</a>
+                    <a href="#">API Documentation</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SignalTrust AI. All rights reserved. | Not financial advice.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
