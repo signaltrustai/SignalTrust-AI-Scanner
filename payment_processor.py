@@ -81,7 +81,8 @@ class PaymentProcessor:
                 'Priority support',
                 'Full API access',
                 'Custom alerts',
-                'Unlimited historical data'
+                'Unlimited historical data',
+                'SignalAI Strategy included'
             ],
             'limits': {
                 'scans_per_day': -1,
@@ -91,7 +92,8 @@ class PaymentProcessor:
                 'whale_tracking': True,
                 'advanced_analytics': True,
                 'api_access': True,
-                'historical_data_days': -1
+                'historical_data_days': -1,
+                'signalai_access': True
             }
         },
         'enterprise': {
@@ -101,6 +103,7 @@ class PaymentProcessor:
             'billing_period': 'monthly',
             'features': [
                 'Everything Unlimited',
+                'SignalAI Strategy included',
                 'Custom AI models',
                 'Dedicated account manager',
                 'White-label solutions',
@@ -120,7 +123,8 @@ class PaymentProcessor:
                 'advanced_analytics': True,
                 'api_access': True,
                 'historical_data_days': -1,
-                'users': 10
+                'users': 10,
+                'signalai_access': True
             }
         },
         'signalai': {
@@ -423,13 +427,14 @@ class PaymentProcessor:
         }
     
     def check_signalai_access(self, user_id: str, user_email: str = None, 
-                             is_admin: bool = False) -> Dict:
+                             is_admin: bool = False, user_plan: str = None) -> Dict:
         """Check if user has access to SignalAI strategy
         
         Args:
             user_id: User ID
             user_email: User email (optional)
             is_admin: Whether user is admin
+            user_plan: User's current subscription plan (optional)
             
         Returns:
             Access status information
@@ -443,6 +448,27 @@ class PaymentProcessor:
                 'trial_active': False,
                 'days_remaining': -1
             }
+        
+        # Check for Pro or Enterprise plan - SignalAI included
+        if user_plan in ['pro', 'enterprise']:
+            user_transactions = self.get_user_transactions(user_id)
+            plan_transactions = [t for t in user_transactions 
+                                if t.get('plan_id') in ['pro', 'enterprise']
+                                and t.get('status') == 'active']
+            
+            if plan_transactions:
+                last_transaction = plan_transactions[-1]
+                next_billing = datetime.fromisoformat(last_transaction['next_billing_date'])
+                days_remaining = (next_billing - datetime.now()).days
+                
+                return {
+                    'has_access': True,
+                    'subscription_type': 'included_in_plan',
+                    'plan': user_plan,
+                    'expires_at': last_transaction['next_billing_date'],
+                    'trial_active': False,
+                    'days_remaining': days_remaining
+                }
         
         # Check for active SignalAI subscription
         user_transactions = self.get_user_transactions(user_id)

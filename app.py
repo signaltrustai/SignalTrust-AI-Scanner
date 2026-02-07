@@ -1161,7 +1161,8 @@ def api_signalai_generate():
             access = payment_processor.check_signalai_access(
                 user.get('user_id', ''),
                 user.get('email', ''),
-                is_admin
+                is_admin,
+                user.get('plan', 'free')  # Pass user's plan
             )
             
             if not access['has_access']:
@@ -1198,7 +1199,8 @@ def api_signalai_check_access():
         access = payment_processor.check_signalai_access(
             user.get('user_id', ''),
             user.get('email', ''),
-            is_admin
+            is_admin,
+            user.get('plan', 'free')  # Pass user's plan
         )
         
         return jsonify(access), 200
