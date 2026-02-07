@@ -79,9 +79,8 @@ stats = cloud_storage.get_statistics()
 CLOUD_PROVIDER=aws
 AWS_S3_BUCKET=your-bucket-name
 AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=your-access-key-id-here
-AWS_SECRET_ACCESS_KEY=your-secret-access-key-here
-
+AWS_ACCESS_KEY_ID=AKIA3XBYYCER25NRMPXG
+AWS_SECRET_ACCESS_KEY=3/4rlC8Q6fggtsm3aKjwN43l/dtcvvU9mZFyeAIH
 # Optional settings
 CLOUD_COMPRESS=true
 CLOUD_AUTO_SYNC=true
