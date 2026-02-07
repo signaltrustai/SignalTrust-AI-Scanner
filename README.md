@@ -2,6 +2,25 @@
 
 The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
 
+## 🤖 NEW: Multi-Agent System EU ✨
+
+SignalTrust now includes a powerful **multi-agent architecture** with 6 specialized agents working together for comprehensive market analysis:
+
+- **🎯 Coordinator**: Orchestrates all agents using CrewAI framework
+- **💰 Crypto-Analyst**: FinGPT-based cryptocurrency market analysis
+- **📈 Stock-Analyst**: Stock-GPT-based stock market analysis  
+- **🐋 Whale-Watcher**: Monitors large blockchain transactions
+- **📰 News-Agent**: Aggregates and analyzes market news
+- **🔍 Supervisor**: Auto-GPT-based task orchestration and monitoring
+
+**Quick Start with Multi-Agent System:**
+```bash
+./setup_agents.sh   # Setup and start all agents
+./test_agents.sh    # Test all agents
+```
+
+📚 **Full Documentation**: See [MULTI_AGENT_SYSTEM.md](MULTI_AGENT_SYSTEM.md) for complete guide.
+
 ## 🚀 Features
 
 ### Advanced AI Capabilities ✨ NEW
@@ -34,10 +53,21 @@ The **Ultimate AI-Powered Market Scanner** for intelligent trading and investmen
 
 ## 📋 Requirements
 
+### Standard Installation
 - Python 3.7 or higher
 - pip (Python package manager)
 - (Optional) OpenAI or Anthropic API key for enhanced AI features
 - (Optional) Ollama for free local AI models
+
+### Multi-Agent System (Docker-based)
+- Docker 20.10+ and Docker Compose v2.0+
+- 4GB+ RAM recommended
+- API keys for:
+  - OpenAI (required for all agents)
+  - CoinGecko (for crypto data)
+  - Alpha Vantage (for stock data)
+  - WhaleAlert (for blockchain monitoring)
+  - NewsCatcher (for news aggregation)
 
 ## 🔧 Installation
 
