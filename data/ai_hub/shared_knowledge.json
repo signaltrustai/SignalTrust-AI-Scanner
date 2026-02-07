@@ -1,0 +1,111 @@
+{
+  "version": "1.0",
+  "last_update": "2026-02-07T15:02:13.381226",
+  "total_data_points": 14,
+  "market_insights": {},
+  "patterns": [
+    {
+      "source": "TestAI",
+      "timestamp": "2026-02-07T15:02:13.286714",
+      "pattern": {
+        "pattern": "test"
+      }
+    },
+    {
+      "source": "AI0",
+      "timestamp": "2026-02-07T15:02:13.378394",
+      "pattern": {
+        "test": 0
+      }
+    },
+    {
+      "source": "AI1",
+      "timestamp": "2026-02-07T15:02:13.378677",
+      "pattern": {
+        "test": 1
+      }
+    },
+    {
+      "source": "AI2",
+      "timestamp": "2026-02-07T15:02:13.378977",
+      "pattern": {
+        "test": 2
+      }
+    },
+    {
+      "source": "AI3",
+      "timestamp": "2026-02-07T15:02:13.379277",
+      "pattern": {
+        "test": 3
+      }
+    },
+    {
+      "source": "AI4",
+      "timestamp": "2026-02-07T15:02:13.379596",
+      "pattern": {
+        "test": 4
+      }
+    },
+    {
+      "source": "AI5",
+      "timestamp": "2026-02-07T15:02:13.379939",
+      "pattern": {
+        "test": 5
+      }
+    },
+    {
+      "source": "AI6",
+      "timestamp": "2026-02-07T15:02:13.380240",
+      "pattern": {
+        "test": 6
+      }
+    },
+    {
+      "source": "AI7",
+      "timestamp": "2026-02-07T15:02:13.380550",
+      "pattern": {
+        "test": 7
+      }
+    },
+    {
+      "source": "AI8",
+      "timestamp": "2026-02-07T15:02:13.380918",
+      "pattern": {
+        "test": 8
+      }
+    },
+    {
+      "source": "AI9",
+      "timestamp": "2026-02-07T15:02:13.381226",
+      "pattern": {
+        "test": 9
+      }
+    }
+  ],
+  "predictions": [
+    {
+      "source": "Predictor",
+      "timestamp": "2026-02-07T14:58:11.610688",
+      "prediction": {
+        "asset": "BTC",
+        "direction": "UP"
+      }
+    }
+  ],
+  "whale_intelligence": {
+    "WhaleWatcher": {
+      "timestamp": "2026-02-07T14:58:11.610887",
+      "data": {
+        "whale_ratio": 1.5
+      }
+    }
+  },
+  "gem_discoveries": [
+    {
+      "symbol": "TEST",
+      "score": 95
+    }
+  ],
+  "news_sentiment": {},
+  "correlations": []
+}

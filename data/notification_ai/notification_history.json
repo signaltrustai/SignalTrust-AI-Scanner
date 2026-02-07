@@ -1,0 +1,17 @@
+[
+  {
+    "timestamp": "2026-02-07T15:02:13.311119",
+    "type": "gem_discovery",
+    "priority": "medium",
+    "data": {
+      "symbol": "TEST",
+      "gem_score": 95
+    },
+    "channels": [
+      "push",
+      "email"
+    ],
+    "read": false,
+    "acted_on": false
+  }
+]

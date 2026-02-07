@@ -58,46 +58,49 @@ class RealTimeMarketData:
         self.cache = {}
         self.last_update = None
         
-    def get_canadian_stocks(self, limit: int = 20) -> List[Dict]:
+    def get_canadian_stocks(self, limit: int = None) -> List[Dict]:
         """Get Canadian stock market data.
         
         Args:
-            limit: Number of stocks to return
+            limit: Number of stocks to return (None = all)
             
         Returns:
             List of Canadian stock data
         """
         stocks = []
-        for symbol in self.CANADIAN_STOCKS[:limit]:
+        symbols = self.CANADIAN_STOCKS if limit is None else self.CANADIAN_STOCKS[:limit]
+        for symbol in symbols:
             stocks.append(self._generate_stock_data(symbol, 'TSX'))
         return stocks
     
-    def get_us_stocks(self, limit: int = 50) -> List[Dict]:
+    def get_us_stocks(self, limit: int = None) -> List[Dict]:
         """Get US stock market data.
         
         Args:
-            limit: Number of stocks to return
+            limit: Number of stocks to return (None = all)
             
         Returns:
             List of US stock data
         """
         stocks = []
-        for symbol in self.US_STOCKS[:limit]:
+        symbols = self.US_STOCKS if limit is None else self.US_STOCKS[:limit]
+        for symbol in symbols:
             market = 'NASDAQ' if symbol in ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA'] else 'NYSE'
             stocks.append(self._generate_stock_data(symbol, market))
         return stocks
     
-    def get_all_crypto(self, limit: int = 60) -> List[Dict]:
+    def get_all_crypto(self, limit: int = None) -> List[Dict]:
         """Get cryptocurrency market data.
         
         Args:
-            limit: Number of cryptocurrencies to return
+            limit: Number of cryptocurrencies to return (None = all)
             
         Returns:
             List of cryptocurrency data
         """
         cryptos = []
-        for symbol in self.CRYPTOCURRENCIES[:limit]:
+        symbols = self.CRYPTOCURRENCIES if limit is None else self.CRYPTOCURRENCIES[:limit]
+        for symbol in symbols:
             cryptos.append(self._generate_crypto_data(symbol))
         return cryptos
     

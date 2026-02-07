@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "created_at": "2026-02-07T15:11:52.778272",
+  "backups": [
+    {
+      "backup_id": "unified_backup_20260207_151152",
+      "timestamp": "2026-02-07T15:11:52.815423",
+      "local_path": "data/unified_backups/unified_backup_20260207_151152.json.gz",
+      "size_bytes": 885010,
+      "checksum": "cd542fa64d15eb6eb12422c5a1652119",
+      "compressed": true,
+      "cloud_synced": false,
+      "cloud_path": null,
+      "metadata": {
+        "total_items": 25,
+        "sources_count": 6,
+        "compressed": true
+      }
+    },
+    {
+      "backup_id": "unified_backup_20260207_151223",
+      "timestamp": "2026-02-07T15:12:23.630689",
+      "local_path": "data/unified_backups/unified_backup_20260207_151223.json.gz",
+      "size_bytes": 885010,
+      "checksum": "49854c36ebf2694f5e57fb9764bf737f",
+      "compressed": true,
+      "cloud_synced": false,
+      "cloud_path": null,
+      "metadata": {
+        "total_items": 25,
+        "sources_count": 6,
+        "compressed": true
+      }
+    },
+    {
+      "backup_id": "unified_backup_20260207_151442",
+      "timestamp": "2026-02-07T15:14:42.409480",
+      "local_path": "data/unified_backups/unified_backup_20260207_151442.json.gz",
+      "size_bytes": 885009,
+      "checksum": "c904c8884d5feae3eeadba50de27b43f",
+      "compressed": true,
+      "cloud_synced": false,
+      "cloud_path": null,
+      "metadata": {
+        "total_items": 25,
+        "sources_count": 6,
+        "compressed": true
+      }
+    }
+  ],
+  "statistics": {
+    "total_backups": 3,
+    "total_size_bytes": 2655029,
+    "last_sync": null,
+    "cloud_synced": 0
+  }
+}

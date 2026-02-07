@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2026-02-07T15:02:13.286583",
+    "from": "TestAI",
+    "to": "ALL",
+    "type": "test",
+    "data": {
+      "data": "test"
+    },
+    "delivered": false
+  }
+]
