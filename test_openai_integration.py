@@ -54,13 +54,13 @@ def test_openai_import():
         return False
 
 def test_asi1_integration():
-    """Test if ASI1 integration module loads"""
-    print("Testing ASI1 Integration Module...")
+    """Test if AI integration module loads"""
+    print("Testing AI Integration Module...")
     print("-" * 60)
     
     try:
         from asi1_integration import ASI1AIIntegration
-        print("✓ ASI1AIIntegration module loaded successfully")
+        print("✓ AI integration module loaded successfully")
         print()
         return True
     except Exception as e:
@@ -124,7 +124,7 @@ def main():
     tests = [
         ("Configuration", test_openai_configuration),
         ("OpenAI Library", test_openai_import),
-        ("ASI1 Integration", test_asi1_integration),
+        ("AI Integration", test_asi1_integration),
     ]
     
     results = []

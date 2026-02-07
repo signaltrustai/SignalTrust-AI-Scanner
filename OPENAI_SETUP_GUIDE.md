@@ -56,7 +56,7 @@ This will install:
 Run the test script to verify your OpenAI integration:
 
 ```bash
-python test_ai_system.py
+python test_openai_integration.py
 ```
 
 ## Available Models

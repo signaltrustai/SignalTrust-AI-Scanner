@@ -11,7 +11,11 @@ from datetime import datetime
 
 
 class ASI1AIIntegration:
-    """AI Integration for market analysis using OpenAI"""
+    """AI Integration for market analysis using OpenAI
+    
+    Note: Despite the class name 'ASI1AIIntegration', this now uses OpenAI.
+    The name is kept for backward compatibility with existing code.
+    """
     
     def __init__(self, api_key: Optional[str] = None):
         """Initialize OpenAI integration.
