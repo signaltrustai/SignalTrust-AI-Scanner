@@ -13,25 +13,20 @@ app = Flask(__name__)
 AGENT_API_BASE_URL = os.getenv("AGENT_API_BASE_URL", "https://api.signaltrust.ai")
 AGENT_API_KEY = os.getenv("AGENT_API_KEY", "")
 
-# Ici tu mets les IDs réels de tes agents
+# IDs des agents (chargés depuis Render)
 AGENT_IDS = {
-    "STOCK": os.getenv("AGENT_STOCK_ID"),
-    "CRYPTO": os.getenv("AGENT_CRYPTO_ID"),
-    "WHALE": os.getenv("AGENT_WHALE_ID"),
-    "SITE": os.getenv("AGENT_SITE_ID"),
-    "SUPERVISOR": os.getenv("AGENT_SUPERVISOR_ID"),
-    "DESIRE": os.getenv("DESIRE_AGENT_ID"),
-}
-
+    "STOCK": os.getenv("AGENT_STOCK_ID"),            # ASI1-STOCK-001
+    "CRYPTO": os.getenv("AGENT_CRYPTO_ID"),          # ASI2-CRYPTO-002
+    "WHALE": os.getenv("AGENT_WHALE_ID"),            # ASI3-WHALE-003
+    "SITE": os.getenv("AGENT_SITE_ID"),              # ASI4-SITE-004
+    "SUPERVISOR": os.getenv("AGENT_SUPERVISOR_ID"),  # ASI5-SUPERVISOR-005
+    "DESIRE": os.getenv("DESIRE_AGENT_ID"),          # ASI6-DESIRE-006
 }
 
 LOG_FILE = "signaltrust_events.log"
 
 def log_event(event_type: str, payload: dict):
-    """
-    Enregistre les événements importants dans un fichier log.
-    Utilisable plus tard pour analyser les patterns ou entraîner des modèles.
-    """
+    """Enregistre les événements importants dans un fichier log."""
     entry = {
         "timestamp": datetime.datetime.utcnow().isoformat(),
         "type": event_type,
@@ -44,9 +39,7 @@ def log_event(event_type: str, payload: dict):
         pass
 
 def call_agent(agent_key: str, message: str):
-    """
-    Appelle un agent SignalTrust via son alias logique (STOCK, CRYPTO, etc.).
-    """
+    """Appelle un agent SignalTrust via son alias logique."""
     agent_id = AGENT_IDS.get(agent_key)
     if not agent_id:
         return {"error": f"Unknown agent key: {agent_key}"}
@@ -82,7 +75,6 @@ def agent_router(message: str):
     if "modifier le site" in msg or "change le site" in msg or "contenu du site" in msg:
         log_event("SITE_UPDATE_REQUEST", {"message": message})
         site_response = call_agent("SITE", message)
-        # informer Desire en parallèle
         try:
             call_agent("DESIRE", f"INFO_SITE_UPDATE: {message}")
         except Exception:
@@ -103,17 +95,17 @@ def agent_router(message: str):
         log_event("MARKET_CRYPTO_QUERY", {"message": message})
         return call_agent("CRYPTO", message)
 
-    # --- Analyse whales / gros mouvements ---
+    # --- Analyse whales ---
     if "whale" in msg or "gros mouvement" in msg or "on-chain" in msg or "onchain" in msg:
         log_event("MARKET_WHALE_QUERY", {"message": message})
         return call_agent("WHALE", message)
 
-    # --- Sécurité / risque / prudence ---
+    # --- Sécurité / risque ---
     if "risque" in msg or "danger" in msg or "sécurité" in msg:
         log_event("SECURITY_CHECK", {"message": message})
         return call_agent("SUPERVISOR", f"[SECURITY_CHECK] {message}")
 
-    # --- Fallback : superviseur qui coordonne ---
+    # --- Fallback : superviseur ---
     log_event("SUPERVISOR_FALLBACK", {"message": message})
     return call_agent("SUPERVISOR", message)
 
