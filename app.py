@@ -54,7 +54,11 @@ ai_intelligence = AIMarketIntelligence()
 whale_watcher = WhaleWatcher()
 notification_center = NotificationCenter()
 realtime_data = RealTimeMarketData()
-ai_chat = AIChatSystem()
+
+# Initialize ASI1 and AI Chat System with dependencies
+from asi1_integration import ASI1AIIntegration
+asi1_integration = ASI1AIIntegration()
+ai_chat = AIChatSystem(asi1_integration, ai_intelligence, whale_watcher)
 
 # -----------------------------
 # HELPER FUNCTIONS
@@ -92,7 +96,7 @@ def save_learning_data(data_type: str, data: dict):
         
         # Add new entry
         learning_data.append({
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "type": data_type,
             "data": data
         })
@@ -109,7 +113,7 @@ def save_learning_data(data_type: str, data: dict):
 def log_event(event_type: str, payload: dict):
     """Enregistre les événements importants dans un fichier log."""
     entry = {
-        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "type": event_type,
         "data": payload,
     }
@@ -697,11 +701,11 @@ class BackgroundAIWorker:
     def _run_ai_analysis(self):
         """Run AI analysis on top assets."""
         try:
-            # Get top crypto assets
-            top_assets = realtime_data.get_all_crypto(limit=10)
+            # Get all crypto assets (no limit)
+            top_assets = realtime_data.get_all_crypto(limit=None)
             
             analyses = []
-            for asset in top_assets:
+            for asset in top_assets[:50]:  # Analyze top 50 instead of 10
                 try:
                     analysis = market_analyzer.analyze_technical(asset["symbol"])
                     analyses.append({
@@ -719,7 +723,7 @@ class BackgroundAIWorker:
     def _check_whale_activity(self):
         """Check for whale transactions and alert."""
         try:
-            transactions = whale_watcher.get_recent_transactions(limit=20)
+            transactions = whale_watcher.get_recent_transactions(limit=100)  # Increased from 20 to 100
             
             # Save whale data for learning
             save_learning_data("auto_whale_data", transactions)
@@ -734,7 +738,7 @@ class BackgroundAIWorker:
                 })
                 
                 # Send notifications for major whale movements
-                for tx in significant[:5]:  # Top 5 only
+                for tx in significant[:10]:  # Top 10 instead of 5
                     notification_center.send_whale_alert(
                         "all_pro_users",
                         tx.get("symbol"),
@@ -747,11 +751,11 @@ class BackgroundAIWorker:
     def _generate_predictions(self):
         """Generate AI predictions for popular assets."""
         try:
-            # Get top assets
-            top_assets = realtime_data.get_all_crypto(limit=20)
+            # Get all assets (no limit)
+            top_assets = realtime_data.get_all_crypto(limit=None)
             
             predictions = []
-            for asset in top_assets[:10]:  # Top 10 only
+            for asset in top_assets[:30]:  # Top 30 instead of 10
                 try:
                     prediction = ai_predictor.predict_price(asset["symbol"], days=7)
                     predictions.append({

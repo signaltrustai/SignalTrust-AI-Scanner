@@ -21,15 +21,16 @@ class PaymentProcessor:
             'price': 0,
             'currency': 'USD',
             'features': [
-                'Basic crypto market scanning',
-                '10 scans per day',
-                'Basic price alerts',
+                'Unlimited crypto market scanning',
+                'Unlimited stocks analysis',
+                'Unlimited scans per day',
+                'Real-time price alerts',
                 'Community support'
             ],
             'limits': {
-                'scans_per_day': 10,
-                'symbols_per_scan': 5,
-                'ai_predictions': 0
+                'scans_per_day': -1,
+                'symbols_per_scan': -1,
+                'ai_predictions': -1
             }
         },
         'basic': {
@@ -39,17 +40,18 @@ class PaymentProcessor:
             'billing_period': 'monthly',
             'features': [
                 'Unlimited crypto scanning',
+                'Unlimited stocks analysis',
                 'Basic NFT tracking',
                 'Real-time price alerts',
                 'Technical analysis tools',
-                '100 AI predictions per month',
+                'Unlimited AI predictions',
                 'Email support',
                 'TradingView charts'
             ],
             'limits': {
                 'scans_per_day': -1,
-                'symbols_per_scan': 50,
-                'ai_predictions': 100
+                'symbols_per_scan': -1,
+                'ai_predictions': -1
             }
         },
         'pro': {
