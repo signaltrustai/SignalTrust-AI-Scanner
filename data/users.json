@@ -3,11 +3,11 @@
     "user_id": "owner_admin_001",
     "email": "signaltrustai@gmail.com",
     "full_name": "SignalTrust Admin",
-    "password_hash": "804d702f3aab21b1b4ed524dfa758632788f05e40d03aa7a3559723e3f4dcf21",
-    "salt": "87b33093ceaa64b7732718de7ef3952cacee2a2ebc6395e36950996faf04cbd6",
+    "password_hash": "09366e49680373ff61e8e6a790d9b314d2347651a4da95708f7342d61746604d",
+    "salt": "8d6d7fd03351d3c0987a1d74154e06b88db572541537486219258789fdc49fc2",
     "plan": "enterprise",
-    "created_at": "2026-02-07T03:49:56.330200",
-    "last_login": "2026-02-07T03:52:03.651541",
+    "created_at": "2026-02-07T03:52:55.375470",
+    "last_login": "2026-02-07T03:52:55.504700",
     "is_active": true,
     "payment_status": "active"
   }
