@@ -138,7 +138,19 @@ class SignalAIStrategy:
         return result
     
     def _simulate_price(self, symbol: str) -> float:
-        """Simulate current price for demo purposes"""
+        """Simulate current price for demo purposes
+        
+        WARNING: This method generates simulated prices for demonstration only.
+        DO NOT USE IN PRODUCTION with real trading decisions. Replace with
+        actual market data API integration (e.g., Binance, CoinGecko, Yahoo Finance)
+        before deploying to production.
+        
+        Args:
+            symbol: Trading symbol
+            
+        Returns:
+            Simulated price (for demo only)
+        """
         # Base prices for different symbols
         base_prices = {
             "BTC": 45000,

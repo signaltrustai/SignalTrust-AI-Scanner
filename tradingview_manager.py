@@ -15,16 +15,114 @@ class TradingViewManager:
     
     # Popular symbols for quick access
     POPULAR_CRYPTO = [
+        # Top Market Cap Cryptocurrencies
         "BINANCE:BTCUSDT", "BINANCE:ETHUSDT", "BINANCE:BNBUSDT",
-        "BINANCE:ADAUSDT", "BINANCE:SOLUSDT", "BINANCE:DOGEUSDT",
-        "BINANCE:XRPUSDT", "BINANCE:DOTUSDT", "BINANCE:MATICUSDT",
-        "BINANCE:AVAXUSDT", "BINANCE:LINKUSDT", "BINANCE:UNIUSDT"
+        "BINANCE:XRPUSDT", "BINANCE:SOLUSDT", "BINANCE:ADAUSDT",
+        "BINANCE:DOGEUSDT", "BINANCE:TRXUSDT", "BINANCE:AVAXUSDT",
+        "BINANCE:LINKUSDT", "BINANCE:MATICUSDT", "BINANCE:DOTUSDT",
+        
+        # DeFi Tokens
+        "BINANCE:UNIUSDT", "BINANCE:AAVEUSDT", "BINANCE:MKRUSDT",
+        "BINANCE:COMPUSDT", "BINANCE:CRVUSDT", "BINANCE:SUSHIUSDT",
+        "BINANCE:SNXUSDT", "BINANCE:1INCHUSDT", "BINANCE:YFIUSDT",
+        
+        # Layer 1 & Layer 2
+        "BINANCE:ATOMUSDT", "BINANCE:NEARUSDT", "BINANCE:APTUSDT",
+        "BINANCE:OPUSDT", "BINANCE:ARBUSDT", "BINANCE:INJUSDT",
+        "BINANCE:SUIUSDT", "BINANCE:ALGOUSDT", "BINANCE:ICPUSDT",
+        
+        # Meme & Community Coins
+        "BINANCE:SHIBUSDT", "BINANCE:PEPEUSDT", "BINANCE:FLOKIUSDT",
+        "BINANCE:BONKUSDT", "BINANCE:WIFUSDT",
+        
+        # Gaming & Metaverse
+        "BINANCE:SANDUSDT", "BINANCE:MANAUSDT", "BINANCE:AXSUSDT",
+        "BINANCE:ENJUSDT", "BINANCE:GALAUSDT", "BINANCE:GMTUSDT",
+        
+        # AI & Infrastructure
+        "BINANCE:FETUSDT", "BINANCE:RENDERUSDT", "BINANCE:GRTUSDT",
+        "BINANCE:OCEANUSDT", "BINANCE:AGIXUSDT",
+        
+        # Stablecoins Pairs
+        "BINANCE:BTCBUSD", "BINANCE:ETHBUSD", "BINANCE:BTCUSDC",
+        
+        # Other Popular
+        "BINANCE:LTCUSDT", "BINANCE:BCHUSDT", "BINANCE:ETCUSDT",
+        "BINANCE:XLMUSDT", "BINANCE:XMRUSDT", "BINANCE:VETUSDT",
+        "BINANCE:FILUSDT", "BINANCE:THETAUSDT", "BINANCE:FTMUSDT",
+        "BINANCE:HBARUSDT", "BINANCE:LDOUSDT", "BINANCE:QNTUSDT",
+        "BINANCE:RUNEUSDT", "BINANCE:EOSUSDT", "BINANCE:ZECUSDT"
     ]
     
     POPULAR_STOCKS = [
+        # Tech Giants (FAANG+)
         "NASDAQ:AAPL", "NASDAQ:MSFT", "NASDAQ:GOOGL", "NASDAQ:AMZN",
-        "NASDAQ:TSLA", "NASDAQ:NVDA", "NASDAQ:META", "NYSE:JPM",
-        "NYSE:V", "NASDAQ:NFLX", "NYSE:DIS", "NYSE:BA"
+        "NASDAQ:META", "NASDAQ:NVDA", "NASDAQ:TSLA", "NASDAQ:NFLX",
+        
+        # Semiconductors
+        "NASDAQ:AMD", "NASDAQ:INTC", "NASDAQ:AVGO", "NASDAQ:QCOM",
+        "NASDAQ:MU", "NASDAQ:AMAT", "NASDAQ:LRCX", "NYSE:TSM",
+        
+        # Software & Cloud
+        "NASDAQ:ORCL", "NYSE:CRM", "NASDAQ:ADBE", "NASDAQ:INTU",
+        "NASDAQ:NOW", "NASDAQ:SNOW", "NASDAQ:TEAM", "NASDAQ:ZS",
+        
+        # E-Commerce & Retail
+        "NASDAQ:SHOP", "NYSE:WMT", "NYSE:TGT", "NYSE:HD",
+        "NYSE:LOW", "NASDAQ:EBAY", "NASDAQ:BKNG",
+        
+        # Financial Services
+        "NYSE:JPM", "NYSE:BAC", "NYSE:WFC", "NYSE:C",
+        "NYSE:GS", "NYSE:MS", "NYSE:AXP", "NYSE:BLK",
+        "NYSE:V", "NYSE:MA", "NYSE:PYPL", "NASDAQ:SQ",
+        
+        # Healthcare & Pharma
+        "NYSE:JNJ", "NYSE:UNH", "NYSE:PFE", "NYSE:ABBV",
+        "NYSE:TMO", "NYSE:ABT", "NYSE:LLY", "NASDAQ:MRNA",
+        "NASDAQ:GILD", "NYSE:BMY",
+        
+        # Energy & Oil
+        "NYSE:XOM", "NYSE:CVX", "NYSE:COP", "NYSE:SLB",
+        "NYSE:OXY", "NYSE:BP", "NYSE:TTE",
+        
+        # Consumer Goods
+        "NYSE:KO", "NASDAQ:PEP", "NYSE:PG", "NYSE:NKE",
+        "NYSE:MCD", "NYSE:SBUX", "NYSE:DIS", "NYSE:COST",
+        
+        # Automotive
+        "NYSE:F", "NYSE:GM", "NYSE:RIVN", "NASDAQ:LCID",
+        "NYSE:NIO", "NASDAQ:LI",
+        
+        # Aerospace & Defense
+        "NYSE:BA", "NYSE:LMT", "NYSE:RTX", "NYSE:NOC",
+        
+        # Telecom & Media
+        "NYSE:T", "NASDAQ:CMCSA", "NYSE:VZ", "NASDAQ:TMUS",
+        
+        # Industrial
+        "NYSE:CAT", "NYSE:DE", "NYSE:GE", "NYSE:HON",
+        
+        # Real Estate & REITs
+        "NYSE:AMT", "NYSE:PLD", "NYSE:SPG", "NYSE:O",
+        
+        # Banks & Regional Banks
+        "NYSE:USB", "NYSE:PNC", "NYSE:TFC", "NYSE:COF",
+        
+        # Utilities
+        "NYSE:NEE", "NYSE:DUK", "NYSE:SO", "NYSE:D",
+        
+        # Materials & Chemicals
+        "NYSE:LIN", "NYSE:APD", "NYSE:ECL", "NYSE:DOW",
+        
+        # Travel & Hospitality
+        "NASDAQ:ABNB", "NYSE:MAR", "NYSE:HLT", "NYSE:DAL",
+        "NYSE:UAL", "NYSE:AAL",
+        
+        # Gaming & Entertainment
+        "NASDAQ:EA", "NASDAQ:TTWO", "NASDAQ:ATVI", "NYSE:RBLX",
+        
+        # Biotech
+        "NASDAQ:BIIB", "NASDAQ:REGN", "NASDAQ:VRTX", "NASDAQ:AMGN"
     ]
     
     # Available timeframes

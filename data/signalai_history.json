@@ -118,5 +118,149 @@
     "stop_loss": 103.0,
     "take_profit": 94.0,
     "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.425414",
+    "current_price": 45756.98679043041,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 91,
+    "indicators": {
+      "EMA9": 45525.375373848125,
+      "EMA21": 44325.557090593196,
+      "RSI": 64.96934907126335,
+      "MACD": {
+        "value": 25.02932556959003,
+        "signal": 20.023460455672023,
+        "histogram": 5.005865113918006
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:ETHUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.425741",
+    "current_price": 2486.727986082248,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 83,
+    "indicators": {
+      "EMA9": 2456.619473702475,
+      "EMA21": 2454.4562368527218,
+      "RSI": 55.64153211183718,
+      "MACD": {
+        "value": -15.44477404077579,
+        "signal": -12.355819232620632,
+        "histogram": -3.088954808155158
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "BINANCE:PEPEUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.426159",
+    "current_price": 100.0,
+    "signal": "SELL",
+    "strength": 66,
+    "confidence": 91,
+    "indicators": {
+      "EMA9": 98.07709302429039,
+      "EMA21": 98.26863772701712,
+      "RSI": 42.68111467485681,
+      "MACD": {
+        "value": -46.02441523858849,
+        "signal": -36.819532190870795,
+        "histogram": -9.204883047717699
+      }
+    },
+    "recommendation": "Sell - Consider taking profits",
+    "entry_price": 100.49999999999999,
+    "stop_loss": 103.0,
+    "take_profit": 94.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "NASDAQ:AAPL",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.426569",
+    "current_price": 181.18670264511164,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 99,
+    "indicators": {
+      "EMA9": 177.70653525569486,
+      "EMA21": 176.2133534945822,
+      "RSI": 44.941245546657726,
+      "MACD": {
+        "value": -7.901956831920224,
+        "signal": -6.321565465536179,
+        "histogram": -1.5803913663840448
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "NYSE:JPM",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.427030",
+    "current_price": 100.0,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 98,
+    "indicators": {
+      "EMA9": 99.31523661520905,
+      "EMA21": 98.90947286026012,
+      "RSI": 41.68477225519874,
+      "MACD": {
+        "value": -45.84224956989592,
+        "signal": -36.67379965591674,
+        "histogram": -9.168449913979185
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "NASDAQ:NVDA",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.427507",
+    "current_price": 100.0,
+    "signal": "BUY",
+    "strength": 100,
+    "confidence": 94,
+    "indicators": {
+      "EMA9": 99.55069150091572,
+      "EMA21": 97.04505074003285,
+      "RSI": 33.83810158259947,
+      "MACD": {
+        "value": 36.12099782946018,
+        "signal": 28.896798263568144,
+        "histogram": 7.224199565892036
+      }
+    },
+    "recommendation": "Strong Buy - High conviction entry signal",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
   }
 ]
