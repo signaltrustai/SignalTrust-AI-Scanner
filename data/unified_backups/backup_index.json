@@ -31,11 +31,26 @@
         "sources_count": 6,
         "compressed": true
       }
+    },
+    {
+      "backup_id": "unified_backup_20260207_151442",
+      "timestamp": "2026-02-07T15:14:42.409480",
+      "local_path": "data/unified_backups/unified_backup_20260207_151442.json.gz",
+      "size_bytes": 885009,
+      "checksum": "c904c8884d5feae3eeadba50de27b43f",
+      "compressed": true,
+      "cloud_synced": false,
+      "cloud_path": null,
+      "metadata": {
+        "total_items": 25,
+        "sources_count": 6,
+        "compressed": true
+      }
     }
   ],
   "statistics": {
-    "total_backups": 2,
-    "total_size_bytes": 1770020,
+    "total_backups": 3,
+    "total_size_bytes": 2655029,
     "last_sync": null,
     "cloud_synced": 0
   }
