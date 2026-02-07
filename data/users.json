@@ -7,8 +7,10 @@
     "salt": "8d6d7fd03351d3c0987a1d74154e06b88db572541537486219258789fdc49fc2",
     "plan": "enterprise",
     "created_at": "2026-02-07T03:52:55.375470",
-    "last_login": "2026-02-07T03:53:38.526367",
+    "last_login": "2026-02-07T04:01:49.554906",
     "is_active": true,
-    "payment_status": "active"
+    "payment_status": "active",
+    "payment_bypass": true,
+    "notes": "Compte owner - Acc\u00e8s complet sans paiement requis"
   }
 }
