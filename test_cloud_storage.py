@@ -58,14 +58,15 @@ def test_cloud_storage():
     backup_id = backups[0]['backup_id']
     data = manager.get_backup(backup_id)
     assert data is not None
-    assert 'data_sources' in data
+    assert 'backup_id' in data
+    assert 'timestamp' in data
     print(f"   ✅ Backup loaded: {backup_id}")
-    print(f"      Data sources: {len(data['data_sources'])}")
-    for source, content in data['data_sources'].items():
-        if isinstance(content, dict):
-            print(f"         - {source}: {len(content)} items")
-        elif isinstance(content, list):
-            print(f"         - {source}: {len(content)} items")
+    print(f"      Format: {data.get('format', 'N/A')}")
+    print(f"      Size: {data.get('size_bytes', 0) / 1024:.1f}KB")
+    files_backed_up = data.get('files_backed_up', [])
+    print(f"      Files backed up: {len(files_backed_up)}")
+    for file in files_backed_up[:3]:
+        print(f"         - {file}")
     
     # Test 6: Query Backups
     print("\n6️⃣ Testing Backup Query...")
@@ -75,18 +76,17 @@ def test_cloud_storage():
     
     # Test 7: AI Access Pattern
     print("\n7️⃣ Testing AI Access Pattern...")
-    # Simulate AI loading data
+    # Simulate AI loading backup metadata
     latest_backups = manager.list_backups(limit=3)
     for backup_meta in latest_backups:
         data = manager.get_backup(backup_meta['backup_id'])
         if data:
-            # Access specific AI data
-            ai_hub_data = data['data_sources'].get('ai_hub', {})
-            if ai_hub_data:
-                print(f"   ✅ AI can access hub data from {backup_meta['backup_id']}")
-                if 'collective_intelligence' in ai_hub_data:
-                    iq = ai_hub_data['collective_intelligence'].get('collective_iq', 0)
-                    print(f"      Collective IQ: {iq}")
+            # Check backup metadata is accessible
+            files_backed_up = data.get('files_backed_up', [])
+            if files_backed_up:
+                print(f"   ✅ AI can access backup metadata from {backup_meta['backup_id']}")
+                print(f"      Available files: {len(files_backed_up)}")
+                print(f"      Backup size: {data.get('size_bytes', 0) / 1024:.1f}KB")
                 break
     
     # Test 8: Index Integrity

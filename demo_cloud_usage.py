@@ -54,23 +54,22 @@ def demo_load_backup(backup_id):
         return
     
     print(f"\n✅ Backup chargé: {backup_id}")
-    print(f"   Version: {data['version']}")
+    print(f"   Format: {data.get('format', 'N/A')}")
     print(f"   Timestamp: {data['timestamp']}")
+    print(f"   Taille: {data['size_bytes'] / 1024 / 1024:.2f}MB")
     
-    print("\n📊 Sources de données:")
-    for source, content in data['data_sources'].items():
-        if isinstance(content, dict):
-            print(f"   • {source}: {len(content)} items")
-        elif isinstance(content, list):
-            print(f"   • {source}: {len(content)} items")
-        else:
-            print(f"   • {source}: data présente")
+    print("\n📊 Fichiers sauvegardés:")
+    files_backed_up = data.get('files_backed_up', [])
+    for file in files_backed_up[:10]:  # Show first 10 files
+        print(f"   • {file}")
+    if len(files_backed_up) > 10:
+        print(f"   ... et {len(files_backed_up) - 10} autres fichiers")
 
 
 def demo_ai_access(backup_id):
     """Demo: Comment une IA accède aux données."""
     print("\n" + "=" * 80)
-    print("🤖 DEMO: Accès IA aux Données")
+    print("🤖 DEMO: Accès IA aux Données (Archive)")
     print("=" * 80)
     
     data = cloud_storage.get_backup(backup_id)
@@ -79,31 +78,29 @@ def demo_ai_access(backup_id):
         print("❌ Backup non trouvé!")
         return
     
-    # Exemple 1: Accéder à l'intelligence collective
-    ai_hub = data['data_sources'].get('ai_hub', {})
-    if ai_hub and 'collective_intelligence' in ai_hub:
-        ci = ai_hub['collective_intelligence']
-        print("\n🧠 Intelligence Collective:")
-        print(f"   IQ Collectif: {ci.get('collective_iq', 0):.1f}")
-        print(f"   Précision: {ci.get('collective_accuracy', 0)*100:.1f}%")
-        print(f"   Synergy: {ci.get('evolution_synergy', 0):.1f}x")
+    print(f"\n✅ Backup accessible: {backup_id}")
+    print(f"   Format: Tar.gz archive")
+    print(f"   Taille: {data['size_bytes'] / 1024 / 1024:.2f}MB")
+    print(f"   Checksum: {data.get('checksum', 'N/A')[:16]}...")
     
-    # Exemple 2: Accéder aux patterns appris
-    market_data = data['data_sources'].get('total_market_intelligence', {})
-    if market_data and 'learned_patterns' in market_data:
-        patterns = market_data['learned_patterns']
-        print(f"\n📈 Patterns Appris: {len(patterns)}")
-        if patterns:
-            print(f"   Dernier pattern: {patterns[-1].get('type', 'N/A')}")
+    # Show files that can be extracted
+    files_backed_up = data.get('files_backed_up', [])
+    print(f"\n📦 {len(files_backed_up)} fichiers disponibles:")
+    for file in files_backed_up[:5]:
+        print(f"   • {file}")
+    if len(files_backed_up) > 5:
+        print(f"   ... et {len(files_backed_up) - 5} autres")
     
-    # Exemple 3: Accéder aux gemmes découvertes
-    gems = data['data_sources'].get('discovered_gems', {})
-    if isinstance(gems, dict) and 'gems' in gems:
-        gem_list = gems['gems']
-        print(f"\n💎 Gemmes Découvertes: {len(gem_list)}")
-        if gem_list:
-            top_gem = max(gem_list, key=lambda x: x.get('gem_score', 0))
-            print(f"   Top gem: {top_gem.get('symbol', 'N/A')} (score: {top_gem.get('gem_score', 0)})")
+    print("\n💡 Pour extraire et accéder aux données:")
+    print(f"   tar -xzf backups/{backup_id}.tar.gz")
+    print("   Ensuite charger les fichiers JSON individuellement")
+    
+    # Show what data sources are available
+    print("\n🗂️ Sources de données disponibles:")
+    data_dirs = [f for f in files_backed_up if '/' in f]
+    unique_sources = set([f.split('/')[1] if f.count('/') > 0 else f.split('/')[0] for f in data_dirs])
+    for source in sorted(unique_sources):
+        print(f"   • {source}")
 
 
 def demo_statistics():
