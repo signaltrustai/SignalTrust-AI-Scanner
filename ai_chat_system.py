@@ -11,6 +11,7 @@ from datetime import datetime
 from asi1_integration import ASI1AIIntegration
 from ai_market_intelligence import AIMarketIntelligence
 from whale_watcher import WhaleWatcher
+from config.admin_config import is_admin_email, is_admin_user_id, ADMIN_USER_ID
 
 
 class AIChatSystem:
@@ -32,18 +33,27 @@ class AIChatSystem:
         self.whale_watcher = whale_watcher
         self.conversation_history = {}
         
-    def check_access(self, user_id: str) -> bool:
+    def check_access(self, user_id: str, user_email: str = None) -> bool:
         """Check if user has access to AI chat.
         
         Currently restricted to owner only.
         
         Args:
             user_id: User ID to check
+            user_email: User email to check (optional)
             
         Returns:
             True if user has access, False otherwise
         """
-        # For now, only owner has access
+        # Check if user_id matches owner
+        if is_admin_user_id(user_id):
+            return True
+        
+        # Check if email matches admin email
+        if user_email and is_admin_email(user_email):
+            return True
+        
+        # Legacy check for backward compatibility
         return user_id == self.OWNER_ID
     
     def get_conversation_history(self, user_id: str) -> List[Dict]:
@@ -82,19 +92,20 @@ class AIChatSystem:
         if len(self.conversation_history[user_id]) > 50:
             self.conversation_history[user_id] = self.conversation_history[user_id][-50:]
     
-    def chat(self, user_id: str, message: str, ai_mode: str = "auto") -> Dict:
+    def chat(self, user_id: str, message: str, ai_mode: str = "auto", user_email: str = None) -> Dict:
         """Process chat message with AI system.
         
         Args:
             user_id: User ID
             message: User message
             ai_mode: AI mode to use (auto, asi1, intelligence, whale, prediction)
+            user_email: User email (optional, for access verification)
             
         Returns:
             AI response with metadata
         """
         # Check access
-        if not self.check_access(user_id):
+        if not self.check_access(user_id, user_email):
             return {
                 'success': False,
                 'error': 'Access restricted',

@@ -10,6 +10,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import Dict, Optional
+from config.admin_config import get_admin_config, ADMIN_USER_ID
 
 
 class UserAuth:
@@ -25,6 +26,7 @@ class UserAuth:
         self.sessions = {}
         self._ensure_data_dir()
         self._load_users()
+        self._create_default_admin()
     
     def _ensure_data_dir(self):
         """Ensure data directory exists."""
@@ -47,6 +49,37 @@ class UserAuth:
         """Save users to file."""
         with open(self.users_file, 'w') as f:
             json.dump(self.users, f, indent=2)
+    
+    def _create_default_admin(self):
+        """Create default admin account if it doesn't exist."""
+        admin_config = get_admin_config()
+        admin_email = admin_config['email']
+        
+        # Check if admin already exists
+        if admin_email in self.users:
+            # Ensure admin has correct user_id
+            if self.users[admin_email].get('user_id') != ADMIN_USER_ID:
+                self.users[admin_email]['user_id'] = ADMIN_USER_ID
+                self._save_users()
+            return
+        
+        # Create admin account
+        pwd_hash, salt = self._hash_password(admin_config['password'])
+        
+        self.users[admin_email] = {
+            'user_id': ADMIN_USER_ID,
+            'email': admin_email,
+            'full_name': admin_config['full_name'],
+            'password_hash': pwd_hash,
+            'salt': salt,
+            'plan': admin_config['plan'],
+            'created_at': datetime.now().isoformat(),
+            'last_login': None,
+            'is_active': admin_config['is_active'],
+            'payment_status': admin_config['payment_status']
+        }
+        
+        self._save_users()
     
     def _hash_password(self, password: str, salt: str = None) -> tuple:
         """Hash password with salt.
@@ -258,5 +291,6 @@ class UserAuth:
             'full_name': user['full_name'],
             'plan': user['plan'],
             'created_at': user['created_at'],
-            'payment_status': user.get('payment_status', 'active')
+            'payment_status': user.get('payment_status', 'active'),
+            'is_active': user.get('is_active', True)
         }

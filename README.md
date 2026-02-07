@@ -64,6 +64,22 @@ python3 start.py
 
 The application will be available at: **http://localhost:5000**
 
+### Default Administrator Account
+
+The application includes a pre-configured administrator account for initial setup:
+
+- **Email:** signaltrustai@gmail.com
+- **Password:** !Obiwan12!
+- **User ID:** owner_admin_001
+- **Access Level:** Enterprise (Full Access)
+
+⚠️ **IMPORTANT SECURITY NOTICE**: This default password is for development and initial setup only. **You MUST change this password immediately after first login in any production environment.** See [ADMIN_ACCESS.md](ADMIN_ACCESS.md) for detailed information.
+
+The admin account has full access to:
+- AI Chat System (all modes)
+- Whale Watcher (unlimited access)
+- All premium features and dashboards
+
 ### Command Line Scanner (Legacy)
 
 You can still use the CLI scanner:
@@ -192,12 +208,22 @@ SignalTrust-AI-Scanner/
 
 ## 🔐 Security Features
 
-- Password hashing with PBKDF2
+- Password hashing with PBKDF2-HMAC-SHA256 (100,000 iterations)
+- Unique salt generation for each user
 - Secure session management
 - HTTPS support
 - Card validation (Luhn algorithm)
 - XSS and CSRF protection
 - Encrypted data storage
+
+### Admin Account Security
+
+The application includes a default administrator account for initial setup. **For production deployments:**
+
+1. Change the default admin password immediately after first login
+2. Review and update `config/admin_config.py` to load credentials from environment variables
+3. Consider removing the default password from version control
+4. See [ADMIN_ACCESS.md](ADMIN_ACCESS.md) for detailed security guidelines
 
 ## 🛠️ Development
 
