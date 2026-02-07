@@ -21,16 +21,21 @@ class PaymentProcessor:
             'price': 0,
             'currency': 'USD',
             'features': [
-                'Unlimited crypto market scanning',
-                'Unlimited stocks analysis',
-                'Unlimited scans per day',
-                'Real-time price alerts',
+                '5 market scans per day',
+                '3 symbols per scan',
+                '3 AI predictions per day',
+                'Basic price alerts',
                 'Community support'
             ],
             'limits': {
-                'scans_per_day': -1,
-                'symbols_per_scan': -1,
-                'ai_predictions': -1
+                'scans_per_day': 5,
+                'symbols_per_scan': 3,
+                'ai_predictions_per_day': 3,
+                'gems_discoveries_per_day': 3,
+                'whale_tracking': False,
+                'advanced_analytics': False,
+                'api_access': False,
+                'historical_data_days': 7
             }
         },
         'basic': {
@@ -39,19 +44,25 @@ class PaymentProcessor:
             'currency': 'USD',
             'billing_period': 'monthly',
             'features': [
-                'Unlimited crypto scanning',
-                'Unlimited stocks analysis',
+                '100 scans per day',
+                '10 symbols per scan',
+                '25 AI predictions per day',
                 'Basic NFT tracking',
                 'Real-time price alerts',
                 'Technical analysis tools',
-                'Unlimited AI predictions',
                 'Email support',
-                'TradingView charts'
+                'TradingView charts',
+                '30 days historical data'
             ],
             'limits': {
-                'scans_per_day': -1,
-                'symbols_per_scan': -1,
-                'ai_predictions': -1
+                'scans_per_day': 100,
+                'symbols_per_scan': 10,
+                'ai_predictions_per_day': 25,
+                'gems_discoveries_per_day': 15,
+                'whale_tracking': False,
+                'advanced_analytics': True,
+                'api_access': False,
+                'historical_data_days': 30
             }
         },
         'pro': {
@@ -60,20 +71,27 @@ class PaymentProcessor:
             'currency': 'USD',
             'billing_period': 'monthly',
             'features': [
-                'Everything in Trader',
-                'Advanced NFT whale tracking',
+                'Unlimited scans',
+                'Unlimited symbols',
                 'Unlimited AI predictions',
+                'Advanced NFT whale tracking',
                 'Smart contract analysis',
                 'Multi-chain support',
                 'Portfolio tracker',
                 'Priority support',
-                'API access',
-                'Custom alerts'
+                'Full API access',
+                'Custom alerts',
+                'Unlimited historical data'
             ],
             'limits': {
                 'scans_per_day': -1,
                 'symbols_per_scan': -1,
-                'ai_predictions': -1
+                'ai_predictions_per_day': -1,
+                'gems_discoveries_per_day': -1,
+                'whale_tracking': True,
+                'advanced_analytics': True,
+                'api_access': True,
+                'historical_data_days': -1
             }
         },
         'enterprise': {
@@ -82,7 +100,7 @@ class PaymentProcessor:
             'currency': 'USD',
             'billing_period': 'monthly',
             'features': [
-                'Everything in Pro',
+                'Everything Unlimited',
                 'Custom AI models',
                 'Dedicated account manager',
                 'White-label solutions',
@@ -90,12 +108,18 @@ class PaymentProcessor:
                 'Advanced API (unlimited)',
                 'Custom integrations',
                 'OTC desk integration',
-                '24/7 premium support'
+                '24/7 premium support',
+                'Unlimited historical data'
             ],
             'limits': {
                 'scans_per_day': -1,
                 'symbols_per_scan': -1,
-                'ai_predictions': -1,
+                'ai_predictions_per_day': -1,
+                'gems_discoveries_per_day': -1,
+                'whale_tracking': True,
+                'advanced_analytics': True,
+                'api_access': True,
+                'historical_data_days': -1,
                 'users': 10
             }
         }
