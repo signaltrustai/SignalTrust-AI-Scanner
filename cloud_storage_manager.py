@@ -148,7 +148,7 @@ class CloudStorageManager:
                 print(f"⚠️ AWS S3 connection test failed: {e}")
                 return None
             
-            print(f"✅ AWS S3 client initialized (bucket: {aws_config['bucket']})")
+            print(f"✅ AWS S3 initialized: {aws_config['bucket']} (region: {aws_config['region']})")
             return client
             
         except ImportError:
@@ -358,7 +358,15 @@ class CloudStorageManager:
         finally:
             # Clean up temp directory
             if os.path.exists(temp_dir):
-                shutil.rmtree(temp_dir)
+                try:
+                    shutil.rmtree(temp_dir)
+                except PermissionError:
+                    import time
+                    time.sleep(0.5)
+                    try:
+                        shutil.rmtree(temp_dir, ignore_errors=True)
+                    except:
+                        pass  # Temp files will be cleaned by OS
     
     def _calculate_checksum(self, file_path: str) -> str:
         """Calculate MD5 checksum of file."""
