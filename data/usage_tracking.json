@@ -1,0 +1,26 @@
+{
+  "demo_free_user": {
+    "2026-02-07": {
+      "scans": 5,
+      "ai_predictions": 0,
+      "gems_discoveries": 0,
+      "symbols_scanned": 0
+    }
+  },
+  "demo_basic_user": {
+    "2026-02-07": {
+      "scans": 20,
+      "ai_predictions": 0,
+      "gems_discoveries": 0,
+      "symbols_scanned": 0
+    }
+  },
+  "demo_pro_user": {
+    "2026-02-07": {
+      "scans": 500,
+      "ai_predictions": 0,
+      "gems_discoveries": 0,
+      "symbols_scanned": 0
+    }
+  }
+}
