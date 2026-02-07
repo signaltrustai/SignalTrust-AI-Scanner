@@ -265,18 +265,21 @@ class CloudStorageManager:
             'data/notification_ai'
         ]
         
-        # Create temporary directory for organizing files
-        temp_dir = os.path.join('/tmp', backup_id)
-        os.makedirs(temp_dir, exist_ok=True)
+        # Create temporary directory for organizing files (cross-platform)
+        import tempfile
+        temp_dir = tempfile.mkdtemp(prefix=f'{backup_id}_')
         
         try:
-            # Copy data files to temp directory
+            # Copy data files to temp directory, preserving structure
             files_backed_up = []
             
             # Copy individual files
             for source in data_sources:
                 if os.path.exists(source):
-                    dest = os.path.join(temp_dir, os.path.basename(source))
+                    # Preserve relative path to avoid collisions
+                    rel_path = os.path.relpath(source, 'data')
+                    dest = os.path.join(temp_dir, 'data', rel_path)
+                    os.makedirs(os.path.dirname(dest), exist_ok=True)
                     shutil.copy2(source, dest)
                     files_backed_up.append(source)
                     print(f"   ✓ Added: {source}")
@@ -284,7 +287,8 @@ class CloudStorageManager:
             # Copy directories
             for source in dir_sources:
                 if os.path.exists(source) and os.path.isdir(source):
-                    dest = os.path.join(temp_dir, os.path.basename(source))
+                    rel_path = os.path.relpath(source, 'data')
+                    dest = os.path.join(temp_dir, 'data', rel_path)
                     shutil.copytree(source, dest)
                     files_backed_up.append(source)
                     print(f"   ✓ Added: {source}/")
