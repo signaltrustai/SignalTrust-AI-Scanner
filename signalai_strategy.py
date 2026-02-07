@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 SignalAI Trading Strategy System
-AI-powered trading strategy with multiple indicators and live signals
+AI-powered trading strategy with multiple indicators and LIVE signals
 """
 
 import json
@@ -9,6 +9,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, timedelta
 import random
+from live_price_provider import live_price_provider
 
 
 class SignalAIStrategy:
@@ -86,23 +87,31 @@ class SignalAIStrategy:
     
     def generate_signals(self, symbol: str, strategy_name: str = "SignalAI",
                         current_price: float = None) -> Dict:
-        """Generate buy/sell signals using specified strategy
+        """Generate buy/sell signals using specified strategy with LIVE prices
         
         Args:
-            symbol: Trading symbol
+            symbol: Trading symbol (e.g., "BINANCE:BTCUSDT" or "NASDAQ:AAPL")
             strategy_name: Name of strategy to use
-            current_price: Current market price (simulated if None)
+            current_price: Current market price (fetched live if None)
             
         Returns:
-            Signal data with buy/sell recommendations
+            Signal data with buy/sell recommendations using real-time prices
         """
         strategy = self.STRATEGIES.get(strategy_name)
         if not strategy:
             return {"error": f"Strategy '{strategy_name}' not found"}
         
-        # Simulate current price if not provided
+        # Fetch LIVE current price if not provided
         if current_price is None:
-            current_price = self._simulate_price(symbol)
+            current_price = live_price_provider.get_live_price(symbol)
+            
+            # If price fetch fails, return error
+            if current_price is None:
+                return {
+                    "error": "Unable to fetch live price for this symbol",
+                    "symbol": symbol,
+                    "message": "Please check the symbol or try again later"
+                }
         
         # Calculate indicator values (simulated for demo)
         indicators_data = self._calculate_indicators(symbol, strategy["indicators"], current_price)
@@ -136,37 +145,6 @@ class SignalAIStrategy:
         self._save_history()
         
         return result
-    
-    def _simulate_price(self, symbol: str) -> float:
-        """Simulate current price for demo purposes
-        
-        WARNING: This method generates simulated prices for demonstration only.
-        DO NOT USE IN PRODUCTION with real trading decisions. Replace with
-        actual market data API integration (e.g., Binance, CoinGecko, Yahoo Finance)
-        before deploying to production.
-        
-        Args:
-            symbol: Trading symbol
-            
-        Returns:
-            Simulated price (for demo only)
-        """
-        # Base prices for different symbols
-        base_prices = {
-            "BTC": 45000,
-            "ETH": 2500,
-            "AAPL": 180,
-            "MSFT": 380,
-            "TSLA": 250
-        }
-        
-        # Find matching base price
-        for key, price in base_prices.items():
-            if key in symbol.upper():
-                # Add small random variation
-                return price * (1 + random.uniform(-0.02, 0.02))
-        
-        return 100.0  # Default price
     
     def _calculate_indicators(self, symbol: str, indicator_names: List[str], 
                              current_price: float) -> Dict:
