@@ -1,10 +1,28 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask_cors import CORS
 import os
 import requests
 import datetime
 import json
+import threading
+import time
+from functools import wraps
+
+# Import local modules
+from user_auth import UserAuth
+from payment_processor import PaymentProcessor
+from market_scanner import MarketScanner
+from market_analyzer import MarketAnalyzer
+from ai_predictor import AIPredictor
+from ai_market_intelligence import AIMarketIntelligence
+from whale_watcher import WhaleWatcher
+from notification_center import NotificationCenter
+from realtime_market_data import RealTimeMarketData
+from ai_chat_system import AIChatSystem
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
+CORS(app)
 
 # -----------------------------
 # CONFIGURATION AGENTS SIGNALTRUST
@@ -24,6 +42,69 @@ AGENT_IDS = {
 }
 
 LOG_FILE = "signaltrust_events.log"
+LEARNING_DATA_FILE = "data/ai_learning_data.json"
+
+# Initialize system components
+user_auth = UserAuth()
+payment_processor = PaymentProcessor()
+market_scanner = MarketScanner()
+market_analyzer = MarketAnalyzer()
+ai_predictor = AIPredictor()
+ai_intelligence = AIMarketIntelligence()
+whale_watcher = WhaleWatcher()
+notification_center = NotificationCenter()
+realtime_data = RealTimeMarketData()
+ai_chat = AIChatSystem()
+
+# -----------------------------
+# HELPER FUNCTIONS
+# -----------------------------
+
+def login_required(f):
+    """Decorator to require login for routes."""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_email' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def get_current_user():
+    """Get current logged-in user."""
+    if 'user_email' in session:
+        return user_auth.get_user_by_email(session['user_email'])
+    return None
+
+def save_learning_data(data_type: str, data: dict):
+    """Save learning data for AI improvement."""
+    try:
+        if not os.path.exists(os.path.dirname(LEARNING_DATA_FILE)):
+            os.makedirs(os.path.dirname(LEARNING_DATA_FILE))
+        
+        # Load existing data
+        learning_data = []
+        if os.path.exists(LEARNING_DATA_FILE):
+            try:
+                with open(LEARNING_DATA_FILE, 'r') as f:
+                    learning_data = json.load(f)
+            except:
+                learning_data = []
+        
+        # Add new entry
+        learning_data.append({
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "type": data_type,
+            "data": data
+        })
+        
+        # Keep last 10000 entries
+        learning_data = learning_data[-10000:]
+        
+        # Save
+        with open(LEARNING_DATA_FILE, 'w') as f:
+            json.dump(learning_data, f)
+    except Exception as e:
+        log_event("LEARNING_DATA_ERROR", {"error": str(e)})
 
 def log_event(event_type: str, payload: dict):
     """Enregistre les événements importants dans un fichier log."""
@@ -110,7 +191,7 @@ def agent_router(message: str):
     return call_agent("SUPERVISOR", message)
 
 # -----------------------------
-# ROUTES FLASK
+# ROUTES FLASK - PAGE ROUTES
 # -----------------------------
 
 @app.route("/")
@@ -118,8 +199,402 @@ def home():
     return render_template("index.html")
 
 @app.route("/ai-chat")
-def ai_chat():
+def ai_chat_page():
     return render_template("ai_chat.html")
+
+@app.route("/scanner")
+def scanner_page():
+    return render_template("scanner.html")
+
+@app.route("/analyzer")
+def analyzer_page():
+    return render_template("analyzer.html")
+
+@app.route("/predictions")
+def predictions_page():
+    return render_template("predictions.html")
+
+@app.route("/pricing")
+def pricing_page():
+    return render_template("pricing.html")
+
+@app.route("/login")
+def login():
+    if 'user_email' in session:
+        return redirect(url_for('dashboard'))
+    return render_template("login.html")
+
+@app.route("/register")
+def register():
+    if 'user_email' in session:
+        return redirect(url_for('dashboard'))
+    return render_template("register.html")
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    user = get_current_user()
+    return render_template("dashboard.html", user=user)
+
+@app.route("/settings")
+@login_required
+def settings():
+    user = get_current_user()
+    return render_template("settings.html", user=user)
+
+@app.route("/payment")
+def payment_page():
+    return render_template("payment.html")
+
+@app.route("/whale-watcher")
+def whale_watcher_page():
+    return render_template("whale_watcher.html")
+
+@app.route("/ai-intelligence")
+def ai_intelligence_page():
+    return render_template("ai_intelligence.html")
+
+@app.route("/notifications")
+@login_required
+def notifications_page():
+    user = get_current_user()
+    return render_template("notifications.html", user=user)
+
+# -----------------------------
+# API ROUTES - AUTHENTICATION
+# -----------------------------
+
+@app.route("/api/auth/register", methods=["POST"])
+def api_register():
+    """Register a new user."""
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+        full_name = data.get("full_name")
+        plan = data.get("plan", "free")
+        
+        if not email or not password:
+            return jsonify({"success": False, "error": "Email and password required"}), 400
+        
+        result = user_auth.register_user(email, password, full_name, plan)
+        
+        if result["success"]:
+            log_event("USER_REGISTERED", {"email": email, "plan": plan})
+            return jsonify(result), 201
+        else:
+            return jsonify(result), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/auth/login", methods=["POST"])
+def api_login():
+    """Login user."""
+    try:
+        data = request.get_json()
+        email = data.get("email")
+        password = data.get("password")
+        
+        if not email or not password:
+            return jsonify({"success": False, "error": "Email and password required"}), 400
+        
+        result = user_auth.login_user(email, password)
+        
+        if result["success"]:
+            session['user_email'] = email
+            session['session_token'] = result.get("session_token")
+            log_event("USER_LOGIN", {"email": email})
+            return jsonify(result), 200
+        else:
+            return jsonify(result), 401
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/auth/logout", methods=["POST"])
+def api_logout():
+    """Logout user."""
+    email = session.get('user_email')
+    if email:
+        log_event("USER_LOGOUT", {"email": email})
+    session.clear()
+    return jsonify({"success": True}), 200
+
+@app.route("/api/auth/verify", methods=["GET"])
+def api_verify():
+    """Verify session."""
+    if 'user_email' in session:
+        user = get_current_user()
+        if user:
+            return jsonify({"authenticated": True, "user": {
+                "email": user["email"],
+                "full_name": user.get("full_name"),
+                "plan": user.get("plan")
+            }}), 200
+    return jsonify({"authenticated": False}), 401
+
+# -----------------------------
+# API ROUTES - MARKET DATA
+# -----------------------------
+
+@app.route("/api/markets/overview", methods=["GET"])
+def api_markets_overview():
+    """Get markets overview."""
+    try:
+        overview = realtime_data.get_market_summary()
+        save_learning_data("market_overview", overview)
+        return jsonify({"success": True, "data": overview}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/markets/scan", methods=["POST"])
+def api_markets_scan():
+    """Scan specific markets."""
+    try:
+        data = request.get_json()
+        market_type = data.get("market_type", "crypto")
+        symbols = data.get("symbols", [])
+        
+        results = market_scanner.scan_market(market_type, symbols if symbols else [])
+        
+        save_learning_data("market_scan", {"type": market_type, "results": results})
+        log_event("MARKET_SCAN", {"type": market_type})
+        
+        return jsonify({"success": True, "data": results}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/markets/trending", methods=["GET"])
+def api_markets_trending():
+    """Get trending assets."""
+    try:
+        market_type = request.args.get("market_type", "crypto")
+        trending = market_scanner.get_trending_assets(market_type)
+        return jsonify({"success": True, "data": trending}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - ANALYSIS
+# -----------------------------
+
+@app.route("/api/analyze/technical", methods=["POST"])
+def api_analyze_technical():
+    """Technical analysis."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        timeframe = data.get("timeframe", "1d")
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        analysis = market_analyzer.analyze_technical(symbol, timeframe)
+        save_learning_data("technical_analysis", {"symbol": symbol, "analysis": analysis})
+        
+        return jsonify({"success": True, "data": analysis}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/analyze/sentiment", methods=["POST"])
+def api_analyze_sentiment():
+    """Sentiment analysis."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        sentiment = market_analyzer.analyze_sentiment(symbol)
+        save_learning_data("sentiment_analysis", {"symbol": symbol, "sentiment": sentiment})
+        
+        return jsonify({"success": True, "data": sentiment}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/analyze/patterns", methods=["POST"])
+def api_analyze_patterns():
+    """Pattern detection."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        patterns = market_analyzer.detect_patterns(symbol)
+        save_learning_data("pattern_detection", {"symbol": symbol, "patterns": patterns})
+        
+        return jsonify({"success": True, "data": patterns}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - AI PREDICTIONS
+# -----------------------------
+
+@app.route("/api/predict/price", methods=["POST"])
+def api_predict_price():
+    """AI price predictions."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        days = data.get("days", 7)
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        prediction = ai_predictor.predict_price(symbol, days)
+        save_learning_data("price_prediction", {"symbol": symbol, "prediction": prediction})
+        log_event("AI_PREDICTION", {"symbol": symbol, "days": days})
+        
+        return jsonify({"success": True, "data": prediction}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/predict/signals", methods=["POST"])
+def api_predict_signals():
+    """AI trading signals."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        signals = ai_predictor.generate_signals(symbol)
+        save_learning_data("trading_signals", {"symbol": symbol, "signals": signals})
+        
+        return jsonify({"success": True, "data": signals}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/predict/risk", methods=["POST"])
+def api_predict_risk():
+    """AI risk assessment."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        risk = ai_predictor.assess_risk(symbol)
+        save_learning_data("risk_assessment", {"symbol": symbol, "risk": risk})
+        
+        return jsonify({"success": True, "data": risk}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - WHALE WATCHER
+# -----------------------------
+
+@app.route("/api/whale/transactions", methods=["GET"])
+def api_whale_transactions():
+    """Get whale transactions."""
+    try:
+        user = get_current_user()
+        if not user or user.get("plan") not in ["pro", "enterprise"]:
+            return jsonify({"success": False, "error": "Pro or Enterprise plan required"}), 403
+        
+        transactions = whale_watcher.get_recent_transactions()
+        return jsonify({"success": True, "data": transactions}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/whale/alerts", methods=["GET"])
+def api_whale_alerts():
+    """Get whale alerts."""
+    try:
+        user = get_current_user()
+        if not user or user.get("plan") not in ["pro", "enterprise"]:
+            return jsonify({"success": False, "error": "Pro or Enterprise plan required"}), 403
+        
+        alerts = whale_watcher.get_whale_alerts()
+        return jsonify({"success": True, "data": alerts}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - PAYMENT
+# -----------------------------
+
+@app.route("/api/payment/plans", methods=["GET"])
+def api_payment_plans():
+    """Get subscription plans."""
+    try:
+        plans = payment_processor.get_plans()
+        return jsonify({"success": True, "data": plans}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/payment/process", methods=["POST"])
+def api_payment_process():
+    """Process payment."""
+    try:
+        data = request.get_json()
+        user_email = session.get('user_email')
+        if not user_email:
+            return jsonify({"success": False, "error": "Authentication required"}), 401
+        
+        result = payment_processor.process_payment(
+            user_email,
+            data.get("plan"),
+            data.get("payment_method"),
+            data.get("card_details")
+        )
+        
+        if result["success"]:
+            log_event("PAYMENT_PROCESSED", {"email": user_email, "plan": data.get("plan")})
+        
+        return jsonify(result), 200 if result["success"] else 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/payment/validate-card", methods=["POST"])
+def api_payment_validate_card():
+    """Validate credit card."""
+    try:
+        data = request.get_json()
+        card_number = data.get("card_number")
+        
+        if not card_number:
+            return jsonify({"success": False, "error": "Card number required"}), 400
+        
+        result = payment_processor.validate_card_number(card_number)
+        return jsonify({"success": True, "valid": result.get("valid", False)}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - NOTIFICATIONS
+# -----------------------------
+
+@app.route("/api/notifications", methods=["GET"])
+@login_required
+def api_get_notifications():
+    """Get user notifications."""
+    try:
+        user_email = session.get('user_email')
+        notifications = notification_center.get_notifications(user_email)
+        return jsonify({"success": True, "data": notifications}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/notifications/mark-read", methods=["POST"])
+@login_required
+def api_mark_notification_read():
+    """Mark notification as read."""
+    try:
+        data = request.get_json()
+        notification_id = data.get("notification_id")
+        user_email = session.get('user_email')
+        
+        notification_center.mark_as_read(user_email, notification_id)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -136,7 +611,226 @@ def chat():
     return jsonify({"reply": agent_response})
 
 # -----------------------------
+# BACKGROUND WORKERS - 24/7 AI AGENTS
+# -----------------------------
+
+class BackgroundAIWorker:
+    """24/7 Background AI worker for continuous learning and data collection."""
+    
+    def __init__(self):
+        self.running = False
+        self.thread = None
+    
+    def start(self):
+        """Start the background worker."""
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._worker_loop, daemon=True)
+            self.thread.start()
+            log_event("BACKGROUND_WORKER_STARTED", {"time": datetime.datetime.utcnow().isoformat()})
+    
+    def stop(self):
+        """Stop the background worker."""
+        self.running = False
+        if self.thread:
+            self.thread.join(timeout=5)
+        log_event("BACKGROUND_WORKER_STOPPED", {"time": datetime.datetime.utcnow().isoformat()})
+    
+    def _worker_loop(self):
+        """Main worker loop - runs 24/7."""
+        cycle_count = 0
+        
+        while self.running:
+            try:
+                cycle_count += 1
+                log_event("WORKER_CYCLE", {"cycle": cycle_count})
+                
+                # 1. Collect market data every 5 minutes
+                if cycle_count % 1 == 0:
+                    self._collect_market_data()
+                
+                # 2. Run AI analysis every 15 minutes
+                if cycle_count % 3 == 0:
+                    self._run_ai_analysis()
+                
+                # 3. Check for whale activity every 10 minutes
+                if cycle_count % 2 == 0:
+                    self._check_whale_activity()
+                
+                # 4. Generate predictions every hour
+                if cycle_count % 12 == 0:
+                    self._generate_predictions()
+                
+                # 5. Learn from collected data every 6 hours
+                if cycle_count % 72 == 0:
+                    self._learn_from_data()
+                
+                # 6. Health check and cleanup every 24 hours
+                if cycle_count % 288 == 0:
+                    self._health_check(cycle_count)
+                
+                # Sleep for 5 minutes between cycles
+                time.sleep(300)
+                
+            except Exception as e:
+                log_event("WORKER_ERROR", {"error": str(e), "cycle": cycle_count})
+                time.sleep(60)  # Wait 1 minute on error
+    
+    def _collect_market_data(self):
+        """Collect and save real-time market data."""
+        try:
+            # Get market summary
+            summary = realtime_data.get_market_summary()
+            save_learning_data("auto_market_data", summary)
+            
+            # Scan trending markets
+            trending = market_scanner.get_trending_assets("crypto")
+            save_learning_data("auto_trending", trending)
+            
+            log_event("AUTO_DATA_COLLECTION", {
+                "summary": bool(summary),
+                "trending": len(trending)
+            })
+        except Exception as e:
+            log_event("DATA_COLLECTION_ERROR", {"error": str(e)})
+    
+    def _run_ai_analysis(self):
+        """Run AI analysis on top assets."""
+        try:
+            # Get top crypto assets
+            top_assets = realtime_data.get_all_crypto(limit=10)
+            
+            analyses = []
+            for asset in top_assets:
+                try:
+                    analysis = market_analyzer.analyze_technical(asset["symbol"])
+                    analyses.append({
+                        "symbol": asset["symbol"],
+                        "analysis": analysis
+                    })
+                except:
+                    continue
+            
+            save_learning_data("auto_ai_analysis", analyses)
+            log_event("AUTO_AI_ANALYSIS", {"analyzed": len(analyses)})
+        except Exception as e:
+            log_event("AI_ANALYSIS_ERROR", {"error": str(e)})
+    
+    def _check_whale_activity(self):
+        """Check for whale transactions and alert."""
+        try:
+            transactions = whale_watcher.get_recent_transactions(limit=20)
+            
+            # Save whale data for learning
+            save_learning_data("auto_whale_data", transactions)
+            
+            # Check for significant transactions
+            significant = [t for t in transactions if t.get("value_usd", 0) > 1000000]
+            
+            if significant:
+                log_event("AUTO_WHALE_ALERT", {
+                    "count": len(significant),
+                    "total_value": sum(t.get("value_usd", 0) for t in significant)
+                })
+                
+                # Send notifications for major whale movements
+                for tx in significant[:5]:  # Top 5 only
+                    notification_center.send_whale_alert(
+                        "all_pro_users",
+                        tx.get("symbol"),
+                        tx.get("value_usd"),
+                        tx.get("type")
+                    )
+        except Exception as e:
+            log_event("WHALE_CHECK_ERROR", {"error": str(e)})
+    
+    def _generate_predictions(self):
+        """Generate AI predictions for popular assets."""
+        try:
+            # Get top assets
+            top_assets = realtime_data.get_all_crypto(limit=20)
+            
+            predictions = []
+            for asset in top_assets[:10]:  # Top 10 only
+                try:
+                    prediction = ai_predictor.predict_price(asset["symbol"], days=7)
+                    predictions.append({
+                        "symbol": asset["symbol"],
+                        "prediction": prediction
+                    })
+                except:
+                    continue
+            
+            save_learning_data("auto_predictions", predictions)
+            log_event("AUTO_PREDICTIONS", {"generated": len(predictions)})
+        except Exception as e:
+            log_event("PREDICTION_ERROR", {"error": str(e)})
+    
+    def _learn_from_data(self):
+        """Learn and improve from collected data."""
+        try:
+            # Load learning data
+            if not os.path.exists(LEARNING_DATA_FILE):
+                return
+            
+            with open(LEARNING_DATA_FILE, 'r') as f:
+                learning_data = json.load(f)
+            
+            # Analyze patterns
+            market_patterns = [d for d in learning_data if d.get("type") == "auto_market_data"]
+            prediction_accuracy = [d for d in learning_data if d.get("type") == "auto_predictions"]
+            
+            insights = {
+                "total_data_points": len(learning_data),
+                "market_samples": len(market_patterns),
+                "predictions_made": len(prediction_accuracy),
+                "learning_timestamp": datetime.datetime.utcnow().isoformat()
+            }
+            
+            save_learning_data("auto_learning_insights", insights)
+            log_event("AUTO_LEARNING", insights)
+            
+        except Exception as e:
+            log_event("LEARNING_ERROR", {"error": str(e)})
+    
+    def _health_check(self, cycle_count):
+        """Perform system health check and cleanup."""
+        try:
+            health = {
+                "timestamp": datetime.datetime.utcnow().isoformat(),
+                "log_file_size": os.path.getsize(LOG_FILE) if os.path.exists(LOG_FILE) else 0,
+                "learning_data_size": os.path.getsize(LEARNING_DATA_FILE) if os.path.exists(LEARNING_DATA_FILE) else 0,
+                "uptime_hours": cycle_count * 5 / 60  # Approximate
+            }
+            
+            # Cleanup old logs if too large (> 100MB)
+            if health["log_file_size"] > 100 * 1024 * 1024:
+                with open(LOG_FILE, 'r') as f:
+                    lines = f.readlines()
+                with open(LOG_FILE, 'w') as f:
+                    f.writelines(lines[-10000:])  # Keep last 10000 lines
+            
+            log_event("AUTO_HEALTH_CHECK", health)
+            
+        except Exception as e:
+            log_event("HEALTH_CHECK_ERROR", {"error": str(e)})
+
+# Initialize background worker
+background_worker = BackgroundAIWorker()
+
+# -----------------------------
 # LANCEMENT SERVEUR
 # -----------------------------
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    # Start background AI worker for 24/7 operation
+    background_worker.start()
+    log_event("SERVER_STARTED", {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "background_worker": "enabled"
+    })
+    
+    try:
+        app.run(host="0.0.0.0", port=5000, debug=False)
+    finally:
+        background_worker.stop()
