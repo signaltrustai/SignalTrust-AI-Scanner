@@ -1,0 +1,102 @@
+version: "3.9"
+
+services:
+  # ---- COORDINATOR -------------------------------------------------
+  coordinator:
+    build:
+      context: ./agents/coordinator
+      dockerfile: Dockerfile
+    container_name: signaltrust_coordinator_eu
+    ports:
+      - "8000:8000"
+    environment:
+      - COORDINATOR_LOG_LEVEL=INFO
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    depends_on:
+      - crypto_agent
+      - stock_agent
+      - whale_agent
+      - news_agent
+      - supervisor
+    volumes:
+      - ./agents/coordinator:/app
+    networks:
+      - signaltrust_network_eu
+
+  # ---- SUPERVISOR --------------------------------------------------
+  supervisor:
+    build:
+      context: ./agents/supervisor
+      dockerfile: Dockerfile
+    container_name: signaltrust_supervisor_eu
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./agents/supervisor/workspace:/app/workspace
+    networks:
+      - signaltrust_network_eu
+
+  # ---- CRYPTO ANALYST -----------------------------------------------
+  crypto_agent:
+    build:
+      context: ./agents/crypto_agent
+      dockerfile: Dockerfile
+    container_name: signaltrust_crypto_eu
+    ports:
+      - "8001:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
+      - CCXT_EXCHANGE=binance
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - signaltrust_network_eu
+
+  # ---- STOCK ANALYST ------------------------------------------------
+  stock_agent:
+    build:
+      context: ./agents/stock_agent
+      dockerfile: Dockerfile
+    container_name: signaltrust_stock_eu
+    ports:
+      - "8002:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ALPHAVANTAGE_API_KEY=${ALPHAVANTAGE_API_KEY}
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - signaltrust_network_eu
+
+  # ---- WHALE WATCHER ------------------------------------------------
+  whale_agent:
+    build:
+      context: ./agents/whale_agent
+      dockerfile: Dockerfile
+    container_name: signaltrust_whale_eu
+    ports:
+      - "8003:8000"
+    environment:
+      - WHALEALERT_API_KEY=${WHALEALERT_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - signaltrust_network_eu
+
+  # ---- MARKET NEWS --------------------------------------------------
+  news_agent:
+    build:
+      context: ./agents/news_agent
+      dockerfile: Dockerfile
+    container_name: signaltrust_news_eu
+    ports:
+      - "8004:8000"
+    environment:
+      - NEWS_CATCHER_API_KEY=${NEWS_CATCHER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - signaltrust_network_eu
+
+networks:
+  signaltrust_network_eu:
+    driver: bridge

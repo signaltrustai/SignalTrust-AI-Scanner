@@ -50,3 +50,8 @@ test_*.json
 .coverage
 htmlcov/
 .env
+
+# Docker
+agents/*/workspace/
+*.tar
+docker-compose.override.yml
