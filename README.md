@@ -4,6 +4,13 @@ The **Ultimate AI-Powered Market Scanner** for intelligent trading and investmen
 
 ## 🚀 Features
 
+### Advanced AI Capabilities ✨ NEW
+- **Multiple AI Providers**: Support for OpenAI GPT-4, Anthropic Claude, and local models (Ollama)
+- **Real AI Analysis**: Genuine AI-powered market analysis instead of simulations
+- **Intelligent Predictions**: Deep learning-based price forecasting
+- **Adaptive Learning**: AI that improves over time with market data
+- **Flexible Configuration**: Easy switch between AI providers
+
 ### Market Analysis
 - **Real-time Market Scanning**: Scan stocks, crypto, forex, and indices simultaneously
 - **AI-Powered Predictions**: Machine learning algorithms for price forecasting
@@ -28,6 +35,8 @@ The **Ultimate AI-Powered Market Scanner** for intelligent trading and investmen
 
 - Python 3.7 or higher
 - pip (Python package manager)
+- (Optional) OpenAI or Anthropic API key for enhanced AI features
+- (Optional) Ollama for free local AI models
 
 ## 🔧 Installation
 
@@ -40,6 +49,16 @@ cd SignalTrust-AI-Scanner
 2. **Install dependencies**:
 ```bash
 pip install -r requirements.txt
+```
+
+3. **Configure AI Provider (Optional but Recommended)**:
+```bash
+# Copy the environment template
+cp .env.example .env
+
+# Edit .env and add your AI API keys
+# See AI_ENHANCEMENT_GUIDE.md for detailed instructions
+nano .env
 ```
 
 ## 🎯 Quick Start
@@ -239,6 +258,39 @@ python3 app.py
 - `PORT` - Server port (default: 5000)
 - `DEBUG` - Debug mode (default: False)
 
+### AI Configuration
+
+Configure your preferred AI provider in the `.env` file:
+
+**OpenAI (GPT-4):**
+```bash
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-your-key-here
+OPENAI_MODEL=gpt-4
+USE_AI_PREDICTIONS=true
+```
+
+**Anthropic (Claude):**
+```bash
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+ANTHROPIC_MODEL=claude-3-sonnet-20240229
+USE_AI_PREDICTIONS=true
+```
+
+**Local Models (Free):**
+```bash
+# First install Ollama: https://ollama.ai
+# Then run: ollama serve && ollama pull llama2
+
+AI_PROVIDER=local
+LOCAL_MODEL=llama2
+LOCAL_API_URL=http://localhost:11434
+USE_AI_PREDICTIONS=true
+```
+
+For detailed AI setup instructions, see **[AI_ENHANCEMENT_GUIDE.md](AI_ENHANCEMENT_GUIDE.md)**
+
 ## 📊 API Usage Examples
 
 ### Register a New User
@@ -295,6 +347,16 @@ For support, email support@signaltrust.ai or visit our support portal.
 - **Documentation**: https://docs.signaltrust.ai
 
 ## 📈 Version History
+
+### v3.0.0 (2026-02-07) ✨ NEW
+- 🤖 **Enhanced AI System**: Real AI models instead of simulations
+- 🔌 **Multiple AI Providers**: OpenAI GPT-4, Anthropic Claude, local models (Ollama)
+- 🧠 **Intelligent Analysis**: Genuine AI-powered market analysis
+- 🎯 **Better Predictions**: Deep learning-based price forecasting
+- 📚 **Comprehensive Guide**: Complete AI setup and configuration guide
+- 🔄 **Auto-fallback**: Graceful degradation if AI not configured
+- 🌍 **Multilingual**: Documentation in English and French
+- ⚙️ **Flexible Config**: Easy AI provider switching via .env
 
 ### v2.0.0 (2026-02-02)
 - 🌐 Complete web application with modern UI
