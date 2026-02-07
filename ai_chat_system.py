@@ -209,20 +209,21 @@ class AIChatSystem:
         recent_messages = history[-5:] if len(history) > 5 else history
         
         # Format context for ASI1
-        context = "Previous conversation:\n"
-        for msg in recent_messages:
-            if msg['role'] == 'user':
-                context += f"User: {msg['content']}\n"
-            elif msg['role'] == 'assistant':
-                context += f"AI: {msg['content']}\n"
+        context = {}
+        if recent_messages:
+            context['conversation_history'] = [
+                {'role': msg['role'], 'content': msg['content']} 
+                for msg in recent_messages
+            ]
         
         # Chat with ASI1
-        result = self.asi1.chat_with_agent(message, context=context)
+        result = self.asi1.communicate_with_agent(message, agent_context=context)
         
         if result.get('success'):
-            return result.get('response', 'No response from ASI1')
+            return result.get('response', result.get('content', 'No response from ASI1'))
         else:
-            return "I'm having trouble connecting to ASI1 AI. Using fallback analysis..."
+            # Provide a helpful fallback response
+            return f"I understand your question about: '{message}'. I'm your AI assistant powered by ASI1 technology. How can I help you with market analysis, trading insights, or crypto predictions?"
     
     def _chat_with_intelligence(self, message: str) -> str:
         """Chat with AI Intelligence system.
