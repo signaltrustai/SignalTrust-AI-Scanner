@@ -10,6 +10,13 @@ numpy>=1.21.0
 pandas>=1.5.0
 scikit-learn>=1.0.0
 
+# AI Providers (Optional - install only what you need)
+# For OpenAI GPT models
+openai>=1.0.0
+
+# For Anthropic Claude models
+anthropic>=0.18.0
+
 # Visualization
 plotly>=5.14.0
 

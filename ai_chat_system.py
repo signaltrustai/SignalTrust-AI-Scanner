@@ -3,6 +3,7 @@
 AI Chat System Module
 Unified AI chat interface integrating all AI systems
 Owner-only access for now, with subscriber restrictions
+Enhanced with real AI provider support
 """
 
 import json
@@ -13,6 +14,12 @@ from ai_market_intelligence import AIMarketIntelligence
 from whale_watcher import WhaleWatcher
 from config.admin_config import is_admin_email, is_admin_user_id, ADMIN_USER_ID
 
+try:
+    from ai_provider import EnhancedAIEngine
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+
 
 class AIChatSystem:
     """Unified AI chat system for owner-only access"""
@@ -20,18 +27,32 @@ class AIChatSystem:
     # Owner access control
     OWNER_ID = "owner_admin_001"
     
-    def __init__(self, asi1_integration, ai_intelligence, whale_watcher):
+    def __init__(self, asi1_integration, ai_intelligence, whale_watcher, use_real_ai=True):
         """Initialize AI chat system.
         
         Args:
-            asi1_integration: ASI1 AI integration instance
+            asi1_integration: ASI1 AI integration instance (deprecated)
             ai_intelligence: AI Market Intelligence instance
             whale_watcher: Whale Watcher instance
+            use_real_ai: Whether to use real AI models when available
         """
-        self.asi1 = asi1_integration
+        self.asi1 = asi1_integration  # Keep for backward compatibility
         self.ai_intelligence = ai_intelligence
         self.whale_watcher = whale_watcher
         self.conversation_history = {}
+        
+        # Initialize enhanced AI engine
+        self.use_real_ai = use_real_ai and AI_AVAILABLE
+        self.ai_engine = None
+        
+        if self.use_real_ai:
+            try:
+                self.ai_engine = EnhancedAIEngine()
+                print("✅ AI Chat System initialized with enhanced AI engine")
+            except Exception as e:
+                print(f"⚠️ Could not initialize AI engine: {e}")
+                print("   Chat will use fallback responses")
+                self.use_real_ai = False
         
     def check_access(self, user_id: str, user_email: str = None) -> bool:
         """Check if user has access to AI chat.
@@ -116,6 +137,25 @@ class AIChatSystem:
         # Add user message to history
         self.add_to_history(user_id, 'user', message)
         
+        # Use enhanced AI if available
+        if self.use_real_ai and self.ai_engine:
+            try:
+                response = self.ai_engine.chat(user_id, message)
+                
+                # Add AI response to history
+                self.add_to_history(user_id, 'assistant', response, 'enhanced')
+                
+                return {
+                    'success': True,
+                    'response': response,
+                    'ai_type': 'enhanced',
+                    'ai_powered': True,
+                    'timestamp': datetime.now().isoformat()
+                }
+            except Exception as e:
+                print(f"⚠️ Enhanced AI chat error: {e}, using fallback")
+        
+        # Fallback to original AI routing
         # Determine which AI to use
         ai_response = None
         ai_type_used = "general"
@@ -157,6 +197,7 @@ class AIChatSystem:
                 'success': True,
                 'response': ai_response,
                 'ai_type': ai_type_used,
+                'ai_powered': False,
                 'timestamp': datetime.now().isoformat()
             }
             
