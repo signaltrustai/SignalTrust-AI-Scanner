@@ -75,6 +75,14 @@ class AICommandSystem:
         self.register_command('get', self.cmd_get_preference,
                             "Obtenir une préférence")
         
+        # Cloud backup commands
+        self.register_command('backup', self.cmd_backup_to_cloud,
+                            "Sauvegarder dans AWS cloud")
+        self.register_command('listbackups', self.cmd_list_cloud_backups,
+                            "Lister les backups cloud")
+        self.register_command('restore', self.cmd_restore_from_cloud,
+                            "Restaurer depuis AWS cloud")
+        
         # Agent control commands
         self.register_command('activate', self.cmd_activate_agent,
                             "Activer un agent spécifique")
@@ -451,6 +459,69 @@ class AICommandSystem:
             'status': 'Désactivé',
             'message': f'Agent {agent_name} est maintenant inactif'
         }
+    
+    def cmd_backup_to_cloud(self, user_id: str, args: str) -> Dict:
+        """Backup to cloud command"""
+        logger.info("☁️  Backing up to AWS cloud...")
+        
+        try:
+            from ai_cloud_backup import backup_to_cloud
+            
+            result = backup_to_cloud()
+            
+            if result.get('success'):
+                return {
+                    'status': 'Backup réussi',
+                    'files_backed_up': len(result.get('files_backed_up', [])),
+                    'total_size': result.get('total_size_bytes', 0),
+                    'bucket': result.get('bucket', 'N/A'),
+                    'timestamp': result.get('timestamp', 'N/A')
+                }
+            else:
+                return {
+                    'status': 'Erreur',
+                    'error': result.get('error', 'Unknown error')
+                }
+                
+        except Exception as e:
+            return {'status': 'Erreur', 'error': str(e)}
+    
+    def cmd_list_cloud_backups(self, user_id: str, args: str) -> Dict:
+        """List cloud backups command"""
+        logger.info("📋 Listing cloud backups...")
+        
+        try:
+            from ai_cloud_backup import list_cloud_backups
+            
+            backups = list_cloud_backups(limit=20)
+            
+            return {
+                'status': 'Success',
+                'backups_found': len(backups),
+                'backups': backups
+            }
+            
+        except Exception as e:
+            return {'status': 'Erreur', 'error': str(e)}
+    
+    def cmd_restore_from_cloud(self, user_id: str, args: str) -> Dict:
+        """Restore from cloud command"""
+        timestamp = args.strip()
+        
+        if not timestamp:
+            return {'error': 'Timestamp requis. Exemple: restore 20260207_120000'}
+        
+        logger.info(f"♻️  Restoring from cloud: {timestamp}")
+        
+        try:
+            from ai_cloud_backup import restore_from_cloud
+            
+            result = restore_from_cloud(timestamp)
+            
+            return result
+            
+        except Exception as e:
+            return {'status': 'Erreur', 'error': str(e)}
     
     def cmd_list_agents(self, user_id: str, args: str) -> Dict:
         """List agents command"""

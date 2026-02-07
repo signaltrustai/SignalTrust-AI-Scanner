@@ -107,12 +107,14 @@ class AIWorkerService:
         schedule.every(30).minutes.do(self._make_predictions)
         schedule.every(6).hours.do(self._optimize_performance)
         schedule.every(1).hours.do(self._save_stats)
+        schedule.every(2).hours.do(self._backup_to_cloud)  # Backup to AWS every 2 hours
         
         # Start worker thread
         self.worker_thread = threading.Thread(target=self._run_worker, daemon=True)
         self.worker_thread.start()
         
         logger.info("✅ AI Worker Service started successfully!")
+        logger.info("☁️  AWS Cloud backup scheduled every 2 hours")
         
     def stop(self):
         """Stop the AI worker service"""
@@ -400,6 +402,38 @@ class AIWorkerService:
             'current_accuracy': f"{self.stats['current_accuracy']:.2%}",
             'accuracy_improvements': self.stats['accuracy_improvements']
         }
+    
+    def _backup_to_cloud(self):
+        """Backup all AI data to AWS S3 cloud"""
+        logger.info("☁️  Backing up AI data to AWS S3...")
+        
+        try:
+            from ai_cloud_backup import backup_to_cloud
+            
+            result = backup_to_cloud()
+            
+            if result.get('success'):
+                files_count = len(result.get('files_backed_up', []))
+                total_size = result.get('total_size_bytes', 0)
+                
+                logger.info(f"✅ Cloud backup completed successfully!")
+                logger.info(f"   Files backed up: {files_count}")
+                logger.info(f"   Total size: {self._format_size(total_size)}")
+                logger.info(f"   Bucket: {result.get('bucket', 'N/A')}")
+            else:
+                error = result.get('error', 'Unknown error')
+                logger.warning(f"⚠️  Cloud backup failed: {error}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error during cloud backup: {e}")
+    
+    def _format_size(self, size_bytes: int) -> str:
+        """Format size in human readable format"""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size_bytes < 1024.0:
+                return f"{size_bytes:.2f} {unit}"
+            size_bytes /= 1024.0
+        return f"{size_bytes:.2f} TB"
 
 
 # Global worker instance
