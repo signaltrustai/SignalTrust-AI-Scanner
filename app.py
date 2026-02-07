@@ -1467,3 +1467,28 @@ if __name__ == "__main__":
         app.run(host="0.0.0.0", port=5000, debug=False)
     finally:
         background_worker.stop()
+
+from flask import Flask, Response
+import subprocess
+import sys
+
+app = Flask(__name__)
+
+@app.route('/test-backup')
+def test_backup():
+    """Route pour exécuter le test de backup"""
+    try:
+        # Exécuter le script de test
+        result = subprocess.run(
+            [sys.executable, 'test_render_backup.py'],
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        
+        # Retourner le résultat en texte brut
+        output = result.stdout + "\n\n" + result.stderr
+        return Response(output, mimetype='text/plain')
+        
+    except Exception as e:
+        return Response(f"Erreur: {str(e)}", mimetype='text/plain'), 500
