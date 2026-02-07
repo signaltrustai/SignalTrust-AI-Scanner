@@ -5,6 +5,7 @@ The **Ultimate AI-Powered Market Scanner** for intelligent trading and investmen
 ## 🚀 Features
 
 ### Advanced AI Capabilities ✨ NEW
+- **OpenAI Integration**: GPT-4 powered market analysis and predictions
 - **Multiple AI Providers**: Support for OpenAI GPT-4, Anthropic Claude, and local models (Ollama)
 - **Real AI Analysis**: Genuine AI-powered market analysis instead of simulations
 - **Intelligent Predictions**: Deep learning-based price forecasting
@@ -52,14 +53,37 @@ pip install -r requirements.txt
 ```
 
 3. **Configure AI Provider (Optional but Recommended)**:
-```bash
-# Copy the environment template
-cp .env.example .env
 
-# Edit .env and add your AI API keys
-# See AI_ENHANCEMENT_GUIDE.md for detailed instructions
-nano .env
-```
+   **🔥 NEW: OpenAI Integration**
+   
+   SignalTrust AI Scanner now uses OpenAI (GPT-4) for powerful AI analysis!
+   
+   ```bash
+   # Copy the environment template
+   cp .env.example .env
+   
+   # Edit .env and add your OpenAI API key
+   nano .env
+   ```
+   
+   Add to your `.env` file:
+   ```bash
+   OPENAI_API_KEY=sk-proj-your-actual-api-key-here
+   OPENAI_MODEL=gpt-4
+   ```
+   
+   📖 **Detailed Setup Guide**: See [OPENAI_SETUP_GUIDE.md](OPENAI_SETUP_GUIDE.md) for:
+   - How to get your OpenAI API key
+   - Available models and pricing
+   - Security best practices
+   - Usage examples
+   - Troubleshooting
+   
+   💡 **Quick Example**:
+   ```bash
+   # Run the example script to test your OpenAI setup
+   python example_openai_usage.py
+   ```
 
 ## 🎯 Quick Start
 
