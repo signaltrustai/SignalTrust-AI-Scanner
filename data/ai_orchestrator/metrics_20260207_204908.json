@@ -1,0 +1,55 @@
+{
+  "timestamp": "2026-02-07T20:49:08.369774",
+  "system_metrics": {
+    "total_agents": 6,
+    "active_agents": 6,
+    "total_tasks_completed": 6,
+    "average_performance": 0.0,
+    "system_health": 100,
+    "started_at": "2026-02-07T20:49:03.364881"
+  },
+  "agent_metrics": {
+    "market_scanner": {
+      "name": "Market Scanner Agent",
+      "tasks_completed": 1,
+      "performance": 1.0,
+      "errors": 0,
+      "status": "stopped"
+    },
+    "data_collector": {
+      "name": "Data Collector Agent",
+      "tasks_completed": 1,
+      "performance": 1.0,
+      "errors": 0,
+      "status": "stopped"
+    },
+    "pattern_analyzer": {
+      "name": "Pattern Analyzer Agent",
+      "tasks_completed": 1,
+      "performance": 1.0,
+      "errors": 0,
+      "status": "stopped"
+    },
+    "predictor": {
+      "name": "Predictor Agent",
+      "tasks_completed": 1,
+      "performance": 1.0,
+      "errors": 0,
+      "status": "stopped"
+    },
+    "learning_agent": {
+      "name": "Learning Agent",
+      "tasks_completed": 1,
+      "performance": 1.0,
+      "errors": 0,
+      "status": "stopped"
+    },
+    "optimizer": {
+      "name": "Optimizer Agent",
+      "tasks_completed": 1,
+      "performance": 1.0,
+      "errors": 0,
+      "status": "stopped"
+    }
+  }
+}
