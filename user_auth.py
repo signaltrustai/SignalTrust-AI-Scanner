@@ -291,5 +291,6 @@ class UserAuth:
             'full_name': user['full_name'],
             'plan': user['plan'],
             'created_at': user['created_at'],
-            'payment_status': user.get('payment_status', 'active')
+            'payment_status': user.get('payment_status', 'active'),
+            'is_active': user.get('is_active', True)
         }
