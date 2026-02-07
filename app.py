@@ -15,12 +15,14 @@ AGENT_API_KEY = os.getenv("AGENT_API_KEY", "")
 
 # Ici tu mets les IDs réels de tes agents
 AGENT_IDS = {
-    "STOCK": "AGENT_STOCK_ID",       # ex: "ASI1"
-    "CRYPTO": "AGENT_CRYPTO_ID",     # ex: "ASI2"
-    "WHALE": "AGENT_WHALE_ID",       # ex: "ASI3"
-    "SITE": "AGENT_SITE_ID",         # agent qui gère le site
-    "SUPERVISOR": "AGENT_SUPERVISOR_ID",
-    "DESIRE": "DESIRE_AGENT_ID",
+    "STOCK": os.getenv("AGENT_STOCK_ID"),
+    "CRYPTO": os.getenv("AGENT_CRYPTO_ID"),
+    "WHALE": os.getenv("AGENT_WHALE_ID"),
+    "SITE": os.getenv("AGENT_SITE_ID"),
+    "SUPERVISOR": os.getenv("AGENT_SUPERVISOR_ID"),
+    "DESIRE": os.getenv("DESIRE_AGENT_ID"),
+}
+
 }
 
 LOG_FILE = "signaltrust_events.log"
