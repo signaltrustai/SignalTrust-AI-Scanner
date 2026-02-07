@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response
 from flask_cors import CORS
 import os
 import requests
@@ -7,7 +7,8 @@ import json
 import threading
 import time
 from functools import wraps
-
+import subprocess
+import sys
 # Import local modules
 from user_auth import UserAuth
 from payment_processor import PaymentProcessor
@@ -1492,3 +1493,51 @@ def test_backup():
         
     except Exception as e:
         return Response(f"Erreur: {str(e)}", mimetype='text/plain'), 500
+
+@app.route('/test-backup')
+def test_backup():
+    """Route de test pour le système de backup cloud"""
+    try:
+        result = subprocess.run(
+            [sys.executable, 'test_render_backup.py'],
+            capture_output=True,
+            text=True,
+            timeout=120
+        )
+        
+        output = "="*80 + "\n"
+        output += "🔍 RÉSULTATS DU TEST DE BACKUP\n"
+        output += "="*80 + "\n\n"
+        output += result.stdout
+        
+        if result.stderr:
+            output += "\n\n" + "="*80 + "\n"
+            output += "⚠️  ERREURS:\n"
+            output += "="*80 + "\n"
+            output += result.stderr
+        
+        return Response(output, mimetype='text/plain')
+        
+    except subprocess.TimeoutExpired:
+        return Response("❌ Timeout: le test a pris plus de 120 secondes", mimetype='text/plain'), 500
+    except Exception as e:
+        return Response(f"❌ Erreur lors de l'exécution du test:\n\n{str(e)}", mimetype='text/plain'), 500
+
+@app.route('/backup-stats')
+def backup_stats():
+    """Route pour obtenir les statistiques de backup en JSON"""
+    try:
+        stats = cloud_storage.get_statistics()
+        backups = cloud_storage.list_backups(limit=10)
+        
+        return jsonify({
+            'status': 'success',
+            'statistics': stats,
+            'recent_backups': backups
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
