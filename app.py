@@ -25,6 +25,7 @@ from ai_evolution_system import AIEvolutionSystem
 from ai_communication_hub import ai_hub
 from notification_ai import notification_ai
 from ai_chat_system import AIChatSystem
+from cloud_storage_manager import cloud_storage
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
@@ -885,6 +886,133 @@ def api_notification_feedback():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# -----------------------------
+# API ROUTES - CLOUD STORAGE
+# -----------------------------
+
+@app.route("/api/cloud/status", methods=["GET"])
+def api_cloud_status():
+    """Get cloud storage status and statistics."""
+    try:
+        stats = cloud_storage.get_statistics()
+        recent_backups = cloud_storage.list_backups(limit=10)
+        
+        return jsonify({
+            "success": True,
+            "statistics": stats,
+            "recent_backups": recent_backups
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/cloud/backup", methods=["POST"])
+def api_cloud_backup():
+    """Create unified backup of all AI data."""
+    try:
+        log_event("CLOUD_BACKUP_START", {})
+        
+        backup = cloud_storage.backup_all_data()
+        
+        log_event("CLOUD_BACKUP_COMPLETE", {
+            "backup_id": backup['backup_id'],
+            "size_mb": backup['size_bytes'] / 1024 / 1024
+        })
+        
+        return jsonify({
+            "success": True,
+            "backup": backup
+        }), 200
+    except Exception as e:
+        log_event("CLOUD_BACKUP_ERROR", {"error": str(e)})
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/cloud/sync", methods=["POST"])
+def api_cloud_sync():
+    """Sync backup(s) to cloud storage."""
+    try:
+        data = request.get_json() or {}
+        backup_id = data.get("backup_id")
+        
+        log_event("CLOUD_SYNC_START", {"backup_id": backup_id})
+        
+        results = cloud_storage.sync_to_cloud(backup_id)
+        
+        log_event("CLOUD_SYNC_COMPLETE", results)
+        
+        return jsonify({
+            "success": True,
+            "results": results
+        }), 200
+    except Exception as e:
+        log_event("CLOUD_SYNC_ERROR", {"error": str(e)})
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/cloud/backups", methods=["GET"])
+def api_cloud_list_backups():
+    """List available backups."""
+    try:
+        limit = int(request.args.get("limit", 20))
+        backups = cloud_storage.list_backups(limit=limit)
+        
+        return jsonify({
+            "success": True,
+            "backups": backups,
+            "total": len(backups)
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/cloud/backup/<backup_id>", methods=["GET"])
+def api_cloud_get_backup(backup_id):
+    """Get specific backup data."""
+    try:
+        from_cloud = request.args.get("from_cloud", "false").lower() == "true"
+        
+        data = cloud_storage.get_backup(backup_id, from_cloud=from_cloud)
+        
+        if data:
+            # Don't return full data (too large), return metadata and structure
+            response = {
+                "backup_id": data.get('backup_id'),
+                "timestamp": data.get('timestamp'),
+                "version": data.get('version'),
+                "metadata": data.get('metadata'),
+                "data_sources": {
+                    k: f"{len(v)} items" if isinstance(v, (list, dict)) else "data"
+                    for k, v in data.get('data_sources', {}).items()
+                }
+            }
+            
+            return jsonify({
+                "success": True,
+                "backup": response
+            }), 200
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Backup not found"
+            }), 404
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/cloud/query", methods=["POST"])
+def api_cloud_query_backups():
+    """Query backups with filters."""
+    try:
+        data = request.get_json() or {}
+        filters = data.get("filters", {})
+        
+        backups = cloud_storage.query_backups(**filters)
+        
+        return jsonify({
+            "success": True,
+            "backups": backups,
+            "total": len(backups)
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route("/chat", methods=["POST"])
 def chat():
     """Route utilisée par ton interface AI Chat"""
@@ -1284,17 +1412,36 @@ class BackgroundAIWorker:
                 with open(LOG_FILE, 'w') as f:
                     f.writelines(lines[-10000:])  # Keep last 10000 lines
             
-            # Create automatic backup
+            # Create automatic AI Hub backup
             try:
                 backup_file = ai_hub.create_backup()
-                health["backup_created"] = backup_file
-                log_event("AUTO_BACKUP_CREATED", {"file": backup_file})
+                health["ai_hub_backup"] = backup_file
+                log_event("AUTO_AI_HUB_BACKUP_CREATED", {"file": backup_file})
             except Exception as e:
-                log_event("BACKUP_ERROR", {"error": str(e)})
+                log_event("AI_HUB_BACKUP_ERROR", {"error": str(e)})
+            
+            # Create unified cloud backup (every 24h)
+            try:
+                unified_backup = cloud_storage.backup_all_data()
+                health["unified_backup"] = unified_backup['backup_id']
+                health["backup_size_mb"] = unified_backup['size_bytes'] / 1024 / 1024
+                log_event("AUTO_UNIFIED_BACKUP_CREATED", {
+                    "backup_id": unified_backup['backup_id'],
+                    "size_mb": health["backup_size_mb"]
+                })
+            except Exception as e:
+                log_event("UNIFIED_BACKUP_ERROR", {"error": str(e)})
             
             # Get AI Hub status
             hub_status = ai_hub.get_status()
             health["ai_hub"] = hub_status
+            
+            # Get cloud storage status
+            try:
+                cloud_stats = cloud_storage.get_statistics()
+                health["cloud_storage"] = cloud_stats
+            except Exception as e:
+                log_event("CLOUD_STATS_ERROR", {"error": str(e)})
             
             log_event("AUTO_HEALTH_CHECK", health)
             
