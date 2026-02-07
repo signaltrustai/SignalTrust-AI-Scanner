@@ -6,12 +6,16 @@ Supports AWS S3, Google Cloud Storage, Azure Blob, and local consolidated storag
 
 import json
 import os
-import gzip
+import tarfile
 import shutil
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 import hashlib
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class CloudStorageManager:
@@ -25,7 +29,7 @@ class CloudStorageManager:
         """
         self.config = config or self._load_config()
         self.provider = self.config.get('provider', 'local')
-        self.local_backup_dir = "data/unified_backups/"
+        self.local_backup_dir = "backups/"
         self.index_file = f"{self.local_backup_dir}backup_index.json"
         
         self._ensure_directories()
@@ -138,7 +142,11 @@ class CloudStorageManager:
                 client = boto3.client('s3', region_name=aws_config['region'])
             
             # Test connection
-            client.list_buckets()
+            try:
+                client.list_buckets()
+            except Exception as e:
+                print(f"⚠️ AWS S3 connection test failed: {e}")
+                return None
             
             print(f"✅ AWS S3 client initialized (bucket: {aws_config['bucket']})")
             return client
@@ -149,6 +157,10 @@ class CloudStorageManager:
         except Exception as e:
             print(f"⚠️ AWS S3 initialization error: {e}")
             return None
+    
+    def _init_aws(self):
+        """Initialize boto3 S3 client - alias for _init_aws_client."""
+        return self._init_aws_client()
     
     def _init_gcp_client(self):
         """Initialize Google Cloud Storage client."""
@@ -165,7 +177,11 @@ class CloudStorageManager:
                 client = storage.Client(project=gcp_config.get('project_id'))
             
             # Test connection
-            list(client.list_buckets(max_results=1))
+            try:
+                list(client.list_buckets(max_results=1))
+            except Exception as e:
+                print(f"⚠️ GCP Storage connection test failed: {e}")
+                return None
             
             print(f"✅ Google Cloud Storage client initialized (bucket: {gcp_config['bucket']})")
             return client
@@ -176,6 +192,10 @@ class CloudStorageManager:
         except Exception as e:
             print(f"⚠️ GCP Storage initialization error: {e}")
             return None
+    
+    def _init_gcp(self):
+        """Initialize GCP storage client - alias for _init_gcp_client."""
+        return self._init_gcp_client()
     
     def _init_azure_client(self):
         """Initialize Azure Blob Storage client."""
@@ -196,7 +216,11 @@ class CloudStorageManager:
                 )
             
             # Test connection
-            list(client.list_containers(max_results=1))
+            try:
+                list(client.list_containers(max_results=1))
+            except Exception as e:
+                print(f"⚠️ Azure Storage connection test failed: {e}")
+                return None
             
             print(f"✅ Azure Blob Storage client initialized (container: {azure_config['container']})")
             return client
@@ -208,6 +232,10 @@ class CloudStorageManager:
             print(f"⚠️ Azure Storage initialization error: {e}")
             return None
     
+    def _init_azure(self):
+        """Initialize Azure blob storage client - alias for _init_azure_client."""
+        return self._init_azure_client()
+    
     def backup_all_data(self) -> Dict:
         """Create unified backup of all AI data.
         
@@ -218,190 +246,115 @@ class CloudStorageManager:
         
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         backup_id = f"unified_backup_{timestamp}"
+        backup_filename = f"{backup_id}.tar.gz"
+        backup_path = os.path.join(self.local_backup_dir, backup_filename)
         
-        # Collect all data sources
-        data_sources = {
-            'ai_hub': self._collect_ai_hub_data(),
-            'total_market_intelligence': self._collect_market_data(),
-            'notification_ai': self._collect_notification_data(),
-            'ai_learning': self._collect_learning_data(),
-            'discovered_gems': self._collect_gems_data(),
-            'universal_analysis': self._collect_universal_analysis(),
-        }
-        
-        # Create unified backup
-        unified_backup = {
-            'backup_id': backup_id,
-            'timestamp': datetime.now().isoformat(),
-            'version': '1.0',
-            'data_sources': data_sources,
-            'metadata': {
-                'total_items': sum(len(v) if isinstance(v, (list, dict)) else 1 for v in data_sources.values()),
-                'sources_count': len(data_sources),
-                'compressed': self.config.get('compress', True)
-            }
-        }
-        
-        # Save locally
-        local_path = self._save_local_backup(backup_id, unified_backup)
-        
-        # Calculate checksum
-        checksum = self._calculate_checksum(local_path)
-        
-        # Create backup entry
-        backup_entry = {
-            'backup_id': backup_id,
-            'timestamp': unified_backup['timestamp'],
-            'local_path': local_path,
-            'size_bytes': os.path.getsize(local_path),
-            'checksum': checksum,
-            'compressed': self.config.get('compress', True),
-            'cloud_synced': False,
-            'cloud_path': None,
-            'metadata': unified_backup['metadata']
-        }
-        
-        # Add to index
-        self.index['backups'].append(backup_entry)
-        self.index['statistics']['total_backups'] += 1
-        self.index['statistics']['total_size_bytes'] += backup_entry['size_bytes']
-        self._save_index()
-        
-        print(f"✅ Unified backup created: {backup_id}")
-        print(f"   Size: {backup_entry['size_bytes'] / 1024 / 1024:.2f}MB")
-        print(f"   Path: {local_path}")
-        
-        # Sync to cloud if enabled
-        if self.config.get('auto_sync') and self.cloud_client:
-            self.sync_to_cloud(backup_id)
-        
-        return backup_entry
-    
-    def _collect_ai_hub_data(self) -> Dict:
-        """Collect AI Hub data."""
-        data = {}
-        
-        files = [
-            'data/ai_hub/shared_knowledge.json',
-            'data/ai_hub/collective_intelligence.json',
-            'data/ai_hub/communication_log.json'
+        # Define data sources to backup
+        data_sources = [
+            'data/ai_hub.json',
+            'data/total_market_intelligence.json',
+            'data/discovered_gems.json',
+            'data/scanner_history.json',
+            'data/user_preferences.json'
         ]
         
-        for file_path in files:
-            if os.path.exists(file_path):
-                try:
-                    with open(file_path, 'r') as f:
-                        key = Path(file_path).stem
-                        data[key] = json.load(f)
-                except:
-                    pass
-        
-        return data
-    
-    def _collect_market_data(self) -> Dict:
-        """Collect market intelligence data."""
-        data = {}
-        
-        # Learning data
-        files = [
-            'data/total_market_intelligence/learning/ai_brain.json',
-            'data/total_market_intelligence/learning/ai_evolution_data.json',
-            'data/total_market_intelligence/learning/learned_patterns.json'
+        # Also check for directory-based data sources
+        dir_sources = [
+            'data/ai_hub',
+            'data/total_market_intelligence',
+            'data/notification_ai'
         ]
         
-        for file_path in files:
-            if os.path.exists(file_path):
-                try:
-                    with open(file_path, 'r') as f:
-                        key = Path(file_path).stem
-                        data[key] = json.load(f)
-                except:
-                    pass
+        # Create temporary directory for organizing files
+        temp_dir = os.path.join('/tmp', backup_id)
+        os.makedirs(temp_dir, exist_ok=True)
         
-        # Latest complete market data (most recent)
-        complete_dir = 'data/total_market_intelligence/'
-        if os.path.exists(complete_dir):
-            complete_files = [f for f in os.listdir(complete_dir) if f.startswith('complete_market_data_')]
-            if complete_files:
-                latest = sorted(complete_files)[-1]
-                try:
-                    with open(os.path.join(complete_dir, latest), 'r') as f:
-                        data['latest_complete_data'] = json.load(f)
-                except:
-                    pass
-        
-        return data
-    
-    def _collect_notification_data(self) -> Dict:
-        """Collect notification AI data."""
-        data = {}
-        
-        files = [
-            'data/notification_ai/notification_history.json',
-            'data/notification_ai/ai_learning.json'
-        ]
-        
-        for file_path in files:
-            if os.path.exists(file_path):
-                try:
-                    with open(file_path, 'r') as f:
-                        key = Path(file_path).stem
-                        data[key] = json.load(f)
-                except:
-                    pass
-        
-        return data
-    
-    def _collect_learning_data(self) -> Dict:
-        """Collect AI learning data."""
-        if os.path.exists('data/ai_learning_data.json'):
-            try:
-                with open('data/ai_learning_data.json', 'r') as f:
-                    return json.load(f)
-            except:
-                pass
-        return {}
-    
-    def _collect_gems_data(self) -> Dict:
-        """Collect discovered gems data."""
-        if os.path.exists('data/discovered_gems.json'):
-            try:
-                with open('data/discovered_gems.json', 'r') as f:
-                    return json.load(f)
-            except:
-                pass
-        return {}
-    
-    def _collect_universal_analysis(self) -> Dict:
-        """Collect universal market analysis."""
-        if os.path.exists('data/universal_market_analysis.json'):
-            try:
-                with open('data/universal_market_analysis.json', 'r') as f:
-                    return json.load(f)
-            except:
-                pass
-        return {}
-    
-    def _save_local_backup(self, backup_id: str, data: Dict) -> str:
-        """Save backup locally with optional compression.
-        
-        Args:
-            backup_id: Backup identifier
-            data: Data to backup
+        try:
+            # Copy data files to temp directory
+            files_backed_up = []
             
-        Returns:
-            Path to saved file
-        """
-        if self.config.get('compress', True):
-            file_path = f"{self.local_backup_dir}{backup_id}.json.gz"
-            with gzip.open(file_path, 'wt', encoding='utf-8') as f:
-                json.dump(data, f, indent=2)
-        else:
-            file_path = f"{self.local_backup_dir}{backup_id}.json"
-            with open(file_path, 'w') as f:
-                json.dump(data, f, indent=2)
-        
-        return file_path
+            # Copy individual files
+            for source in data_sources:
+                if os.path.exists(source):
+                    dest = os.path.join(temp_dir, os.path.basename(source))
+                    shutil.copy2(source, dest)
+                    files_backed_up.append(source)
+                    print(f"   ✓ Added: {source}")
+            
+            # Copy directories
+            for source in dir_sources:
+                if os.path.exists(source) and os.path.isdir(source):
+                    dest = os.path.join(temp_dir, os.path.basename(source))
+                    shutil.copytree(source, dest)
+                    files_backed_up.append(source)
+                    print(f"   ✓ Added: {source}/")
+            
+            # Create tar.gz archive
+            with tarfile.open(backup_path, "w:gz") as tar:
+                tar.add(temp_dir, arcname=backup_id)
+            
+            print(f"✅ Archive created: {backup_path}")
+            
+            # Calculate checksum
+            checksum = self._calculate_checksum(backup_path)
+            file_size = os.path.getsize(backup_path)
+            
+            # Create metadata
+            metadata = {
+                'backup_id': backup_id,
+                'timestamp': datetime.now().isoformat(),
+                'filename': backup_filename,
+                'size_bytes': file_size,
+                'checksum': checksum,
+                'format': 'tar.gz',
+                'files_backed_up': files_backed_up,
+                'cloud_sync_status': 'pending',
+                'cloud_path': None
+            }
+            
+            # Save metadata file
+            metadata_filename = f"{backup_id}_metadata.json"
+            metadata_path = os.path.join(self.local_backup_dir, metadata_filename)
+            with open(metadata_path, 'w') as f:
+                json.dump(metadata, f, indent=2)
+            
+            print(f"✅ Metadata saved: {metadata_path}")
+            
+            # Create backup entry for index
+            backup_entry = {
+                'backup_id': backup_id,
+                'timestamp': metadata['timestamp'],
+                'local_path': backup_path,
+                'metadata_path': metadata_path,
+                'size_bytes': file_size,
+                'checksum': checksum,
+                'compressed': True,
+                'cloud_synced': False,
+                'cloud_path': None,
+                'files_count': len(files_backed_up)
+            }
+            
+            # Add to index
+            self.index['backups'].append(backup_entry)
+            self.index['statistics']['total_backups'] += 1
+            self.index['statistics']['total_size_bytes'] += file_size
+            self._save_index()
+            
+            print(f"✅ Unified backup created: {backup_id}")
+            print(f"   Size: {file_size / 1024 / 1024:.2f}MB")
+            print(f"   Path: {backup_path}")
+            print(f"   Files: {len(files_backed_up)}")
+            
+            # Sync to cloud if enabled
+            if self.config.get('auto_sync') and self.cloud_client:
+                self.sync_to_cloud(backup_id)
+            
+            return backup_entry
+            
+        finally:
+            # Clean up temp directory
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
     
     def _calculate_checksum(self, file_path: str) -> str:
         """Calculate MD5 checksum of file."""
@@ -488,14 +441,18 @@ class CloudStorageManager:
     
     def _upload_to_s3(self, local_path: str, backup_id: str) -> Optional[str]:
         """Upload to AWS S3."""
-        bucket = self.config['aws']['bucket']
-        key = f"backups/{backup_id}/{Path(local_path).name}"
-        
-        self.cloud_client.upload_file(local_path, bucket, key)
-        
-        cloud_path = f"s3://{bucket}/{key}"
-        print(f"   ✅ Uploaded to S3: {cloud_path}")
-        return cloud_path
+        try:
+            bucket = self.config['aws']['bucket']
+            key = f"backups/{backup_id}/{Path(local_path).name}"
+            
+            self.cloud_client.upload_file(local_path, bucket, key)
+            
+            cloud_path = f"s3://{bucket}/{key}"
+            print(f"   ✅ Uploaded to S3: {cloud_path}")
+            return cloud_path
+        except Exception as e:
+            print(f"   ❌ S3 upload failed: {e}")
+            return None
     
     def _upload_to_gcs(self, local_path: str, backup_id: str) -> Optional[str]:
         """Upload to Google Cloud Storage."""
@@ -543,13 +500,22 @@ class CloudStorageManager:
             print(f"⚠️ Backup not found: {backup_id}")
             return None
         
-        if from_cloud and backup_entry['cloud_synced']:
+        # Return the metadata for tar.gz backups
+        if 'metadata_path' in backup_entry and os.path.exists(backup_entry['metadata_path']):
+            try:
+                with open(backup_entry['metadata_path'], 'r') as f:
+                    return json.load(f)
+            except Exception as e:
+                print(f"⚠️ Error loading metadata: {e}")
+        
+        # For backwards compatibility with old backups
+        if from_cloud and backup_entry.get('cloud_synced'):
             return self._download_from_cloud(backup_entry)
         else:
             return self._load_local_backup(backup_entry)
     
     def _load_local_backup(self, backup_entry: Dict) -> Optional[Dict]:
-        """Load backup from local storage."""
+        """Load backup from local storage (for backwards compatibility)."""
         local_path = backup_entry['local_path']
         
         if not os.path.exists(local_path):
@@ -557,12 +523,25 @@ class CloudStorageManager:
             return None
         
         try:
-            if backup_entry.get('compressed', True):
+            # Handle old gzip format
+            if local_path.endswith('.json.gz'):
+                import gzip
                 with gzip.open(local_path, 'rt', encoding='utf-8') as f:
                     return json.load(f)
-            else:
+            # Handle old uncompressed format
+            elif local_path.endswith('.json'):
                 with open(local_path, 'r') as f:
                     return json.load(f)
+            # For tar.gz, return metadata
+            elif local_path.endswith('.tar.gz'):
+                if 'metadata_path' in backup_entry and os.path.exists(backup_entry['metadata_path']):
+                    with open(backup_entry['metadata_path'], 'r') as f:
+                        return json.load(f)
+                else:
+                    return {'backup_id': backup_entry['backup_id'], 'path': local_path, 'note': 'Use tar -xzf to extract'}
+            else:
+                print(f"⚠️ Unknown backup format: {local_path}")
+                return None
         except Exception as e:
             print(f"⚠️ Error loading backup: {e}")
             return None

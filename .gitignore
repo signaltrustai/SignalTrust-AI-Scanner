@@ -24,6 +24,11 @@ venv/
 ENV/
 env/
 
+# Backups
+backups/
+*.tar.gz
+*_metadata.json
+
 # Test files
 test_*.txt
 test_*.json
