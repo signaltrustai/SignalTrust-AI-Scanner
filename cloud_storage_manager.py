@@ -365,7 +365,7 @@ class CloudStorageManager:
                     time.sleep(0.5)
                     try:
                         shutil.rmtree(temp_dir, ignore_errors=True)
-                    except:
+                    except Exception:
                         pass  # Temp files will be cleaned by OS
     
     def _calculate_checksum(self, file_path: str) -> str:

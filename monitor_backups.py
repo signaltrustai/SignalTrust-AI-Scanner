@@ -34,7 +34,7 @@ try:
             last_sync_dt = datetime.fromisoformat(stats['last_sync'])
             formatted_time = last_sync_dt.strftime('%Y-%m-%d %H:%M:%S')
             print(f"🕒 Last sync: {formatted_time}")
-        except:
+        except (ValueError, TypeError):
             print(f"🕒 Last sync: {stats['last_sync']}")
     else:
         print(f"🕒 Last sync: Never")
@@ -54,7 +54,7 @@ try:
                 timestamp_dt = datetime.fromisoformat(b['timestamp'])
                 formatted_time = timestamp_dt.strftime('%Y-%m-%d %H:%M:%S')
                 print(f"      Time: {formatted_time}")
-            except:
+            except (ValueError, TypeError):
                 print(f"      Time: {b['timestamp']}")
             
             print(f"      Size: {size_mb:.2f} MB")
