@@ -27,6 +27,8 @@ from ai_communication_hub import ai_hub
 from notification_ai import notification_ai
 from ai_chat_system import AIChatSystem
 from cloud_storage_manager import cloud_storage
+from tradingview_manager import tradingview_manager
+from signalai_strategy import signalai_strategy
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
@@ -269,6 +271,11 @@ def whale_watcher_page():
 @app.route("/ai-intelligence")
 def ai_intelligence_page():
     return render_template("ai_intelligence.html")
+
+@app.route("/tradingview")
+def tradingview_page():
+    """TradingView charts page with SignalAI strategy"""
+    return render_template("tradingview.html")
 
 @app.route("/notifications")
 @login_required
@@ -1103,6 +1110,185 @@ def chat():
     log_event("AGENT_RESPONSE", {"response": agent_response})
 
     return jsonify({"reply": agent_response})
+
+# -----------------------------
+# API ROUTES - TRADINGVIEW & SIGNALAI
+# -----------------------------
+
+@app.route("/api/tradingview/symbols", methods=["GET"])
+def api_tradingview_symbols():
+    """Get available TradingView symbols"""
+    try:
+        category = request.args.get("category", "all")
+        symbols = tradingview_manager.get_popular_symbols(category)
+        return jsonify({"success": True, "symbols": symbols}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/tradingview/search", methods=["POST"])
+def api_tradingview_search():
+    """Search TradingView symbols"""
+    try:
+        data = request.get_json()
+        query = data.get("query", "")
+        limit = data.get("limit", 10)
+        
+        results = tradingview_manager.search_symbols(query, limit)
+        return jsonify({"success": True, "results": results}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/generate", methods=["POST"])
+def api_signalai_generate():
+    """Generate SignalAI trading signals"""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        strategy = data.get("strategy", "SignalAI")
+        
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        # Check access for SignalAI strategy
+        if strategy == "SignalAI":
+            user = get_current_user()
+            if not user:
+                return jsonify({"success": False, "error": "Login required"}), 401
+            
+            # Check if user is admin
+            is_admin = user.get('user_id') == 'admin_user_001'
+            
+            access = payment_processor.check_signalai_access(
+                user.get('user_id', ''),
+                user.get('email', ''),
+                is_admin
+            )
+            
+            if not access['has_access']:
+                return jsonify({
+                    "success": False, 
+                    "error": "SignalAI subscription required",
+                    "requires_subscription": True
+                }), 403
+        
+        # Generate signals
+        signal = signalai_strategy.generate_signals(symbol, strategy)
+        
+        log_event("SIGNALAI_SIGNAL_GENERATED", {
+            "symbol": symbol,
+            "strategy": strategy,
+            "signal": signal.get("signal")
+        })
+        
+        return jsonify({"success": True, "signal": signal}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/check-access", methods=["POST"])
+def api_signalai_check_access():
+    """Check SignalAI subscription access"""
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({"has_access": False, "reason": "Not logged in"}), 200
+        
+        # Check if user is admin
+        is_admin = user.get('user_id') == 'admin_user_001'
+        
+        access = payment_processor.check_signalai_access(
+            user.get('user_id', ''),
+            user.get('email', ''),
+            is_admin
+        )
+        
+        return jsonify(access), 200
+    except Exception as e:
+        return jsonify({"has_access": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/start-trial", methods=["POST"])
+def api_signalai_start_trial():
+    """Start SignalAI 3-day free trial"""
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({"success": False, "error": "Login required"}), 401
+        
+        result = payment_processor.start_signalai_trial(
+            user.get('user_id', ''),
+            user.get('email', '')
+        )
+        
+        if result['success']:
+            log_event("SIGNALAI_TRIAL_STARTED", {
+                "user_id": user.get('user_id'),
+                "email": user.get('email')
+            })
+        
+        return jsonify(result), 200 if result['success'] else 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/subscribe", methods=["POST"])
+def api_signalai_subscribe():
+    """Subscribe to SignalAI strategy"""
+    try:
+        user = get_current_user()
+        if not user:
+            return jsonify({"success": False, "error": "Login required"}), 401
+        
+        data = request.get_json()
+        payment_method = data.get("payment_method", {})
+        
+        result = payment_processor.process_payment(
+            user.get('user_id', ''),
+            user.get('email', ''),
+            'signalai',
+            payment_method
+        )
+        
+        if result['success']:
+            log_event("SIGNALAI_SUBSCRIPTION", {
+                "user_id": user.get('user_id'),
+                "email": user.get('email')
+            })
+        
+        return jsonify(result), 200 if result['success'] else 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/strategies", methods=["GET"])
+def api_signalai_strategies():
+    """Get available SignalAI strategies"""
+    try:
+        strategies = signalai_strategy.get_available_strategies()
+        return jsonify({"success": True, "strategies": strategies}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/history", methods=["POST"])
+def api_signalai_history():
+    """Get SignalAI signal history"""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        limit = data.get("limit", 50)
+        
+        history = signalai_strategy.get_signal_history(symbol, limit)
+        return jsonify({"success": True, "history": history}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/signalai/performance", methods=["POST"])
+def api_signalai_performance():
+    """Get SignalAI performance statistics"""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        
+        stats = signalai_strategy.get_performance_stats(symbol)
+        return jsonify({"success": True, "stats": stats}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 # -----------------------------
 # BACKGROUND WORKERS - 24/7 AI AGENTS

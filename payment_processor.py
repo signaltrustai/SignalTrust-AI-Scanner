@@ -122,6 +122,29 @@ class PaymentProcessor:
                 'historical_data_days': -1,
                 'users': 10
             }
+        },
+        'signalai': {
+            'name': 'SignalAI Strategy',
+            'price': 1.29,
+            'currency': 'USD',
+            'billing_period': 'monthly',
+            'trial_days': 3,
+            'features': [
+                'AI-powered trading strategy',
+                'Live buy/sell signals',
+                'EMA9 + EMA21 + RSI + MACD combination',
+                'Real-time strategy adaptation',
+                'Works with all TradingView symbols',
+                'Optimized for stocks and crypto',
+                'Risk management included',
+                'Entry, stop-loss, and take-profit levels'
+            ],
+            'limits': {
+                'signalai_access': True,
+                'live_signals': True,
+                'strategy_updates': 'realtime',
+                'symbols': -1
+            }
         }
     }
     
@@ -397,4 +420,103 @@ class PaymentProcessor:
         return {
             'success': True,
             'invoice': invoice
+        }
+    
+    def check_signalai_access(self, user_id: str, user_email: str = None, 
+                             is_admin: bool = False) -> Dict:
+        """Check if user has access to SignalAI strategy
+        
+        Args:
+            user_id: User ID
+            user_email: User email (optional)
+            is_admin: Whether user is admin
+            
+        Returns:
+            Access status information
+        """
+        # Admin always has free access
+        if is_admin:
+            return {
+                'has_access': True,
+                'subscription_type': 'admin',
+                'expires_at': None,
+                'trial_active': False,
+                'days_remaining': -1
+            }
+        
+        # Check for active SignalAI subscription
+        user_transactions = self.get_user_transactions(user_id)
+        signalai_transactions = [t for t in user_transactions 
+                                if t.get('plan_id') == 'signalai' 
+                                and t.get('status') == 'active']
+        
+        if signalai_transactions:
+            last_transaction = signalai_transactions[-1]
+            next_billing = datetime.fromisoformat(last_transaction['next_billing_date'])
+            days_remaining = (next_billing - datetime.now()).days
+            
+            return {
+                'has_access': True,
+                'subscription_type': 'paid',
+                'expires_at': last_transaction['next_billing_date'],
+                'trial_active': last_transaction.get('is_trial', False),
+                'days_remaining': days_remaining
+            }
+        
+        return {
+            'has_access': False,
+            'subscription_type': None,
+            'expires_at': None,
+            'trial_active': False,
+            'days_remaining': 0
+        }
+    
+    def start_signalai_trial(self, user_id: str, email: str) -> Dict:
+        """Start SignalAI 3-day free trial
+        
+        Args:
+            user_id: User ID
+            email: User email
+            
+        Returns:
+            Trial activation result
+        """
+        # Check if user already had a trial
+        user_transactions = self.get_user_transactions(user_id)
+        had_trial = any(t.get('plan_id') == 'signalai' for t in user_transactions)
+        
+        if had_trial:
+            return {
+                'success': False,
+                'error': 'Trial already used. Please subscribe to continue.'
+            }
+        
+        # Create trial transaction
+        transaction_id = secrets.token_hex(16)
+        plan = self.PLANS['signalai']
+        
+        trial_end = datetime.now() + timedelta(days=3)
+        
+        transaction = {
+            'transaction_id': transaction_id,
+            'user_id': user_id,
+            'email': email,
+            'plan_id': 'signalai',
+            'plan_name': plan['name'],
+            'amount': 0,  # Free trial
+            'currency': plan['currency'],
+            'status': 'active',
+            'is_trial': True,
+            'created_at': datetime.now().isoformat(),
+            'next_billing_date': trial_end.isoformat()
+        }
+        
+        self.transactions.append(transaction)
+        self._save_transactions()
+        
+        return {
+            'success': True,
+            'transaction_id': transaction_id,
+            'message': 'SignalAI trial started - 3 days free access',
+            'trial_ends': trial_end.isoformat()
         }
