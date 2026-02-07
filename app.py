@@ -194,6 +194,11 @@ def manifest():
                 "type": "image/png"
             },
             {
+                "src": "/static/icons/icon-256x256.png",
+                "sizes": "256x256",
+                "type": "image/png"
+            },
+            {
                 "src": "/static/icons/icon-384x384.png",
                 "sizes": "384x384",
                 "type": "image/png"
