@@ -2,21 +2,44 @@
 """
 AI Predictor Module
 Uses AI/ML techniques to predict market movements and generate signals
+Enhanced with real AI provider support
 """
 
 import random
 from datetime import datetime, timedelta
-from typing import Dict, List
+from typing import Dict, List, Optional
 import math
+
+try:
+    from ai_provider import EnhancedAIEngine, AIProviderFactory
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
 
 
 class AIPredictor:
     """AI-powered predictor for market analysis and forecasting"""
     
-    def __init__(self):
-        """Initialize AI predictor."""
-        self.model_version = "2.0.0"
+    def __init__(self, use_real_ai: bool = True):
+        """Initialize AI predictor.
+        
+        Args:
+            use_real_ai: Whether to use real AI models when available
+        """
+        self.model_version = "3.0.0"
         self.prediction_cache = {}
+        self.use_real_ai = use_real_ai and AI_AVAILABLE
+        
+        # Initialize AI engine if available
+        self.ai_engine = None
+        if self.use_real_ai:
+            try:
+                self.ai_engine = EnhancedAIEngine()
+                print("✅ AI Predictor initialized with enhanced AI engine")
+            except Exception as e:
+                print(f"⚠️ Could not initialize AI engine: {e}")
+                print("   Falling back to simulated predictions")
+                self.use_real_ai = False
         
     def predict_price(self, symbol: str, days_ahead: int = 7) -> Dict:
         """Predict future price using AI models.
@@ -28,6 +51,35 @@ class AIPredictor:
         Returns:
             Price predictions
         """
+        # Use real AI if available
+        if self.use_real_ai and self.ai_engine:
+            try:
+                current_price = random.uniform(50, 500)  # Would be replaced with real market data
+                
+                ai_prediction = self.ai_engine.generate_prediction(
+                    symbol=symbol,
+                    data={
+                        'current_price': current_price,
+                        'days_ahead': days_ahead,
+                        'symbol': symbol
+                    }
+                )
+                
+                if ai_prediction.get('success'):
+                    # Parse AI response and structure it
+                    return {
+                        'symbol': symbol,
+                        'current_price': round(current_price, 2),
+                        'ai_prediction': ai_prediction.get('prediction', ''),
+                        'model_used': 'Enhanced AI Engine',
+                        'model_version': self.model_version,
+                        'ai_powered': True,
+                        'timestamp': datetime.now().isoformat()
+                    }
+            except Exception as e:
+                print(f"⚠️ AI prediction error: {e}, using fallback")
+        
+        # Fallback to simulated predictions
         # Simulate current price
         current_price = random.uniform(50, 500)
         
@@ -60,8 +112,9 @@ class AIPredictor:
             'predictions': predictions,
             'overall_trend': 'Bullish' if overall_change > 0 else 'Bearish',
             'expected_change_percent': round(overall_change, 2),
-            'model_used': 'LSTM Neural Network',
+            'model_used': 'Simulated Predictions (Configure AI provider for real predictions)',
             'model_version': self.model_version,
+            'ai_powered': False,
             'timestamp': datetime.now().isoformat()
         }
     

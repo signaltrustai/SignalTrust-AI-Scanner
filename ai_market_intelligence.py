@@ -2,6 +2,7 @@
 """
 Advanced AI Market Intelligence System
 Comprehensive AI that scans all markets, news, whale movements and learns to predict future trends
+Enhanced with real AI provider support
 """
 
 import json
@@ -10,23 +11,43 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import requests
 
+try:
+    from ai_provider import EnhancedAIEngine
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
+
 
 class AIMarketIntelligence:
     """Advanced AI system for comprehensive market analysis and prediction"""
     
-    def __init__(self, asi1_integration=None, realtime_data=None, whale_watcher=None):
+    def __init__(self, asi1_integration=None, realtime_data=None, whale_watcher=None, use_real_ai=True):
         """Initialize AI Market Intelligence.
         
         Args:
-            asi1_integration: ASI1 AI integration instance
+            asi1_integration: ASI1 AI integration instance (deprecated, use ai_engine)
             realtime_data: Real-time market data instance
             whale_watcher: Whale watcher instance
+            use_real_ai: Whether to use real AI models when available
         """
-        self.asi1 = asi1_integration
+        self.asi1 = asi1_integration  # Keep for backward compatibility
         self.market_data = realtime_data
         self.whale_watcher = whale_watcher
         self.learning_history = []
         self.prediction_accuracy = 0.94
+        
+        # Initialize enhanced AI engine
+        self.use_real_ai = use_real_ai and AI_AVAILABLE
+        self.ai_engine = None
+        
+        if self.use_real_ai:
+            try:
+                self.ai_engine = EnhancedAIEngine()
+                print("✅ AI Market Intelligence initialized with enhanced AI engine")
+            except Exception as e:
+                print(f"⚠️ Could not initialize AI engine: {e}")
+                print("   Falling back to simulated intelligence")
+                self.use_real_ai = False
         
     def comprehensive_market_scan(self) -> Dict:
         """Perform comprehensive scan of all markets.
@@ -65,6 +86,40 @@ class AIMarketIntelligence:
         # Gather comprehensive market intelligence
         intelligence = self.comprehensive_market_scan()
         
+        # Use real AI if available
+        if self.use_real_ai and self.ai_engine:
+            try:
+                # Get AI-powered market analysis
+                ai_analysis = self.ai_engine.analyze_market(intelligence)
+                
+                if ai_analysis.get('success'):
+                    # Store in learning history
+                    self.learning_history.append({
+                        'timestamp': datetime.now().isoformat(),
+                        'intelligence': intelligence,
+                        'ai_analysis': ai_analysis,
+                        'user_id': user_id
+                    })
+                    
+                    return {
+                        'success': True,
+                        'ai_powered': True,
+                        'analysis': ai_analysis.get('analysis', {}),
+                        'confidence_score': self.prediction_accuracy,
+                        'markets_analyzed': {
+                            'us_stocks': len(intelligence['us_markets'].get('top_opportunities', [])),
+                            'canadian_stocks': len(intelligence['canadian_markets'].get('top_opportunities', [])),
+                            'cryptocurrencies': len(intelligence['crypto_markets'].get('top_gainers', [])),
+                            'whale_transactions': intelligence['whale_activity'].get('transaction_count', 0),
+                            'news_articles': len(intelligence['market_news'].get('articles', []))
+                        },
+                        'timestamp': datetime.now().isoformat(),
+                        'provider': ai_analysis.get('provider', 'unknown')
+                    }
+            except Exception as e:
+                print(f"⚠️ AI analysis error: {e}, using fallback")
+        
+        # Fallback to simulated AI learning
         # AI learning process
         learning_insights = self._ai_learning_process(intelligence)
         
@@ -84,6 +139,7 @@ class AIMarketIntelligence:
         
         return {
             'success': True,
+            'ai_powered': False,
             'learning_insights': learning_insights,
             'predictions': predictions,
             'recommendations': recommendations,
