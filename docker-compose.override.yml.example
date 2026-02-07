@@ -1,0 +1,46 @@
+# docker-compose.override.yml
+# This file provides development-friendly overrides
+# Copy this to docker-compose.override.yml and customize as needed
+
+version: "3.9"
+
+services:
+  # Enable hot-reload for coordinator
+  coordinator:
+    volumes:
+      - ./agents/coordinator:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for crypto_agent
+  crypto_agent:
+    volumes:
+      - ./agents/crypto_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for stock_agent
+  stock_agent:
+    volumes:
+      - ./agents/stock_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for whale_agent
+  whale_agent:
+    volumes:
+      - ./agents/whale_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for news_agent
+  news_agent:
+    volumes:
+      - ./agents/news_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
