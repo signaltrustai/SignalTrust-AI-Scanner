@@ -1,14 +1,20 @@
 # Admin Access Documentation
 
+⚠️ **SECURITY WARNING**: This file contains a default password for development purposes only. In a production environment, this password should be changed immediately after first deployment and this documentation should be removed from version control.
+
 ## Default Administrator Account
 
 SignalTrust AI Scanner includes a pre-configured administrator account with full access to all system features.
 
 ### Login Credentials
 
+**FOR DEVELOPMENT/INITIAL SETUP ONLY:**
+
 - **Email:** signaltrustai@gmail.com
 - **Password:** !Obiwan12!
 - **User ID:** owner_admin_001
+
+**⚠️ CRITICAL: Change this password immediately after first login in production!**
 
 ### Account Details
 

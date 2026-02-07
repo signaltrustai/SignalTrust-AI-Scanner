@@ -2,12 +2,18 @@
 """
 Admin Configuration Module
 Contains default administrator account settings and initialization
+
+⚠️ SECURITY WARNING: This file contains a default password for development purposes.
+In production, the password should be changed immediately after first deployment,
+and this file should be modified to load credentials from environment variables
+or a secure secrets management system.
 """
 
 # Default admin account constants
+# ⚠️ FOR DEVELOPMENT ONLY - Change in production!
 ADMIN_USER_ID = "owner_admin_001"
 ADMIN_EMAIL = "signaltrustai@gmail.com"
-ADMIN_PASSWORD = "!Obiwan12!"
+ADMIN_PASSWORD = "!Obiwan12!"  # TODO: Load from secure source in production
 ADMIN_FULL_NAME = "SignalTrust Admin"
 ADMIN_PLAN = "enterprise"
 ADMIN_PAYMENT_STATUS = "active"
