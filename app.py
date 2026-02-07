@@ -18,6 +18,8 @@ from ai_market_intelligence import AIMarketIntelligence
 from whale_watcher import WhaleWatcher
 from notification_center import NotificationCenter
 from realtime_market_data import RealTimeMarketData
+from crypto_gem_finder import CryptoGemFinder
+from universal_market_analyzer import UniversalMarketAnalyzer
 from ai_chat_system import AIChatSystem
 
 app = Flask(__name__)
@@ -54,6 +56,8 @@ ai_intelligence = AIMarketIntelligence()
 whale_watcher = WhaleWatcher()
 notification_center = NotificationCenter()
 realtime_data = RealTimeMarketData()
+gem_finder = CryptoGemFinder()
+universal_analyzer = UniversalMarketAnalyzer()
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -600,6 +604,96 @@ def api_mark_notification_read():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# -----------------------------
+# API ROUTES - CRYPTO GEMS & DISCOVERY
+# -----------------------------
+
+@app.route("/api/gems/discover", methods=["GET"])
+def api_discover_gems():
+    """Discover hidden gem cryptocurrencies."""
+    try:
+        limit = int(request.args.get("limit", 50))
+        gems = gem_finder.discover_new_gems(limit=limit)
+        
+        save_learning_data("gems_discovered", {"count": len(gems), "gems": gems[:10]})
+        log_event("GEMS_DISCOVERED", {"count": len(gems)})
+        
+        return jsonify({"success": True, "data": gems}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/gems/top", methods=["GET"])
+def api_top_gems():
+    """Get top-scored gem cryptocurrencies."""
+    try:
+        limit = int(request.args.get("limit", 10))
+        gems = gem_finder.get_top_gems(limit=limit)
+        return jsonify({"success": True, "data": gems}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/gems/analyze/<symbol>", methods=["GET"])
+def api_analyze_gem(symbol):
+    """Analyze explosion potential of a specific gem."""
+    try:
+        analysis = gem_finder.analyze_gem_potential(symbol)
+        save_learning_data("gem_analysis", {"symbol": symbol, "analysis": analysis})
+        return jsonify({"success": True, "data": analysis}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/gems/alerts", methods=["GET"])
+def api_gem_alerts():
+    """Get alerts for gems about to explode."""
+    try:
+        alerts = gem_finder.get_gem_alerts()
+        return jsonify({"success": True, "data": alerts}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - UNIVERSAL MARKET ANALYSIS
+# -----------------------------
+
+@app.route("/api/universal/analyze-all", methods=["GET"])
+def api_analyze_all_markets():
+    """Analyze ALL markets: stocks, crypto, NFTs, everything."""
+    try:
+        analysis = universal_analyzer.analyze_everything()
+        
+        save_learning_data("universal_analysis", {
+            "total_assets": analysis['total_assets_analyzed'],
+            "markets": len(analysis['markets'])
+        })
+        log_event("UNIVERSAL_ANALYSIS_COMPLETE", {
+            "assets": analysis['total_assets_analyzed'],
+            "opportunities": len(analysis['top_opportunities'])
+        })
+        
+        return jsonify({"success": True, "data": analysis}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/universal/summary", methods=["GET"])
+def api_universal_summary():
+    """Get summary of latest universal analysis."""
+    try:
+        summary = universal_analyzer.get_analysis_summary()
+        return jsonify({"success": True, "data": summary}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/universal/top-opportunities", methods=["GET"])
+def api_top_opportunities():
+    """Get top investment opportunities across ALL markets."""
+    try:
+        limit = int(request.args.get("limit", 50))
+        summary = universal_analyzer.get_analysis_summary()
+        opportunities = summary.get('top_opportunities', [])[:limit]
+        return jsonify({"success": True, "data": opportunities}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route("/chat", methods=["POST"])
 def chat():
     """Route utilisée par ton interface AI Chat"""
@@ -665,11 +759,19 @@ class BackgroundAIWorker:
                 if cycle_count % 12 == 0:
                     self._generate_predictions()
                 
-                # 5. Learn from collected data every 6 hours
+                # 5. Discover hidden gems every 30 minutes
+                if cycle_count % 6 == 0:
+                    self._discover_hidden_gems()
+                
+                # 6. Analyze ALL markets every 2 hours
+                if cycle_count % 24 == 0:
+                    self._analyze_all_markets()
+                
+                # 7. Learn from collected data every 6 hours
                 if cycle_count % 72 == 0:
                     self._learn_from_data()
                 
-                # 6. Health check and cleanup every 24 hours
+                # 8. Health check and cleanup every 24 hours
                 if cycle_count % 288 == 0:
                     self._health_check(cycle_count)
                 
@@ -769,6 +871,67 @@ class BackgroundAIWorker:
             log_event("AUTO_PREDICTIONS", {"generated": len(predictions)})
         except Exception as e:
             log_event("PREDICTION_ERROR", {"error": str(e)})
+    
+    def _discover_hidden_gems(self):
+        """Discover hidden gem cryptocurrencies every 30 minutes."""
+        try:
+            gems = gem_finder.discover_new_gems(limit=100)
+            
+            # Filter top gems
+            top_gems = [g for g in gems if g.get('gem_score', 0) > 85]
+            
+            save_learning_data("auto_gem_discovery", {
+                "total_discovered": len(gems),
+                "top_gems": len(top_gems),
+                "gems": top_gems[:10]
+            })
+            
+            log_event("AUTO_GEM_DISCOVERY", {
+                "discovered": len(gems),
+                "high_potential": len(top_gems)
+            })
+            
+            # Send alerts for exceptional gems
+            alerts = gem_finder.get_gem_alerts()
+            if alerts:
+                for alert in alerts[:5]:
+                    notification_center.send_notification(
+                        "all_users",
+                        "gem_alert",
+                        f"💎 New Gem Alert: {alert['symbol']} - {alert['message']}"
+                    )
+        except Exception as e:
+            log_event("GEM_DISCOVERY_ERROR", {"error": str(e)})
+    
+    def _analyze_all_markets(self):
+        """Analyze ALL markets every 2 hours."""
+        try:
+            log_event("UNIVERSAL_ANALYSIS_START", {})
+            
+            analysis = universal_analyzer.analyze_everything()
+            
+            save_learning_data("auto_universal_analysis", {
+                "total_assets": analysis['total_assets_analyzed'],
+                "markets": len(analysis['markets']),
+                "top_opportunities": len(analysis['top_opportunities'])
+            })
+            
+            log_event("UNIVERSAL_ANALYSIS_COMPLETE", {
+                "assets_analyzed": analysis['total_assets_analyzed'],
+                "opportunities_found": len(analysis['top_opportunities']),
+                "markets_covered": len(analysis['markets'])
+            })
+            
+            # Send notifications for top opportunities
+            top_opps = analysis['top_opportunities'][:10]
+            if top_opps:
+                notification_center.send_notification(
+                    "all_users",
+                    "market_opportunities",
+                    f"🚀 {len(top_opps)} new top opportunities discovered across all markets!"
+                )
+        except Exception as e:
+            log_event("UNIVERSAL_ANALYSIS_ERROR", {"error": str(e)})
     
     def _learn_from_data(self):
         """Learn and improve from collected data."""
