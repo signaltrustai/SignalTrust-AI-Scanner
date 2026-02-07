@@ -1,0 +1,122 @@
+[
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:20:13.089873",
+    "current_price": 44219.738644489786,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 99,
+    "indicators": {
+      "EMA9": 43713.75665812169,
+      "EMA21": 42688.53017678368,
+      "RSI": 31.07374069972245,
+      "MACD": {
+        "value": -32.41409248638861,
+        "signal": -25.931273989110892,
+        "histogram": -6.482818497277723
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:21:22.716206",
+    "current_price": 44833.25991937663,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 99,
+    "indicators": {
+      "EMA9": 44082.3304310786,
+      "EMA21": 43383.78130991658,
+      "RSI": 31.48607760251826,
+      "MACD": {
+        "value": -3.1748144172837343,
+        "signal": -2.5398515338269876,
+        "histogram": -0.6349628834567469
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:22:17.578437",
+    "current_price": 45642.363337354254,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 82,
+    "indicators": {
+      "EMA9": 45589.21573247624,
+      "EMA21": 44955.70684180506,
+      "RSI": 58.07322946735443,
+      "MACD": {
+        "value": 35.955135065829495,
+        "signal": 28.764108052663598,
+        "histogram": 7.1910270131658995
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "NASDAQ:AAPL",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:22:17.578758",
+    "current_price": 182.63856367669234,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 96,
+    "indicators": {
+      "EMA9": 180.0896694892635,
+      "EMA21": 175.47832545786332,
+      "RSI": 64.46226123043495,
+      "MACD": {
+        "value": -7.378982715894125,
+        "signal": -5.9031861727153006,
+        "histogram": -1.4757965431788251
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "BINANCE:ETHUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:22:17.579159",
+    "current_price": 2467.974868751495,
+    "signal": "SELL",
+    "strength": 100,
+    "confidence": 89,
+    "indicators": {
+      "EMA9": 2433.95002448926,
+      "EMA21": 2437.0469045698947,
+      "RSI": 68.6907259028871,
+      "MACD": {
+        "value": -23.53192642204933,
+        "signal": -18.825541137639465,
+        "histogram": -4.706385284409866
+      }
+    },
+    "recommendation": "Strong Sell - High conviction exit signal",
+    "entry_price": 100.49999999999999,
+    "stop_loss": 103.0,
+    "take_profit": 94.0,
+    "risk_reward": 2.0
+  }
+]
