@@ -786,6 +786,82 @@ def api_ai_predict_enhanced(asset):
         return jsonify({"success": False, "error": str(e)}), 500
 
 # -----------------------------
+# API ROUTES - AI CHAT SYSTEM
+# -----------------------------
+
+@app.route("/api/ai-chat/modes", methods=["GET"])
+def api_ai_chat_modes():
+    """Get available AI chat modes."""
+    try:
+        modes = ai_chat.get_available_modes()
+        return jsonify({"success": True, "modes": modes}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai-chat/message", methods=["POST"])
+def api_ai_chat_message():
+    """Process AI chat message."""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        ai_mode = data.get('mode', 'auto')
+        
+        # Get user info from session
+        user = get_current_user()
+        user_id = user.get('id', 'anonymous') if user else 'anonymous'
+        user_email = user.get('email') if user else None
+        
+        # Process chat message
+        response = ai_chat.chat(
+            user_id=user_id,
+            message=message,
+            ai_mode=ai_mode,
+            user_email=user_email
+        )
+        
+        # Log successful chat
+        if response.get('success'):
+            log_event("AI_CHAT_MESSAGE", {
+                "user_id": user_id,
+                "ai_type": response.get('ai_type'),
+                "message_length": len(message)
+            })
+        
+        return jsonify(response), 200
+    except Exception as e:
+        log_event("AI_CHAT_ERROR", {"error": str(e)})
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "message": "Failed to process chat message"
+        }), 500
+
+@app.route("/api/ai-chat/history", methods=["GET"])
+def api_ai_chat_history():
+    """Get conversation history."""
+    try:
+        user = get_current_user()
+        user_id = user.get('id', 'anonymous') if user else 'anonymous'
+        
+        history = ai_chat.get_conversation_history(user_id)
+        return jsonify({"success": True, "history": history}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai-chat/clear-history", methods=["POST"])
+def api_ai_chat_clear_history():
+    """Clear conversation history."""
+    try:
+        user = get_current_user()
+        user_id = user.get('id', 'anonymous') if user else 'anonymous'
+        
+        ai_chat.clear_history(user_id)
+        log_event("AI_CHAT_HISTORY_CLEARED", {"user_id": user_id})
+        return jsonify({"success": True, "message": "History cleared"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
 # API ROUTES - AI HUB & COMMUNICATION
 # -----------------------------
 
@@ -1474,25 +1550,6 @@ import subprocess
 import sys
 
 app = Flask(__name__)
-
-@app.route('/test-backup')
-def test_backup():
-    """Route pour exécuter le test de backup"""
-    try:
-        # Exécuter le script de test
-        result = subprocess.run(
-            [sys.executable, 'test_render_backup.py'],
-            capture_output=True,
-            text=True,
-            timeout=120
-        )
-        
-        # Retourner le résultat en texte brut
-        output = result.stdout + "\n\n" + result.stderr
-        return Response(output, mimetype='text/plain')
-        
-    except Exception as e:
-        return Response(f"Erreur: {str(e)}", mimetype='text/plain'), 500
 
 @app.route('/test-backup')
 def test_backup():
