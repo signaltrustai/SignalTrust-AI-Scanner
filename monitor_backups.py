@@ -14,25 +14,63 @@ print("=" * 70)
 
 try:
     stats = cloud_storage.get_statistics()
-    print(f"\n📈 Provider: {stats['provider'].upper()}")
+    
+    # Provider and configuration info
+    print(f"\n☁️  Provider: {stats['provider'].upper()}")
+    
+    # Show bucket name for AWS
+    if stats['provider'] == 'aws' and 'aws' in cloud_storage.config:
+        bucket = cloud_storage.config['aws'].get('bucket', 'N/A')
+        print(f"📦 Bucket: {bucket}")
+    
+    # Statistics
     print(f"📦 Total backups: {stats['total_backups']}")
     print(f"💾 Total size: {stats['total_size_mb']:.2f} MB")
     print(f"☁️  Cloud synced: {stats['cloud_synced']}/{stats['total_backups']}")
     
     if stats.get('last_sync'):
-        print(f"🕒 Last sync: {stats['last_sync']}")
+        try:
+            # Parse and format the timestamp
+            last_sync_dt = datetime.fromisoformat(stats['last_sync'])
+            formatted_time = last_sync_dt.strftime('%Y-%m-%d %H:%M:%S')
+            print(f"🕒 Last sync: {formatted_time}")
+        except (ValueError, TypeError):
+            print(f"🕒 Last sync: {stats['last_sync']}")
+    else:
+        print(f"🕒 Last sync: Never")
     
     backups = cloud_storage.list_backups(10)
     if backups:
         print(f"\n📦 Recent Backups:")
-        for b in backups:
+        for i, b in enumerate(backups, 1):
+            # Cloud sync status emoji
             status = "☁️" if b.get('cloud_synced') else "💾"
             size_mb = b.get('size_bytes', 0) / 1024 / 1024
-            print(f"   {status} {b['backup_id']}")
-            print(f"      Time: {b['timestamp']}")
+            
+            print(f"\n   {status} #{i}. {b['backup_id']}")
+            
+            # Format timestamp
+            try:
+                timestamp_dt = datetime.fromisoformat(b['timestamp'])
+                formatted_time = timestamp_dt.strftime('%Y-%m-%d %H:%M:%S')
+                print(f"      Time: {formatted_time}")
+            except (ValueError, TypeError):
+                print(f"      Time: {b['timestamp']}")
+            
             print(f"      Size: {size_mb:.2f} MB")
+            
             if 'files_count' in b:
                 print(f"      Files: {b['files_count']}")
+            
+            # Show cloud path if available
+            if b.get('cloud_path'):
+                print(f"      Cloud: {b['cloud_path']}")
+            
+            # Show cloud sync status
+            if b.get('cloud_synced'):
+                print(f"      Status: Synced to cloud ✅")
+            else:
+                print(f"      Status: Local only ⚠️")
     else:
         print("\n⚠️  No backups found")
     
@@ -43,3 +81,4 @@ except Exception as e:
     print(f"\n❌ Error accessing backup system: {e}")
     import traceback
     traceback.print_exc()
+
