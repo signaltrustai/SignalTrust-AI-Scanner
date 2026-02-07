@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-02-07T14:58:11.611616",
+  "shared_knowledge": {
+    "version": "1.0",
+    "last_update": "2026-02-07T14:58:11.610887",
+    "total_data_points": 3,
+    "market_insights": {},
+    "patterns": [],
+    "predictions": [
+      {
+        "source": "Predictor",
+        "timestamp": "2026-02-07T14:58:11.610688",
+        "prediction": {
+          "asset": "BTC",
+          "direction": "UP"
+        }
+      }
+    ],
+    "whale_intelligence": {
+      "WhaleWatcher": {
+        "timestamp": "2026-02-07T14:58:11.610887",
+        "data": {
+          "whale_ratio": 1.5
+        }
+      }
+    },
+    "gem_discoveries": [
+      {
+        "symbol": "TEST",
+        "score": 95
+      }
+    ],
+    "news_sentiment": {},
+    "correlations": []
+  },
+  "collective_intelligence": {
+    "collective_iq": 75.09,
+    "collective_accuracy": 0.718,
+    "total_learning_sessions": 1,
+    "connected_ais": 0,
+    "data_exchanges": 3,
+    "evolution_synergy": 1.0
+  },
+  "communication_log": [
+    {
+      "timestamp": "2026-02-07T14:58:11.610249",
+      "from": "GemFinder",
+      "to": "ALL",
+      "type": "discovery",
+      "data": {
+        "gems": 10
+      },
+      "delivered": true,
+      "broadcast_time": "2026-02-07T14:58:11.610363"
+    },
+    {
+      "timestamp": "2026-02-07T14:58:11.610367",
+      "from": "Predictor",
+      "to": "Evolution",
+      "type": "prediction",
+      "data": {
+        "accuracy": 0.85
+      },
+      "delivered": false
+    }
+  ]
+}

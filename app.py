@@ -22,6 +22,7 @@ from crypto_gem_finder import CryptoGemFinder
 from universal_market_analyzer import UniversalMarketAnalyzer
 from total_market_data_collector import TotalMarketDataCollector
 from ai_evolution_system import AIEvolutionSystem
+from ai_communication_hub import ai_hub
 from ai_chat_system import AIChatSystem
 
 app = Flask(__name__)
@@ -781,6 +782,47 @@ def api_ai_predict_enhanced(asset):
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# -----------------------------
+# API ROUTES - AI HUB & COMMUNICATION
+# -----------------------------
+
+@app.route("/api/hub/status", methods=["GET"])
+def api_hub_status():
+    """Get AI communication hub status."""
+    try:
+        status = ai_hub.get_status()
+        return jsonify({"success": True, "data": status}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/hub/knowledge", methods=["GET"])
+def api_hub_knowledge():
+    """Get all shared knowledge from AI hub."""
+    try:
+        knowledge = ai_hub.get_all_knowledge()
+        return jsonify({"success": True, "data": knowledge}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/hub/collective-intelligence", methods=["GET"])
+def api_collective_intelligence():
+    """Get collective intelligence metrics."""
+    try:
+        collective = ai_hub.get_collective_intelligence()
+        return jsonify({"success": True, "data": collective}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/hub/backup", methods=["POST"])
+def api_create_backup():
+    """Create manual backup of all AI data."""
+    try:
+        backup_file = ai_hub.create_backup()
+        log_event("MANUAL_BACKUP_CREATED", {"file": backup_file})
+        return jsonify({"success": True, "backup_file": backup_file}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route("/chat", methods=["POST"])
 def chat():
     """Route utilisée par ton interface AI Chat"""
@@ -896,6 +938,13 @@ class BackgroundAIWorker:
             trending = market_scanner.get_trending_assets("crypto")
             save_learning_data("auto_trending", trending)
             
+            # Share data with AI Hub
+            ai_hub.share_data("MarketScanner", "market_insights", {
+                "summary": summary,
+                "trending": trending,
+                "timestamp": datetime.datetime.now().isoformat()
+            })
+            
             log_event("AUTO_DATA_COLLECTION", {
                 "summary": bool(summary),
                 "trending": len(trending)
@@ -921,6 +970,10 @@ class BackgroundAIWorker:
                     continue
             
             save_learning_data("auto_ai_analysis", analyses)
+            
+            # Share patterns with AI Hub
+            ai_hub.share_data("Analyzer", "patterns", analyses)
+            
             log_event("AUTO_AI_ANALYSIS", {"analyzed": len(analyses)})
         except Exception as e:
             log_event("AI_ANALYSIS_ERROR", {"error": str(e)})
@@ -933,9 +986,15 @@ class BackgroundAIWorker:
             # Save whale data for learning
             save_learning_data("auto_whale_data", transactions)
             
-            # Check for significant transactions
+            # Share whale intelligence with AI Hub
             significant = [t for t in transactions if t.get("value_usd", 0) > 1000000]
+            ai_hub.share_data("WhaleWatcher", "whale_intelligence", {
+                "total_transactions": len(transactions),
+                "significant_count": len(significant),
+                "total_value": sum(t.get("value_usd", 0) for t in significant)
+            })
             
+            # Check for significant transactions
             if significant:
                 log_event("AUTO_WHALE_ALERT", {
                     "count": len(significant),
@@ -971,6 +1030,10 @@ class BackgroundAIWorker:
                     continue
             
             save_learning_data("auto_predictions", predictions)
+            
+            # Share predictions with AI Hub
+            ai_hub.share_data("Predictor", "predictions", predictions)
+            
             log_event("AUTO_PREDICTIONS", {"generated": len(predictions)})
         except Exception as e:
             log_event("PREDICTION_ERROR", {"error": str(e)})
@@ -987,6 +1050,15 @@ class BackgroundAIWorker:
                 "total_discovered": len(gems),
                 "top_gems": len(top_gems),
                 "gems": top_gems[:10]
+            })
+            
+            # Share gems with AI Hub
+            ai_hub.share_data("GemFinder", "gem_discoveries", top_gems)
+            
+            # Broadcast discovery to all AIs
+            ai_hub.send_message("GemFinder", "ALL", "gem_discovery", {
+                "total_gems": len(gems),
+                "high_potential": len(top_gems)
             })
             
             log_event("AUTO_GEM_DISCOVERY", {
@@ -1071,18 +1143,36 @@ class BackgroundAIWorker:
         try:
             log_event("AUTO_AI_EVOLUTION_START", {})
             
+            # Get shared knowledge from hub
+            shared_knowledge = ai_hub.get_all_knowledge()
+            
+            # Individual AI evolution
             report = ai_evolution.evolve()
+            
+            # Collective evolution
+            collective = ai_hub.evolve_collectively()
             
             save_learning_data("auto_ai_evolution", {
                 "evolution_level": report.get('new_level'),
                 "intelligence_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
-                "prediction_accuracy": report.get('prediction_accuracy', {}).get('overall')
+                "prediction_accuracy": report.get('prediction_accuracy', {}).get('overall'),
+                "collective_iq": collective['collective_iq'],
+                "collective_accuracy": collective['collective_accuracy'],
+                "evolution_synergy": collective['evolution_synergy']
+            })
+            
+            # Broadcast evolution to all AIs
+            ai_hub.send_message("Evolution", "ALL", "evolution_complete", {
+                "individual_level": report.get('new_level'),
+                "collective_iq": collective['collective_iq'],
+                "synergy": collective['evolution_synergy']
             })
             
             log_event("AUTO_AI_EVOLUTION_COMPLETE", {
                 "new_level": report.get('new_level'),
                 "overall_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
-                "accuracy": report.get('prediction_accuracy', {}).get('overall')
+                "collective_iq": collective['collective_iq'],
+                "synergy": collective['evolution_synergy']
             })
             
         except Exception as e:
@@ -1131,6 +1221,18 @@ class BackgroundAIWorker:
                     lines = f.readlines()
                 with open(LOG_FILE, 'w') as f:
                     f.writelines(lines[-10000:])  # Keep last 10000 lines
+            
+            # Create automatic backup
+            try:
+                backup_file = ai_hub.create_backup()
+                health["backup_created"] = backup_file
+                log_event("AUTO_BACKUP_CREATED", {"file": backup_file})
+            except Exception as e:
+                log_event("BACKUP_ERROR", {"error": str(e)})
+            
+            # Get AI Hub status
+            hub_status = ai_hub.get_status()
+            health["ai_hub"] = hub_status
             
             log_event("AUTO_HEALTH_CHECK", health)
             

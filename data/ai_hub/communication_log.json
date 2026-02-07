@@ -1,0 +1,23 @@
+[
+  {
+    "timestamp": "2026-02-07T14:58:11.610249",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "discovery",
+    "data": {
+      "gems": 10
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-07T14:58:11.610363"
+  },
+  {
+    "timestamp": "2026-02-07T14:58:11.610367",
+    "from": "Predictor",
+    "to": "Evolution",
+    "type": "prediction",
+    "data": {
+      "accuracy": 0.85
+    },
+    "delivered": false
+  }
+]

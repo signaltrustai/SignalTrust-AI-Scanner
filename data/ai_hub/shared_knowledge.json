@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "last_update": "2026-02-07T14:58:11.610887",
+  "total_data_points": 3,
+  "market_insights": {},
+  "patterns": [],
+  "predictions": [
+    {
+      "source": "Predictor",
+      "timestamp": "2026-02-07T14:58:11.610688",
+      "prediction": {
+        "asset": "BTC",
+        "direction": "UP"
+      }
+    }
+  ],
+  "whale_intelligence": {
+    "WhaleWatcher": {
+      "timestamp": "2026-02-07T14:58:11.610887",
+      "data": {
+        "whale_ratio": 1.5
+      }
+    }
+  },
+  "gem_discoveries": [
+    {
+      "symbol": "TEST",
+      "score": 95
+    }
+  ],
+  "news_sentiment": {},
+  "correlations": []
+}
