@@ -1,22 +1,11 @@
 [
   {
-    "timestamp": "2026-02-07T14:58:11.610249",
-    "from": "GemFinder",
+    "timestamp": "2026-02-07T15:02:13.286583",
+    "from": "TestAI",
     "to": "ALL",
-    "type": "discovery",
+    "type": "test",
     "data": {
-      "gems": 10
-    },
-    "delivered": true,
-    "broadcast_time": "2026-02-07T14:58:11.610363"
-  },
-  {
-    "timestamp": "2026-02-07T14:58:11.610367",
-    "from": "Predictor",
-    "to": "Evolution",
-    "type": "prediction",
-    "data": {
-      "accuracy": 0.85
+      "data": "test"
     },
     "delivered": false
   }

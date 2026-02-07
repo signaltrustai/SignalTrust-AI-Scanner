@@ -23,6 +23,7 @@ from universal_market_analyzer import UniversalMarketAnalyzer
 from total_market_data_collector import TotalMarketDataCollector
 from ai_evolution_system import AIEvolutionSystem
 from ai_communication_hub import ai_hub
+from notification_ai import notification_ai
 from ai_chat_system import AIChatSystem
 
 app = Flask(__name__)
@@ -820,6 +821,67 @@ def api_create_backup():
         backup_file = ai_hub.create_backup()
         log_event("MANUAL_BACKUP_CREATED", {"file": backup_file})
         return jsonify({"success": True, "backup_file": backup_file}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - NOTIFICATION AI
+# -----------------------------
+
+@app.route("/api/notifications-ai/config", methods=["GET"])
+def api_notification_ai_config():
+    """Get Notification AI configuration."""
+    try:
+        config = notification_ai.get_config()
+        return jsonify({"success": True, "data": config}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/notifications-ai/configure", methods=["POST"])
+def api_configure_notifications():
+    """Configure notification preferences."""
+    try:
+        data = request.get_json()
+        result = notification_ai.configure(data)
+        log_event("NOTIFICATION_CONFIG_UPDATED", {"keys": list(data.keys())})
+        return jsonify({"success": True, "data": result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/notifications-ai/send", methods=["POST"])
+def api_send_intelligent_notification():
+    """Send intelligent notification through AI."""
+    try:
+        data = request.get_json()
+        notification_type = data.get("type")
+        notification_data = data.get("data", {})
+        
+        result = notification_ai.send_notification(notification_type, notification_data)
+        
+        return jsonify({"success": True, "data": result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/notifications-ai/mark-read/<notification_id>", methods=["POST"])
+def api_mark_notification_read_ai(notification_id):
+    """Mark notification as read."""
+    try:
+        notification_ai.mark_read(notification_id)
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/notifications-ai/feedback", methods=["POST"])
+def api_notification_feedback():
+    """Provide feedback on notification."""
+    try:
+        data = request.get_json()
+        notification_type = data.get("type")
+        feedback = data.get("feedback")  # positive, negative, neutral
+        
+        notification_ai.learn_from_feedback(notification_type, feedback)
+        
+        return jsonify({"success": True, "message": "Feedback recorded"}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
