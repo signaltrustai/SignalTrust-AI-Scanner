@@ -24,6 +24,9 @@ class UniversalMarketAnalyzer:
         self.all_us_stocks = self._get_all_us_stocks()
         self.all_canadian_stocks = self._get_all_canadian_stocks()
         
+        # Crypto lists
+        self.all_cryptos = self.market_data.get_all_crypto(limit=None)
+        
         # NFT collections
         self.nft_collections = self._get_all_nft_collections()
         
@@ -384,6 +387,22 @@ class UniversalMarketAnalyzer:
                 return json.load(f)
         except:
             return self.analyze_everything()
+    
+    def get_total_coverage(self) -> Dict:
+        """Get total market coverage statistics."""
+        return {
+            'cryptocurrencies': len(self.all_cryptos),
+            'us_stocks': len(self.all_us_stocks),
+            'canadian_stocks': len(self.all_canadian_stocks),
+            'nft_collections': len(self.nft_collections),
+            'defi_protocols': len(self.defi_protocols),
+            'metaverse_tokens': len(self.metaverse_tokens),
+            'gamefi_tokens': len(self.gamefi_tokens),
+            'total_assets': (len(self.all_cryptos) + len(self.all_us_stocks) + 
+                           len(self.all_canadian_stocks) + len(self.nft_collections) +
+                           len(self.defi_protocols) + len(self.metaverse_tokens) +
+                           len(self.gamefi_tokens))
+        }
 
 
 if __name__ == "__main__":

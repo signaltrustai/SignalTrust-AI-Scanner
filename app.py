@@ -20,6 +20,8 @@ from notification_center import NotificationCenter
 from realtime_market_data import RealTimeMarketData
 from crypto_gem_finder import CryptoGemFinder
 from universal_market_analyzer import UniversalMarketAnalyzer
+from total_market_data_collector import TotalMarketDataCollector
+from ai_evolution_system import AIEvolutionSystem
 from ai_chat_system import AIChatSystem
 
 app = Flask(__name__)
@@ -58,6 +60,8 @@ notification_center = NotificationCenter()
 realtime_data = RealTimeMarketData()
 gem_finder = CryptoGemFinder()
 universal_analyzer = UniversalMarketAnalyzer()
+total_collector = TotalMarketDataCollector()
+ai_evolution = AIEvolutionSystem()
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -694,6 +698,89 @@ def api_top_opportunities():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# -----------------------------
+# API ROUTES - TOTAL DATA COLLECTION & AI EVOLUTION
+# -----------------------------
+
+@app.route("/api/total/collect-all", methods=["GET"])
+def api_collect_all_data():
+    """Collect ALL data from ALL markets - complete sweep."""
+    try:
+        log_event("TOTAL_DATA_COLLECTION_START", {})
+        data = total_collector.collect_all_data()
+        
+        save_learning_data("total_collection", {
+            "total_assets": data['data']['cryptocurrencies']['total_cryptos'] + 
+                           data['data']['us_stocks']['total_stocks'] +
+                           data['data']['canadian_stocks']['total_stocks'] +
+                           data['data']['nfts']['total_collections']
+        })
+        
+        return jsonify({"success": True, "data": {
+            "timestamp": data['timestamp'],
+            "total_cryptos": data['data']['cryptocurrencies']['total_cryptos'],
+            "total_us_stocks": data['data']['us_stocks']['total_stocks'],
+            "total_canadian_stocks": data['data']['canadian_stocks']['total_stocks'],
+            "total_nfts": data['data']['nfts']['total_collections'],
+            "total_whale_txs": data['data']['whales']['total_transactions'],
+            "total_news": data['data']['news']['total_articles']
+        }}), 200
+    except Exception as e:
+        log_event("TOTAL_COLLECTION_ERROR", {"error": str(e)})
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/total/coverage", methods=["GET"])
+def api_total_coverage():
+    """Get total market coverage statistics."""
+    try:
+        coverage = total_collector.get_total_coverage()
+        return jsonify({"success": True, "data": coverage}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/evolve", methods=["POST"])
+def api_ai_evolve():
+    """Trigger AI evolution - learn from all collected data."""
+    try:
+        log_event("AI_EVOLUTION_START", {})
+        report = ai_evolution.evolve()
+        
+        save_learning_data("ai_evolution", report)
+        log_event("AI_EVOLUTION_COMPLETE", {
+            "new_level": report.get('new_level'),
+            "iq": report.get('intelligence_metrics', {}).get('overall_iq')
+        })
+        
+        return jsonify({"success": True, "data": report}), 200
+    except Exception as e:
+        log_event("AI_EVOLUTION_ERROR", {"error": str(e)})
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/status", methods=["GET"])
+def api_ai_status():
+    """Get current AI evolution status."""
+    try:
+        status = ai_evolution.get_ai_status()
+        return jsonify({"success": True, "data": status}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/predict-enhanced/<asset>", methods=["GET"])
+def api_ai_predict_enhanced(asset):
+    """Get AI-enhanced predictions using evolved intelligence."""
+    try:
+        asset_type = request.args.get("type", "crypto")
+        prediction = ai_evolution.get_predictions_with_ai(asset, asset_type)
+        
+        save_learning_data("enhanced_prediction", {
+            "asset": asset,
+            "prediction": prediction
+        })
+        
+        return jsonify({"success": True, "data": prediction}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route("/chat", methods=["POST"])
 def chat():
     """Route utilisée par ton interface AI Chat"""
@@ -735,13 +822,14 @@ class BackgroundAIWorker:
         log_event("BACKGROUND_WORKER_STOPPED", {"time": datetime.datetime.utcnow().isoformat()})
     
     def _worker_loop(self):
-        """Main worker loop - runs 24/7."""
+        """Main worker loop - runs 24/7 with full optimization."""
         cycle_count = 0
         
         while self.running:
             try:
                 cycle_count += 1
-                log_event("WORKER_CYCLE", {"cycle": cycle_count})
+                cycle_start = time.time()
+                log_event("WORKER_CYCLE_START", {"cycle": cycle_count})
                 
                 # 1. Collect market data every 5 minutes
                 if cycle_count % 1 == 0:
@@ -767,13 +855,28 @@ class BackgroundAIWorker:
                 if cycle_count % 24 == 0:
                     self._analyze_all_markets()
                 
-                # 7. Learn from collected data every 6 hours
+                # 7. COLLECT EVERYTHING every 4 hours
+                if cycle_count % 48 == 0:
+                    self._collect_total_data()
+                
+                # 8. AI EVOLUTION every 6 hours
+                if cycle_count % 72 == 0:
+                    self._evolve_ai()
+                
+                # 9. Learn from collected data every 6 hours
                 if cycle_count % 72 == 0:
                     self._learn_from_data()
                 
-                # 8. Health check and cleanup every 24 hours
+                # 10. Health check and cleanup every 24 hours
                 if cycle_count % 288 == 0:
                     self._health_check(cycle_count)
+                
+                # Calculate cycle time
+                cycle_time = time.time() - cycle_start
+                log_event("WORKER_CYCLE_COMPLETE", {
+                    "cycle": cycle_count,
+                    "duration_seconds": cycle_time
+                })
                 
                 # Sleep for 5 minutes between cycles
                 time.sleep(300)
@@ -932,6 +1035,58 @@ class BackgroundAIWorker:
                 )
         except Exception as e:
             log_event("UNIVERSAL_ANALYSIS_ERROR", {"error": str(e)})
+    
+    def _collect_total_data(self):
+        """Collect EVERYTHING from ALL markets every 4 hours."""
+        try:
+            log_event("TOTAL_COLLECTION_START", {})
+            
+            data = total_collector.collect_all_data()
+            
+            save_learning_data("auto_total_collection", {
+                "total_cryptos": data['data']['cryptocurrencies']['total_cryptos'],
+                "total_us_stocks": data['data']['us_stocks']['total_stocks'],
+                "total_canadian_stocks": data['data']['canadian_stocks']['total_stocks'],
+                "total_nfts": data['data']['nfts']['total_collections'],
+                "total_whales": data['data']['whales']['total_transactions'],
+                "total_news": data['data']['news']['total_articles']
+            })
+            
+            total_assets = (data['data']['cryptocurrencies']['total_cryptos'] +
+                          data['data']['us_stocks']['total_stocks'] +
+                          data['data']['canadian_stocks']['total_stocks'] +
+                          data['data']['nfts']['total_collections'])
+            
+            log_event("TOTAL_COLLECTION_COMPLETE", {
+                "total_assets_collected": total_assets,
+                "whale_transactions": data['data']['whales']['total_transactions'],
+                "news_articles": data['data']['news']['total_articles']
+            })
+            
+        except Exception as e:
+            log_event("TOTAL_COLLECTION_ERROR", {"error": str(e)})
+    
+    def _evolve_ai(self):
+        """Evolve AI using all collected data every 6 hours."""
+        try:
+            log_event("AUTO_AI_EVOLUTION_START", {})
+            
+            report = ai_evolution.evolve()
+            
+            save_learning_data("auto_ai_evolution", {
+                "evolution_level": report.get('new_level'),
+                "intelligence_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
+                "prediction_accuracy": report.get('prediction_accuracy', {}).get('overall')
+            })
+            
+            log_event("AUTO_AI_EVOLUTION_COMPLETE", {
+                "new_level": report.get('new_level'),
+                "overall_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
+                "accuracy": report.get('prediction_accuracy', {}).get('overall')
+            })
+            
+        except Exception as e:
+            log_event("AI_EVOLUTION_ERROR", {"error": str(e)})
     
     def _learn_from_data(self):
         """Learn and improve from collected data."""
