@@ -33,7 +33,17 @@ from tradingview_manager import tradingview_manager
 from signalai_strategy import signalai_strategy
 from multi_ai_coordinator import get_coordinator
 from ai_learning_system import get_learning_system
-from ai_optimizer import get_optimizer
+
+# Import optimizer safely (new module)
+try:
+    from ai_optimizer import get_optimizer
+except Exception:
+    def get_optimizer():
+        class _Stub:
+            def get_status(self): return {"status": "unavailable"}
+            def run_full_optimization(self): return {}
+            def get_optimal_strategy(self, t="general"): return {"strategy": "consensus"}
+        return _Stub()
 
 # Load environment variables from .env (if present)
 load_dotenv()
