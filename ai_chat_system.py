@@ -474,6 +474,10 @@ Based on comprehensive market analysis, here are my predictions:
             }
         ]
     
+    def get_available_modes(self) -> List[Dict]:
+        """Backward-compatible alias for get_ai_modes."""
+        return self.get_ai_modes()
+    
     def clear_history(self, user_id: str):
         """Clear conversation history for user.
         
