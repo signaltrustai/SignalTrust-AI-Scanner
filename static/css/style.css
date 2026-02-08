@@ -1854,3 +1854,343 @@ body::after {
         grid-template-columns: 1fr;
     }
 }
+
+/* ========================================
+   MOBILE-FIRST PWA OPTIMIZATIONS
+   ======================================== */
+
+/* Enhanced touch targets for mobile */
+@media (max-width: 768px) {
+    /* Minimum touch target size: 44x44px (iOS) / 48x48px (Android) */
+    button, .btn, a.btn, input[type="submit"], input[type="button"] {
+        min-height: 48px;
+        min-width: 48px;
+        padding: 12px 20px;
+        font-size: 16px; /* Prevents iOS zoom on input focus */
+    }
+    
+    /* Larger tap areas for navigation */
+    .nav-menu a {
+        padding: 16px 12px;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+    
+    /* Optimize form inputs for mobile */
+    input, textarea, select {
+        font-size: 16px; /* Prevents iOS zoom */
+        padding: 14px 16px;
+        border-radius: 8px;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+    
+    /* Better mobile spacing */
+    .container {
+        padding: 0 16px;
+    }
+    
+    section {
+        padding: 2rem 0;
+    }
+    
+    /* Optimize hero section for mobile */
+    .hero {
+        padding: 2rem 0;
+        min-height: auto;
+    }
+    
+    .hero h1 {
+        font-size: 1.75rem;
+        line-height: 1.3;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Mobile-optimized cards */
+    .feature-card, .stat-card, .pricing-card {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Optimize feature grid for mobile */
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Mobile-friendly tables */
+    table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+    }
+    
+    /* Better footer for mobile */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        text-align: center;
+    }
+    
+    .footer-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Optimize animations for mobile (reduce for performance) */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+    
+    /* Hide decorative elements on mobile for performance */
+    body::before, body::after {
+        opacity: 0.2;
+        animation: none;
+    }
+    
+    /* Optimize scan results for mobile */
+    .scan-result, .market-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    /* Mobile-friendly pricing cards */
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .pricing-card {
+        transform: none !important;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Better modal sizing on mobile */
+    .modal-content {
+        width: 95%;
+        max-width: 95%;
+        margin: 10px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    /* Improve notification positioning on mobile */
+    .notification {
+        width: calc(100% - 32px);
+        margin: 16px;
+        left: 0;
+        right: 0;
+    }
+}
+
+/* Small mobile devices (< 480px) */
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.875rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+    
+    .stat-label {
+        font-size: 0.875rem;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .hero-buttons {
+        width: 100%;
+    }
+    
+    /* Stack everything vertically on very small screens */
+    .hero-features {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .hero-features .feature {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Landscape mode optimizations */
+@media (max-width: 896px) and (orientation: landscape) {
+    .hero {
+        padding: 1.5rem 0;
+        min-height: auto;
+    }
+    
+    .hero h1 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-buttons {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    
+    .hero-buttons .btn {
+        width: auto;
+        flex: 1 1 auto;
+    }
+}
+
+/* High DPI / Retina displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Optimize images for retina */
+    img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Dark mode support (system preference) */
+@media (prefers-color-scheme: dark) {
+    /* Already dark by default, but ensure consistency */
+    body {
+        background: var(--bg-dark);
+        color: var(--text-primary);
+    }
+}
+
+/* Performance optimizations */
+* {
+    /* Hardware acceleration for smoother scrolling */
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
+}
+
+/* Smooth scrolling on all devices */
+html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* Optimize font rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Improve tap highlight */
+* {
+    -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
+    tap-highlight-color: rgba(212, 175, 55, 0.2);
+}
+
+/* Disable callout on touch and hold */
+a, button {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Safe area insets for notched devices (iPhone X+) */
+@supports (padding: max(0px)) {
+    body {
+        padding-left: max(0px, env(safe-area-inset-left));
+        padding-right: max(0px, env(safe-area-inset-right));
+    }
+    
+    .navbar {
+        padding-top: max(8px, env(safe-area-inset-top));
+    }
+    
+    .footer {
+        padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
+}
+
+/* PWA install button */
+.pwa-install-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: var(--gold-primary);
+    color: var(--bg-dark);
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 600;
+    box-shadow: var(--box-shadow-lg);
+    cursor: pointer;
+    display: none;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+.pwa-install-btn.show {
+    display: block;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Loading spinner for PWA */
+.pwa-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gold-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+    z-index: 9999;
+}
+
+.pwa-loader.loading {
+    animation: loadingBar 2s ease-in-out infinite;
+}
+
+@keyframes loadingBar {
+    0% { transform: scaleX(0); }
+    50% { transform: scaleX(0.7); }
+    100% { transform: scaleX(1); }
+}
