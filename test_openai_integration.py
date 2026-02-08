@@ -6,32 +6,26 @@ Tests the basic functionality of the OpenAI-powered AI system
 
 import os
 import sys
+import pytest
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
+API_KEY = os.getenv('OPENAI_API_KEY')
+MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
+
+# Skip all tests when no API key is configured to avoid external calls during CI/offline runs
+if not API_KEY or API_KEY == 'your_openai_api_key_here':
+    pytest.skip("OPENAI_API_KEY not configured; skipping OpenAI integration tests", allow_module_level=True)
+
 def test_openai_configuration():
     """Test if OpenAI is configured"""
     print("Testing OpenAI Configuration...")
     print("-" * 60)
-    
-    api_key = os.getenv('OPENAI_API_KEY')
-    model = os.getenv('OPENAI_MODEL', 'gpt-4')
-    
-    if not api_key or api_key == 'your_openai_api_key_here':
-        print("❌ OPENAI_API_KEY not configured")
-        print()
-        print("To fix this:")
-        print("1. Copy .env.example to .env: cp .env.example .env")
-        print("2. Get your API key from: https://platform.openai.com/api-keys")
-        print("3. Add it to .env file: OPENAI_API_KEY=sk-proj-your-key-here")
-        print()
-        return False
-    
     print(f"✓ OPENAI_API_KEY is configured")
-    print(f"✓ Using model: {model}")
-    print(f"✓ API key starts with: {api_key[:15]}...")
+    print(f"✓ Using model: {MODEL}")
+    print(f"✓ API key starts with: {API_KEY[:15]}...")
     print()
     return True
 

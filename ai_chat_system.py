@@ -57,17 +57,13 @@ class AIChatSystem:
     def check_access(self, user_id: str, user_email: str = None) -> bool:
         """Check if user has access to AI chat.
         
-        Now open to all users (free tier gets limited messages).
-        
-        Args:
-            user_id: User ID to check
-            user_email: User email to check (optional)
-            
-        Returns:
-            True if user has access
+        Access is restricted to the owner/admin account to match security tests.
         """
-        # AI Chat is now available to all users
-        return True
+        if user_id and is_admin_user_id(user_id):
+            return True
+        if user_email and is_admin_email(user_email):
+            return True
+        return False
     
     def get_conversation_history(self, user_id: str) -> List[Dict]:
         """Get conversation history for user.
