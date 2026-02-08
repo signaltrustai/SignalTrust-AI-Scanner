@@ -58,12 +58,15 @@ class AIChatSystem:
         """Check if user has access to AI chat.
         
         Access is restricted to the owner/admin account to match security tests.
+        
+        Args:
+            user_id: User identifier to validate.
+            user_email: Optional email to validate.
+        
+        Returns:
+            True when the provided user matches the admin account, otherwise False.
         """
-        if user_id and is_admin_user_id(user_id):
-            return True
-        if user_email and is_admin_email(user_email):
-            return True
-        return False
+        return (user_id and is_admin_user_id(user_id)) or (user_email and is_admin_email(user_email))
     
     def get_conversation_history(self, user_id: str) -> List[Dict]:
         """Get conversation history for user.
