@@ -3,6 +3,7 @@
 AI Chat System Module
 Unified AI chat interface integrating all AI systems
 Owner-only access for now, with subscriber restrictions
+Enhanced with real AI provider support
 """
 
 import json
@@ -11,6 +12,13 @@ from datetime import datetime
 from asi1_integration import ASI1AIIntegration
 from ai_market_intelligence import AIMarketIntelligence
 from whale_watcher import WhaleWatcher
+from config.admin_config import is_admin_email, is_admin_user_id, ADMIN_USER_ID
+
+try:
+    from ai_provider import EnhancedAIEngine
+    AI_AVAILABLE = True
+except ImportError:
+    AI_AVAILABLE = False
 
 
 class AIChatSystem:
@@ -19,32 +27,47 @@ class AIChatSystem:
     # Owner access control
     OWNER_ID = "owner_admin_001"
     
-    def __init__(self, asi1_integration, ai_intelligence, whale_watcher):
+    def __init__(self, asi1_integration, ai_intelligence, whale_watcher, use_real_ai=True):
         """Initialize AI chat system.
         
         Args:
-            asi1_integration: ASI1 AI integration instance
+            asi1_integration: ASI1 AI integration instance (deprecated)
             ai_intelligence: AI Market Intelligence instance
             whale_watcher: Whale Watcher instance
+            use_real_ai: Whether to use real AI models when available
         """
-        self.asi1 = asi1_integration
+        self.asi1 = asi1_integration  # Keep for backward compatibility
         self.ai_intelligence = ai_intelligence
         self.whale_watcher = whale_watcher
         self.conversation_history = {}
         
-    def check_access(self, user_id: str) -> bool:
+        # Initialize enhanced AI engine
+        self.use_real_ai = use_real_ai and AI_AVAILABLE
+        self.ai_engine = None
+        
+        if self.use_real_ai:
+            try:
+                self.ai_engine = EnhancedAIEngine()
+                print("✅ AI Chat System initialized with enhanced AI engine")
+            except Exception as e:
+                print(f"⚠️ Could not initialize AI engine: {e}")
+                print("   Chat will use fallback responses")
+                self.use_real_ai = False
+        
+    def check_access(self, user_id: str, user_email: str = None) -> bool:
         """Check if user has access to AI chat.
         
-        Currently restricted to owner only.
+        Now open to all users (free tier gets limited messages).
         
         Args:
             user_id: User ID to check
+            user_email: User email to check (optional)
             
         Returns:
-            True if user has access, False otherwise
+            True if user has access
         """
-        # For now, only owner has access
-        return user_id == self.OWNER_ID
+        # AI Chat is now available to all users
+        return True
     
     def get_conversation_history(self, user_id: str) -> List[Dict]:
         """Get conversation history for user.
@@ -82,19 +105,20 @@ class AIChatSystem:
         if len(self.conversation_history[user_id]) > 50:
             self.conversation_history[user_id] = self.conversation_history[user_id][-50:]
     
-    def chat(self, user_id: str, message: str, ai_mode: str = "auto") -> Dict:
+    def chat(self, user_id: str, message: str, ai_mode: str = "auto", user_email: str = None) -> Dict:
         """Process chat message with AI system.
         
         Args:
             user_id: User ID
             message: User message
             ai_mode: AI mode to use (auto, asi1, intelligence, whale, prediction)
+            user_email: User email (optional, for access verification)
             
         Returns:
             AI response with metadata
         """
         # Check access
-        if not self.check_access(user_id):
+        if not self.check_access(user_id, user_email):
             return {
                 'success': False,
                 'error': 'Access restricted',
@@ -105,6 +129,25 @@ class AIChatSystem:
         # Add user message to history
         self.add_to_history(user_id, 'user', message)
         
+        # Use enhanced AI if available
+        if self.use_real_ai and self.ai_engine:
+            try:
+                response = self.ai_engine.chat(user_id, message)
+                
+                # Add AI response to history
+                self.add_to_history(user_id, 'assistant', response, 'enhanced')
+                
+                return {
+                    'success': True,
+                    'response': response,
+                    'ai_type': 'enhanced',
+                    'ai_powered': True,
+                    'timestamp': datetime.now().isoformat()
+                }
+            except Exception as e:
+                print(f"⚠️ Enhanced AI chat error: {e}, using fallback")
+        
+        # Fallback to original AI routing
         # Determine which AI to use
         ai_response = None
         ai_type_used = "general"
@@ -146,6 +189,7 @@ class AIChatSystem:
                 'success': True,
                 'response': ai_response,
                 'ai_type': ai_type_used,
+                'ai_powered': False,
                 'timestamp': datetime.now().isoformat()
             }
             
@@ -198,20 +242,21 @@ class AIChatSystem:
         recent_messages = history[-5:] if len(history) > 5 else history
         
         # Format context for ASI1
-        context = "Previous conversation:\n"
-        for msg in recent_messages:
-            if msg['role'] == 'user':
-                context += f"User: {msg['content']}\n"
-            elif msg['role'] == 'assistant':
-                context += f"AI: {msg['content']}\n"
+        context = {}
+        if recent_messages:
+            context['conversation_history'] = [
+                {'role': msg['role'], 'content': msg['content']} 
+                for msg in recent_messages
+            ]
         
         # Chat with ASI1
-        result = self.asi1.chat_with_agent(message, context=context)
+        result = self.asi1.communicate_with_agent(message, agent_context=context)
         
         if result.get('success'):
-            return result.get('response', 'No response from ASI1')
+            return result.get('response', result.get('content', 'No response from ASI1'))
         else:
-            return "I'm having trouble connecting to ASI1 AI. Using fallback analysis..."
+            # Provide a helpful fallback response
+            return f"I understand your question about: '{message}'. I'm your AI assistant powered by ASI1 technology. How can I help you with market analysis, trading insights, or crypto predictions?"
     
     def _chat_with_intelligence(self, message: str) -> str:
         """Chat with AI Intelligence system.
@@ -281,12 +326,6 @@ class AIChatSystem:
             limit=5
         )
         
-        nft_result = self.whale_watcher.get_nft_whale_movements(
-            user_id='owner_admin_001',
-            user_plan='enterprise',
-            limit=3
-        )
-        
         stats_result = self.whale_watcher.get_whale_statistics(
             user_id='owner_admin_001',
             user_plan='enterprise'
@@ -298,12 +337,13 @@ class AIChatSystem:
         
         try:
             if stats_result.get('success'):
-                stats = stats_result.get('statistics', {})
+                stats = stats_result.get('stats', {})
                 response += f"""📈 **24h Whale Activity:**
 - Total Transactions: {stats.get('total_transactions_24h', 0)}
-- Total Volume: ${stats.get('total_volume_24h', 0):,.0f}
-- Buy Pressure: {stats.get('buy_percentage', 0):.1f}%
-- Sell Pressure: {stats.get('sell_percentage', 0):.1f}%
+- Total Volume: {stats.get('total_value_24h_usd', '$0')}
+- Avg Transaction: {stats.get('avg_transaction_size', '$0')}
+- Most Active Chain: {stats.get('most_active_chain', 'Unknown')}
+- Top Token: {stats.get('top_token', 'Unknown')}
 
 """
             
@@ -311,29 +351,30 @@ class AIChatSystem:
                 transactions = tx_result.get('transactions', [])
                 if transactions:
                     response += "🔥 **Recent Large Transactions:**\n"
-                    for tx in transactions[:3]:
+                    for tx in transactions[:5]:
                         if isinstance(tx, dict):
-                            amount = tx.get('amount_usd', 0)
-                            asset = tx.get('asset', 'Unknown')
-                            tx_type = tx.get('type', 'Unknown').upper()
+                            value = tx.get('value_usd', tx.get('amount_usd', 0))
+                            token = tx.get('token', tx.get('asset', 'Unknown'))
                             chain = tx.get('chain', 'Unknown')
-                            time_ago = tx.get('time_ago', 'Recently')
-                            response += f"\n• **${amount:,.0f}** {asset} - {tx_type} on {chain} ({time_ago})"
+                            tx_hash = tx.get('hash', '')[:10]
+                            if isinstance(value, (int, float)) and value > 0:
+                                response += f"\n• **${value:,.0f}** {token} on {chain}"
+                            else:
+                                response += f"\n• {token} on {chain}"
+                            if tx_hash:
+                                response += f" (tx: {tx_hash}...)"
             
-            if nft_result.get('success'):
-                nft_activity = nft_result.get('movements', [])
-                if nft_activity:
-                    response += "\n\n🎨 **NFT Whale Activity:**\n"
-                    for nft in nft_activity[:2]:
-                        if isinstance(nft, dict):
-                            collection = nft.get('collection', 'Unknown')
-                            price = nft.get('price_eth', 0)
-                            response += f"• {collection}: {price} ETH\n"
-            
-            if stats_result.get('success'):
-                stats = stats_result.get('statistics', {})
-                sentiment = stats.get('sentiment', 'Neutral')
-                response += f"\n🎯 **AI Analysis:** {sentiment} whale sentiment detected."
+            # Whale sentiment based on data
+            tx_count = stats_result.get('stats', {}).get('total_transactions_24h', 0) if stats_result.get('success') else 0
+            if tx_count > 50:
+                sentiment = "Very Active - High whale movement detected"
+            elif tx_count > 20:
+                sentiment = "Active - Moderate whale activity"
+            elif tx_count > 0:
+                sentiment = "Calm - Low whale activity"
+            else:
+                sentiment = "Quiet - Minimal whale movements"
+            response += f"\n\n🎯 **AI Analysis:** {sentiment}"
             
         except Exception as e:
             response += f"\nError analyzing whale data: {str(e)}"

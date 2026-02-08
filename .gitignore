@@ -1,5 +1,6 @@
 # Python
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 *.so
@@ -24,6 +25,11 @@ venv/
 ENV/
 env/
 
+# Backups
+backups/
+*.tar.gz
+*_metadata.json
+
 # Test files
 test_*.txt
 test_*.json
@@ -44,3 +50,9 @@ test_*.json
 # Coverage
 .coverage
 htmlcov/
+.env
+
+# Docker
+agents/*/workspace/
+*.tar
+docker-compose.override.yml

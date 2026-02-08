@@ -7,17 +7,7 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">SignalTrust AI</div>
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/scanner">Scanner</a>
-                <a href="/dashboard">Dashboard</a>
-                <a href="/settings" class="active">Settings</a>
-            </div>
-        </div>
-    </nav>
+    {% include 'partials/nav.html' %}
     
     <div class="container" style="padding: 2rem 0;">
         <h1>Settings</h1>

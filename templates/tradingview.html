@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TradingLive Charts with SignalAI Trading Strategy">
+    <meta name="theme-color" content="#ffd700">
+    <title>TradingLive Charts - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        .tradingview-container {
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .control-panel {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.1);
+        }
+        
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .control-group label {
+            display: block;
+            color: #ffd700;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .chart-container {
+            background: #131722;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        #tradingview_chart {
+            height: 600px;
+        }
+        
+        .signals-panel {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .signal-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .signal-type {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .signal-type.buy {
+            color: #00ff88;
+        }
+        
+        .signal-type.sell {
+            color: #ff4444;
+        }
+        
+        .signal-type.hold {
+            color: #ffd700;
+        }
+        
+        .signal-strength {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .strength-bar {
+            width: 100px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff6b00);
+            transition: width 0.5s;
+        }
+        
+        .signal-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .detail-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .strategy-info {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 107, 0, 0.1));
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .strategy-badge {
+            display: inline-block;
+            background: #ffd700;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        
+        .subscription-banner {
+            background: linear-gradient(135deg, #ff6b00, #ffd700);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000;
+        }
+        
+        .subscription-banner h3 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        
+        .subscription-banner p {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+        }
+        
+        .btn-subscribe {
+            background: #000;
+            color: #ffd700;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-subscribe:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-trial {
+            background: #fff;
+            color: #000;
+            margin-left: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #ffd700;
+        }
+        
+        .indicator-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .indicator-pill {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .control-row {
+                flex-direction: column;
+            }
+            
+            .signal-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% include 'partials/nav.html' %}
+
+    <div class="tradingview-container">
+        <h1 style="color: #ffd700; text-align: center; margin-bottom: 30px;">
+            📊 Live TradingLive Charts with SignalAI Strategy
+        </h1>
+
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-row">
+                <div class="control-group">
+                    <label>📈 Select Symbol</label>
+                    <select id="symbolSelect">
+                        <optgroup label="🔥 Top Crypto">
+                            <option value="BINANCE:BTCUSDT" selected>Bitcoin (BTC/USDT)</option>
+                            <option value="BINANCE:ETHUSDT">Ethereum (ETH/USDT)</option>
+                            <option value="BINANCE:BNBUSDT">Binance Coin (BNB/USDT)</option>
+                            <option value="BINANCE:SOLUSDT">Solana (SOL/USDT)</option>
+                            <option value="BINANCE:XRPUSDT">Ripple (XRP/USDT)</option>
+                            <option value="BINANCE:ADAUSDT">Cardano (ADA/USDT)</option>
+                            <option value="BINANCE:DOGEUSDT">Dogecoin (DOGE/USDT)</option>
+                            <option value="BINANCE:TRXUSDT">Tron (TRX/USDT)</option>
+                        </optgroup>
+                        <optgroup label="⛓️ Layer 1 & Layer 2">
+                            <option value="BINANCE:AVAXUSDT">Avalanche (AVAX/USDT)</option>
+                            <option value="BINANCE:DOTUSDT">Polkadot (DOT/USDT)</option>
+                            <option value="BINANCE:MATICUSDT">Polygon (MATIC/USDT)</option>
+                            <option value="BINANCE:ATOMUSDT">Cosmos (ATOM/USDT)</option>
+                            <option value="BINANCE:NEARUSDT">Near Protocol (NEAR/USDT)</option>
+                            <option value="BINANCE:APTUSDT">Aptos (APT/USDT)</option>
+                            <option value="BINANCE:OPUSDT">Optimism (OP/USDT)</option>
+                            <option value="BINANCE:ARBUSDT">Arbitrum (ARB/USDT)</option>
+                            <option value="BINANCE:SUIUSDT">Sui (SUI/USDT)</option>
+                            <option value="BINANCE:INJUSDT">Injective (INJ/USDT)</option>
+                        </optgroup>
+                        <optgroup label="💎 DeFi Tokens">
+                            <option value="BINANCE:UNIUSDT">Uniswap (UNI/USDT)</option>
+                            <option value="BINANCE:LINKUSDT">Chainlink (LINK/USDT)</option>
+                            <option value="BINANCE:AAVEUSDT">Aave (AAVE/USDT)</option>
+                            <option value="BINANCE:MKRUSDT">Maker (MKR/USDT)</option>
+                            <option value="BINANCE:CRVUSDT">Curve (CRV/USDT)</option>
+                            <option value="BINANCE:SUSHIUSDT">SushiSwap (SUSHI/USDT)</option>
+                        </optgroup>
+                        <optgroup label="🎮 Gaming & Metaverse">
+                            <option value="BINANCE:SANDUSDT">The Sandbox (SAND/USDT)</option>
+                            <option value="BINANCE:MANAUSDT">Decentraland (MANA/USDT)</option>
+                            <option value="BINANCE:AXSUSDT">Axie Infinity (AXS/USDT)</option>
+                            <option value="BINANCE:GALAUSDT">Gala (GALA/USDT)</option>
+                        </optgroup>
+                        <optgroup label="🤖 AI & Infrastructure">
+                            <option value="BINANCE:FETUSDT">Fetch.ai (FET/USDT)</option>
+                            <option value="BINANCE:RENDERUSDT">Render (RNDR/USDT)</option>
+                            <option value="BINANCE:GRTUSDT">The Graph (GRT/USDT)</option>
+                        </optgroup>
+                        <optgroup label="🐕 Meme Coins">
+                            <option value="BINANCE:SHIBUSDT">Shiba Inu (SHIB/USDT)</option>
+                            <option value="BINANCE:PEPEUSDT">Pepe (PEPE/USDT)</option>
+                            <option value="BINANCE:FLOKIUSDT">Floki (FLOKI/USDT)</option>
+                        </optgroup>
+                        <optgroup label="💻 Tech Giants">
+                            <option value="NASDAQ:AAPL">Apple Inc. (AAPL)</option>
+                            <option value="NASDAQ:MSFT">Microsoft (MSFT)</option>
+                            <option value="NASDAQ:GOOGL">Google (GOOGL)</option>
+                            <option value="NASDAQ:AMZN">Amazon (AMZN)</option>
+                            <option value="NASDAQ:META">Meta Platforms (META)</option>
+                            <option value="NASDAQ:TSLA">Tesla (TSLA)</option>
+                            <option value="NASDAQ:NVDA">NVIDIA (NVDA)</option>
+                            <option value="NASDAQ:NFLX">Netflix (NFLX)</option>
+                        </optgroup>
+                        <optgroup label="💰 Financial Services">
+                            <option value="NYSE:JPM">JPMorgan Chase (JPM)</option>
+                            <option value="NYSE:BAC">Bank of America (BAC)</option>
+                            <option value="NYSE:V">Visa (V)</option>
+                            <option value="NYSE:MA">Mastercard (MA)</option>
+                            <option value="NASDAQ:PYPL">PayPal (PYPL)</option>
+                            <option value="NYSE:GS">Goldman Sachs (GS)</option>
+                        </optgroup>
+                        <optgroup label="🏭 Industrial & Manufacturing">
+                            <option value="NYSE:BA">Boeing (BA)</option>
+                            <option value="NYSE:CAT">Caterpillar (CAT)</option>
+                            <option value="NYSE:GE">General Electric (GE)</option>
+                            <option value="NYSE:F">Ford (F)</option>
+                            <option value="NYSE:GM">General Motors (GM)</option>
+                        </optgroup>
+                        <optgroup label="💊 Healthcare & Pharma">
+                            <option value="NYSE:JNJ">Johnson & Johnson (JNJ)</option>
+                            <option value="NYSE:UNH">UnitedHealth (UNH)</option>
+                            <option value="NYSE:PFE">Pfizer (PFE)</option>
+                            <option value="NASDAQ:MRNA">Moderna (MRNA)</option>
+                        </optgroup>
+                        <optgroup label="🛒 Retail & Consumer">
+                            <option value="NYSE:WMT">Walmart (WMT)</option>
+                            <option value="NYSE:HD">Home Depot (HD)</option>
+                            <option value="NYSE:MCD">McDonald's (MCD)</option>
+                            <option value="NYSE:NKE">Nike (NKE)</option>
+                            <option value="NYSE:SBUX">Starbucks (SBUX)</option>
+                            <option value="NYSE:DIS">Disney (DIS)</option>
+                        </optgroup>
+                        <optgroup label="⚡ Energy">
+                            <option value="NYSE:XOM">Exxon Mobil (XOM)</option>
+                            <option value="NYSE:CVX">Chevron (CVX)</option>
+                            <option value="NYSE:COP">ConocoPhillips (COP)</option>
+                        </optgroup>
+                        <optgroup label="💾 Semiconductors">
+                            <option value="NASDAQ:AMD">AMD (AMD)</option>
+                            <option value="NASDAQ:INTC">Intel (INTC)</option>
+                            <option value="NASDAQ:QCOM">Qualcomm (QCOM)</option>
+                            <option value="NYSE:TSM">TSMC (TSM)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>⏱️ Timeframe</label>
+                    <select id="intervalSelect">
+                        <option value="1">1 Minute</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="15">15 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="240">4 Hours</option>
+                        <option value="D" selected>Daily</option>
+                        <option value="W">Weekly</option>
+                        <option value="M">Monthly</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>🎯 Strategy</label>
+                    <select id="strategySelect">
+                        <option value="SignalAI" selected>SignalAI Premium (AI-Powered) 🔒</option>
+                        <option value="Trend_Following">Trend Following (Free)</option>
+                        <option value="Momentum">Momentum Strategy (Free)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="control-row">
+                <button onclick="updateChart()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #ffd700, #ff6b00); border: none; border-radius: 8px; color: #000; font-weight: 700; cursor: pointer; font-size: 16px;">
+                    🔄 Update Chart
+                </button>
+                <button onclick="generateSignals()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #00ff88, #00cc70); border: none; border-radius: 8px; color: #000; font-weight: 700; cursor: pointer; font-size: 16px;">
+                    ⚡ Generate Signals
+                </button>
+            </div>
+        </div>
+
+        <!-- Chart Container -->
+        <div class="chart-container">
+            <div id="tradingview_chart"></div>
+        </div>
+
+        <!-- Signals Panel -->
+        <div id="signalsPanel" class="signals-panel" style="display: none;">
+            <div id="subscriptionBanner" class="subscription-banner" style="display: none;">
+                <h3>🚀 Unlock SignalAI Premium Strategy</h3>
+                <p>Get AI-powered buy/sell signals with EMA9+EMA21+RSI+MACD combination</p>
+                <p><strong>Only $1.29/month</strong> - 3 Days Free Trial</p>
+                <p style="margin-top: 10px; font-size: 14px; opacity: 0.9;">
+                    ✨ Or included FREE with Pro ($149/mo) and Enterprise ($499/mo) plans
+                </p>
+                <button class="btn-subscribe" onclick="startTrial()">Start Free Trial</button>
+                <button class="btn-subscribe btn-trial" onclick="subscribe()">Subscribe Now</button>
+            </div>
+
+            <div id="signalContent" style="display: none;">
+                <div class="strategy-info">
+                    <span class="strategy-badge" id="strategyBadge">SignalAI</span>
+                    <span style="color: #fff; font-weight: 600;" id="strategyName">AI-Powered Strategy</span>
+                    <div class="indicator-pills" id="indicatorPills">
+                        <span class="indicator-pill">EMA9</span>
+                        <span class="indicator-pill">EMA21</span>
+                        <span class="indicator-pill">RSI</span>
+                        <span class="indicator-pill">MACD</span>
+                    </div>
+                </div>
+
+                <div class="signal-card" id="mainSignal">
+                    <!-- Signal content will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let widget = null;
+        let currentSymbol = 'BINANCE:BTCUSDT';
+        let currentInterval = 'D';
+        let hasSignalAIAccess = false;
+
+        // Initialize TradingView Widget
+        function initChart() {
+            const container = document.getElementById('tradingview_chart');
+            container.innerHTML = '';
+
+            widget = new TradingView.widget({
+                autosize: true,
+                symbol: currentSymbol,
+                interval: currentInterval,
+                timezone: "Etc/UTC",
+                theme: "dark",
+                style: "1",
+                locale: "en",
+                toolbar_bg: "#131722",
+                enable_publishing: false,
+                allow_symbol_change: true,
+                container_id: "tradingview_chart",
+                studies: [
+                    "MASimple@tv-basicstudies",
+                    "RSI@tv-basicstudies",
+                    "MACD@tv-basicstudies"
+                ],
+                height: 600,
+                width: "100%"
+            });
+        }
+
+        function updateChart() {
+            currentSymbol = document.getElementById('symbolSelect').value;
+            currentInterval = document.getElementById('intervalSelect').value;
+            initChart();
+        }
+
+        async function generateSignals() {
+            const symbol = document.getElementById('symbolSelect').value;
+            const strategy = document.getElementById('strategySelect').value;
+            const signalsPanel = document.getElementById('signalsPanel');
+            const subscriptionBanner = document.getElementById('subscriptionBanner');
+            const signalContent = document.getElementById('signalContent');
+
+            signalsPanel.style.display = 'block';
+
+            // Check if SignalAI strategy and user doesn't have access
+            if (strategy === 'SignalAI' && !hasSignalAIAccess) {
+                // Check access status
+                const accessResponse = await fetch('/api/signalai/check-access', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const accessData = await accessResponse.json();
+
+                if (!accessData.has_access) {
+                    subscriptionBanner.style.display = 'block';
+                    signalContent.style.display = 'none';
+                    return;
+                }
+                hasSignalAIAccess = true;
+            }
+
+            subscriptionBanner.style.display = 'none';
+            signalContent.style.display = 'block';
+
+            // Generate signals
+            try {
+                const response = await fetch('/api/signalai/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol, strategy })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displaySignal(data.signal);
+                } else {
+                    alert('Error generating signals: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to generate signals');
+            }
+        }
+
+        function displaySignal(signal) {
+            const mainSignal = document.getElementById('mainSignal');
+            const signalType = signal.signal.toLowerCase();
+
+            mainSignal.innerHTML = `
+                <div class="signal-header">
+                    <div>
+                        <div class="signal-type ${signalType}">
+                            ${signal.signal === 'BUY' ? '📈' : signal.signal === 'SELL' ? '📉' : '⏸️'} ${signal.signal}
+                        </div>
+                        <div style="color: rgba(255,255,255,0.7); margin-top: 5px;">
+                            ${signal.recommendation}
+                        </div>
+                    </div>
+                    <div class="signal-strength">
+                        <div>
+                            <div style="color: rgba(255,255,255,0.6); font-size: 12px;">Strength</div>
+                            <div style="color: #ffd700; font-weight: 700;">${signal.strength}%</div>
+                        </div>
+                        <div class="strength-bar">
+                            <div class="strength-fill" style="width: ${signal.strength}%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="signal-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Current Price</div>
+                        <div class="detail-value">$${signal.current_price.toFixed(2)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Confidence</div>
+                        <div class="detail-value">${signal.confidence}%</div>
+                    </div>
+                    ${signal.entry_price ? `
+                    <div class="detail-item">
+                        <div class="detail-label">Entry Price</div>
+                        <div class="detail-value">$${signal.entry_price.toFixed(2)}</div>
+                    </div>
+                    ` : ''}
+                    ${signal.stop_loss ? `
+                    <div class="detail-item">
+                        <div class="detail-label">Stop Loss</div>
+                        <div class="detail-value" style="color: #ff4444;">$${signal.stop_loss.toFixed(2)}</div>
+                    </div>
+                    ` : ''}
+                    ${signal.take_profit ? `
+                    <div class="detail-item">
+                        <div class="detail-label">Take Profit</div>
+                        <div class="detail-value" style="color: #00ff88;">$${signal.take_profit.toFixed(2)}</div>
+                    </div>
+                    ` : ''}
+                    ${signal.risk_reward ? `
+                    <div class="detail-item">
+                        <div class="detail-label">Risk/Reward</div>
+                        <div class="detail-value">1:${signal.risk_reward}</div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function startTrial() {
+            try {
+                const response = await fetch('/api/signalai/start-trial', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('🎉 Trial activated! You have 3 days of free access to SignalAI strategy.');
+                    hasSignalAIAccess = true;
+                    generateSignals();
+                } else {
+                    alert(data.error || 'Failed to start trial');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to start trial. Please login first.');
+                window.location.href = '/login';
+            }
+        }
+
+        async function subscribe() {
+            window.location.href = '/payment?plan=signalai';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initChart();
+        });
+    </script>
+</body>
+</html>

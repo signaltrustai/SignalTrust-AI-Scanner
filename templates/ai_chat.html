@@ -359,26 +359,13 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="/" class="logo">⚡ SIGNALTRUST AI</a>
-            <ul class="nav-menu">
-                <li><a href="/">Home</a></li>
-                <li><a href="/scanner">Scanner</a></li>
-                <li><a href="/whale-watcher">Whale Watcher</a></li>
-                <li><a href="/ai-intelligence">🤖 AI Intelligence</a></li>
-                <li><a href="/ai-chat" class="active">💬 AI Chat</a></li>
-                <li><a href="/notifications">🔔 Notifications</a></li>
-                <li><a href="/dashboard">Dashboard</a></li>
-            </ul>
-        </div>
-    </nav>
+    {% include 'partials/nav.html' %}
 
     <div class="chat-container">
         <div class="chat-header">
             <h1>💬 AI Chat System</h1>
             <p>Converse with our advanced AI systems for market insights and analysis</p>
-            <span class="owner-badge">👑 OWNER EXCLUSIVE ACCESS</span>
+            <span class="owner-badge">🤖 AI Powered by GPT-4</span>
         </div>
 
         <div class="ai-modes" id="aiModes">
@@ -441,7 +428,6 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         let currentAIMode = 'auto';
-        let userId = 'owner_admin_001'; // Owner ID
 
         // Load AI modes
         async function loadAIModes() {
@@ -498,7 +484,6 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        user_id: userId,
                         message: message,
                         ai_mode: currentAIMode
                     })

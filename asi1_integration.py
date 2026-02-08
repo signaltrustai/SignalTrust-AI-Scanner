@@ -1,33 +1,47 @@
 #!/usr/bin/env python3
 """
 ASI1 AI Integration Module
-Integrates with ASI1 experimental agentic AI for advanced market analysis
+Integrates with OpenAI for advanced market analysis
 """
 
 import os
 import json
-import requests
 from typing import Dict, List, Optional
 from datetime import datetime
 
 
 class ASI1AIIntegration:
-    """ASI1 AI Integration for market analysis and agent communication"""
+    """AI Integration for market analysis using OpenAI
+    
+    Note: Despite the class name 'ASI1AIIntegration', this now uses OpenAI.
+    The name is kept for backward compatibility with existing code.
+    """
     
     def __init__(self, api_key: Optional[str] = None):
-        """Initialize ASI1 AI integration.
+        """Initialize OpenAI integration.
         
         Args:
-            api_key: ASI1 API key (defaults to environment variable)
+            api_key: OpenAI API key (defaults to environment variable)
         """
-        self.api_key = api_key or os.environ.get('ASI_ONE_API_KEY', '')
-        self.base_url = 'https://api.asi1-experimental.ai/v1'
-        self.agent_address = 'agent1q2w4ngr4usjnmgdps4z503c5zpytj8lxr3ve49au8zqyclvvcghtg8zvk90'
+        self.api_key = api_key or os.environ.get('OPENAI_API_KEY', '')
+        self.model = os.environ.get('OPENAI_MODEL', 'gpt-4o')
+        self._client = None
         self.session_id = self._generate_session_id()
         
     def _generate_session_id(self) -> str:
         """Generate unique session ID."""
         return f"signaltrust-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    
+    def _get_client(self):
+        """Lazy load OpenAI client."""
+        if self._client is None and self.api_key:
+            try:
+                from openai import OpenAI
+                self._client = OpenAI(api_key=self.api_key)
+            except ImportError:
+                print("⚠️ OpenAI library not installed. Install with: pip install openai")
+                raise
+        return self._client
     
     def analyze_market_with_ai(self, market_data: Dict, context: str = "") -> Dict:
         """Analyze market data using ASI1 AI.
@@ -59,7 +73,8 @@ Please provide:
                 'success': True,
                 'analysis': response.get('content', ''),
                 'timestamp': datetime.now().isoformat(),
-                'model': 'asi1-experimental-agentic'
+                'model': response.get('model', self.model),
+                'provider': 'openai'
             }
             
         except Exception as e:
@@ -96,7 +111,8 @@ Provide:
                 'success': True,
                 'whale_analysis': response.get('content', ''),
                 'alert_level': self._determine_alert_level(response.get('content', '')),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().isoformat(),
+                'provider': 'openai'
             }
             
         except Exception as e:
@@ -135,7 +151,8 @@ Provide:
                 'success': True,
                 'symbol': symbol,
                 'prediction': response.get('content', ''),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().isoformat(),
+                'provider': 'openai'
             }
             
         except Exception as e:
@@ -146,32 +163,29 @@ Provide:
             }
     
     def communicate_with_agent(self, message: str, agent_context: Dict = None) -> Dict:
-        """Communicate with specified agent.
+        """Communicate with AI for agent-like responses.
         
         Args:
-            message: Message to send to agent
-            agent_context: Additional context for agent
+            message: Message to send
+            agent_context: Additional context
             
         Returns:
-            Agent response
+            AI response
         """
         try:
-            full_message = f"""Agent Communication Request:
-Target Agent: {self.agent_address}
-
-Message: {message}
+            full_message = f"""Message: {message}
 
 Context: {json.dumps(agent_context, indent=2) if agent_context else 'None'}
 
-Please facilitate agent-to-agent communication."""
+Please provide an expert analysis."""
 
-            response = self._chat_completion(full_message, enable_agent_protocol=True)
+            response = self._chat_completion(full_message)
             
             return {
                 'success': True,
-                'agent_address': self.agent_address,
                 'response': response.get('content', ''),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().isoformat(),
+                'provider': 'openai'
             }
             
         except Exception as e:
@@ -182,52 +196,52 @@ Please facilitate agent-to-agent communication."""
             }
     
     def _chat_completion(self, user_message: str, enable_agent_protocol: bool = False) -> Dict:
-        """Make chat completion request to ASI1 API.
+        """Make chat completion request to OpenAI API.
         
         Args:
             user_message: User message
-            enable_agent_protocol: Enable agent-to-agent communication
+            enable_agent_protocol: Enable agent-to-agent communication (not used with OpenAI)
             
         Returns:
             API response
         """
         if not self.api_key:
-            raise ValueError("ASI_ONE_API_KEY not configured")
+            raise ValueError("OPENAI_API_KEY not configured. Please set it in your .env file")
         
-        url = f"{self.base_url}/chat/completions"
-        
-        headers = {
-            'Authorization': f'Bearer {self.api_key}',
-            'Content-Type': 'application/json',
-            'x-session-id': self.session_id
-        }
-        
-        payload = {
-            'model': 'asi1-experimental-agentic',
-            'messages': [
-                {
-                    'role': 'user',
-                    'content': user_message
-                }
-            ]
-        }
-        
-        if enable_agent_protocol:
-            payload['agent_chat_protocol'] = True
-        
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
-        response.raise_for_status()
-        
-        data = response.json()
-        
-        if 'choices' in data and len(data['choices']) > 0:
+        try:
+            client = self._get_client()
+            if not client:
+                return {'content': 'OpenAI client not initialized', 'model': '', 'usage': {}}
+            
+            response = client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        'role': 'system',
+                        'content': 'You are an expert AI assistant for cryptocurrency and stock market analysis. Provide detailed, accurate insights.'
+                    },
+                    {
+                        'role': 'user',
+                        'content': user_message
+                    }
+                ],
+                temperature=0.7,
+                max_tokens=2000
+            )
+            
             return {
-                'content': data['choices'][0]['message']['content'],
-                'model': data.get('model'),
-                'usage': data.get('usage')
+                'content': response.choices[0].message.content,
+                'model': response.model,
+                'usage': {
+                    'prompt_tokens': response.usage.prompt_tokens,
+                    'completion_tokens': response.usage.completion_tokens,
+                    'total_tokens': response.usage.total_tokens
+                }
             }
-        
-        return {'content': '', 'model': '', 'usage': {}}
+            
+        except Exception as e:
+            print(f"⚠️ OpenAI API error: {e}")
+            return {'content': f'Error: {str(e)}', 'model': '', 'usage': {}}
     
     def _determine_alert_level(self, analysis: str) -> str:
         """Determine alert level from analysis text.
@@ -276,7 +290,8 @@ Include:
             return {
                 'success': True,
                 'summary': response.get('content', ''),
-                'timestamp': datetime.now().isoformat()
+                'timestamp': datetime.now().isoformat(),
+                'provider': 'openai'
             }
             
         except Exception as e:

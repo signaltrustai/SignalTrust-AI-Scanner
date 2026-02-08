@@ -1,0 +1,37 @@
+name: signaltrust_market_pipeline_eu
+description: |
+  Orchestration complète d'une analyse de marché quotidien pour SignalTrust EU
+agents:
+  - name: crypto_analyst
+    role: "Analyse le marché crypto"
+    task: "POST /predict"
+    url: "http://crypto_agent:8000"
+  - name: stock_analyst
+    role: "Analyse le marché actions"
+    task: "POST /predict"
+    url: "http://stock_agent:8000"
+  - name: whale_watcher
+    role: "Surveille les gros mouvements blockchain"
+    task: "GET /whales"
+    url: "http://whale_agent:8000"
+  - name: news_agent
+    role: "Récupère et résume les dernières news"
+    task: "POST /news"
+    url: "http://news_agent:8000"
+workflow:
+  - step: crypto_analyst
+    input:
+      symbol: "BTC/USDT"
+  - step: stock_analyst
+    input:
+      ticker: "AAPL"
+  - step: whale_watcher
+    input:
+      network: "btc"
+      min_usd: 5000000
+  - step: news_agent
+    input:
+      topics: ["crypto", "stocks", "market"]
+      max_items: 10
+  - step: aggregator
+    description: "Combine les réponses et calcule un score de confiance"

@@ -14,10 +14,12 @@
     <link rel="manifest" href="/manifest.json">
     
     <!-- App Icons -->
+    <link rel="icon" type="image/x-icon" href="/static/icons/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/static/icons/icon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/static/icons/icon-16x16.png">
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/static/icons/icon-152x152.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
     
     <title>SignalTrust AI - Premium Crypto & NFT Market Scanner</title>
     <link rel="stylesheet" href="/static/css/style.css">
@@ -34,20 +36,7 @@
     </script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">⚡ SIGNALTRUST AI</div>
-            <div class="nav-menu">
-                <a href="/" class="active">Home</a>
-                <a href="/scanner">Live Scanner</a>
-                <a href="/analyzer">Analysis</a>
-                <a href="/predictions">AI Predictions</a>
-                <a href="/pricing">Plans</a>
-                <a href="/login">Login</a>
-                <a href="/register" class="btn btn-primary">Get Started</a>
-            </div>
-        </div>
-    </nav>
+    {% include 'partials/nav.html' %}
     
     <section class="hero">
         <div class="container">
@@ -55,6 +44,7 @@
                 <h1>🚀 Ultimate AI-Powered<br>Crypto & NFT Scanner</h1>
                 <p class="hero-subtitle">Real-time market intelligence, whale tracking, NFT analytics, and AI-driven predictions for crypto traders and investors</p>
                 <div class="hero-buttons">
+                    <a href="/ai-chat" class="btn btn-primary btn-lg">🤖 Chat with AI</a>
                     <a href="/register" class="btn btn-primary btn-lg">Start Scanning Now</a>
                     <a href="/pricing" class="btn btn-outline btn-lg">View Pricing</a>
                 </div>

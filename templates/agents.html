@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agents - SignalTrust AI Scanner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .agent-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .agent-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .agent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .agent-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .agent-icon {
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .agent-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .agent-status.online {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .agent-status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .agent-status.checking {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .status-dot.online {
+            background: #28a745;
+        }
+
+        .status-dot.offline {
+            background: #dc3545;
+        }
+
+        .status-dot.checking {
+            background: #ffc107;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .agent-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .workflow-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .workflow-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-top: 30px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .results-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .result-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-item pre {
+            background: #2d3748;
+            color: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9em;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    {% include 'partials/nav.html' %}
+    <div class="container">
+
+        <header>
+            <h1><i class="fas fa-robot"></i> Multi-Agent System</h1>
+            <p class="subtitle">Système d'intelligence artificielle distribuée pour l'analyse des marchés financiers</p>
+        </header>
+
+        <div class="agents-grid" id="agentsGrid">
+            <!-- Agent cards will be populated here -->
+        </div>
+
+        <div class="workflow-section">
+            <h2><i class="fas fa-cogs"></i> Workflow Complet d'Analyse</h2>
+            <form id="workflowForm">
+                <div class="input-group">
+                    <label for="symbol">Symbole Crypto:</label>
+                    <input type="text" id="symbol" name="symbol" value="BTC/USDT" placeholder="Ex: BTC/USDT, ETH/USDT">
+                </div>
+                <div class="input-group">
+                    <label for="ticker">Ticker Action:</label>
+                    <input type="text" id="ticker" name="ticker" value="AAPL" placeholder="Ex: AAPL, GOOGL, TSLA">
+                </div>
+                <div class="input-group">
+                    <label for="network">Réseau Blockchain:</label>
+                    <select id="network" name="network">
+                        <option value="btc">Bitcoin (BTC)</option>
+                        <option value="eth">Ethereum (ETH)</option>
+                        <option value="bnb">Binance Smart Chain (BNB)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-play"></i> Lancer l'Analyse Complète
+                </button>
+            </form>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h2><i class="fas fa-chart-line"></i> Résultats de l'Analyse</h2>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const agents = [
+            {
+                name: 'Coordinator',
+                icon: 'fa-network-wired',
+                description: 'Orchestrateur principal qui coordonne tous les agents via CrewAI',
+                port: 8000,
+                endpoint: 'coordinator'
+            },
+            {
+                name: 'Crypto Agent',
+                icon: 'fa-bitcoin',
+                description: 'Analyse du marché des crypto-monnaies avec FinGPT',
+                port: 8001,
+                endpoint: 'crypto'
+            },
+            {
+                name: 'Stock Agent',
+                icon: 'fa-chart-line',
+                description: 'Analyse du marché des actions avec Stock-GPT',
+                port: 8002,
+                endpoint: 'stock'
+            },
+            {
+                name: 'Whale Agent',
+                icon: 'fa-whale',
+                description: 'Surveillance des grandes transactions blockchain',
+                port: 8003,
+                endpoint: 'whale'
+            },
+            {
+                name: 'News Agent',
+                icon: 'fa-newspaper',
+                description: 'Agrégation et analyse des actualités du marché',
+                port: 8004,
+                endpoint: 'news'
+            },
+            {
+                name: 'Social Sentiment',
+                icon: 'fa-comments',
+                description: 'Analyse du sentiment sur les réseaux sociaux',
+                port: 8005,
+                endpoint: 'social_sentiment'
+            },
+            {
+                name: 'On-Chain Data',
+                icon: 'fa-cubes',
+                description: 'Analyse des métriques blockchain on-chain',
+                port: 8006,
+                endpoint: 'onchain'
+            },
+            {
+                name: 'Macro Economics',
+                icon: 'fa-globe',
+                description: 'Analyse des indicateurs macroéconomiques',
+                port: 8007,
+                endpoint: 'macro_economics'
+            },
+            {
+                name: 'Portfolio Optimizer',
+                icon: 'fa-balance-scale',
+                description: 'Optimisation d\'allocation de portefeuille',
+                port: 8008,
+                endpoint: 'portfolio_optimizer'
+            }
+        ];
+
+        // Render agent cards
+        function renderAgents() {
+            const grid = document.getElementById('agentsGrid');
+            grid.innerHTML = agents.map(agent => `
+                <div class="agent-card" data-agent="${agent.endpoint}">
+                    <div class="agent-header">
+                        <span class="agent-name">${agent.name}</span>
+                        <i class="fas ${agent.icon} agent-icon"></i>
+                    </div>
+                    <p class="agent-description">${agent.description}</p>
+                    <div class="agent-status checking">
+                        <span class="status-dot checking"></span>
+                        <span>Vérification...</span>
+                    </div>
+                    <div class="agent-actions">
+                        <button class="btn btn-primary" onclick="testAgent('${agent.endpoint}')" disabled>
+                            <i class="fas fa-vial"></i> Tester
+                        </button>
+                        <button class="btn btn-secondary" onclick="viewDocs('${agent.port}')" disabled>
+                            <i class="fas fa-book"></i> API Docs
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            // Check agent status
+            checkAllAgents();
+        }
+
+        // Check status of all agents
+        async function checkAllAgents() {
+            try {
+                const response = await fetch('/api/agents/status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    Object.keys(data.agents).forEach(agentName => {
+                        updateAgentStatus(agentName, data.agents[agentName]);
+                    });
+                } else {
+                    // Show all as offline if API fails
+                    agents.forEach(agent => {
+                        updateAgentStatus(agent.endpoint, { success: false });
+                    });
+                }
+            } catch (error) {
+                console.error('Error checking agents:', error);
+                // Show all as offline on error
+                agents.forEach(agent => {
+                    updateAgentStatus(agent.endpoint, { success: false });
+                });
+            }
+        }
+
+        // Update agent status in UI
+        function updateAgentStatus(agentName, status) {
+            const card = document.querySelector(`[data-agent="${agentName}"]`);
+            if (!card) return;
+
+            const statusDiv = card.querySelector('.agent-status');
+            const statusDot = card.querySelector('.status-dot');
+            const buttons = card.querySelectorAll('.btn');
+
+            if (status.success || status.status === 'ok') {
+                statusDiv.className = 'agent-status online';
+                statusDiv.innerHTML = '<span class="status-dot online"></span><span>En ligne</span>';
+                buttons.forEach(btn => btn.disabled = false);
+            } else {
+                statusDiv.className = 'agent-status offline';
+                statusDiv.innerHTML = '<span class="status-dot offline"></span><span>Hors ligne</span>';
+                buttons.forEach(btn => btn.disabled = true);
+            }
+        }
+
+        // Test individual agent
+        async function testAgent(agentName) {
+            alert(`Test de l'agent ${agentName} - Fonctionnalité à venir`);
+        }
+
+        // View API documentation
+        function viewDocs(port) {
+            window.open(`http://localhost:${port}/docs`, '_blank');
+        }
+
+        // Handle workflow form submission
+        document.getElementById('workflowForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = {
+                symbol: formData.get('symbol'),
+                ticker: formData.get('ticker'),
+                network: formData.get('network'),
+                topics: ['crypto', 'stocks', 'market']
+            };
+
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsSection.classList.add('show');
+            resultsContent.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Analyse en cours... Cela peut prendre quelques secondes.</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch('/api/agents/workflow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    resultsContent.innerHTML = `
+                        <div class="result-item">
+                            <h3>Résultats de l'Analyse</h3>
+                            <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    resultsContent.innerHTML = `
+                        <div class="result-item" style="border-left-color: #dc3545;">
+                            <h3>Erreur</h3>
+                            <p>${result.error || 'Une erreur est survenue lors de l\'analyse.'}</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsContent.innerHTML = `
+                    <div class="result-item" style="border-left-color: #dc3545;">
+                        <h3>Erreur de Connexion</h3>
+                        <p>Impossible de se connecter au système multi-agent. Assurez-vous que les agents sont démarrés.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Initialize
+        renderAgents();
+
+        // Refresh status every 30 seconds
+        setInterval(checkAllAgents, 30000);
+    </script>
+</body>
+</html>

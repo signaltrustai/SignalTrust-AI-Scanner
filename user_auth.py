@@ -10,6 +10,7 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import Dict, Optional
+from config.admin_config import get_admin_config, ADMIN_USER_ID
 
 
 class UserAuth:
@@ -25,6 +26,7 @@ class UserAuth:
         self.sessions = {}
         self._ensure_data_dir()
         self._load_users()
+        self._create_default_admin()
     
     def _ensure_data_dir(self):
         """Ensure data directory exists."""
@@ -47,6 +49,37 @@ class UserAuth:
         """Save users to file."""
         with open(self.users_file, 'w') as f:
             json.dump(self.users, f, indent=2)
+    
+    def _create_default_admin(self):
+        """Create default admin account if it doesn't exist."""
+        admin_config = get_admin_config()
+        admin_email = admin_config['email']
+        
+        # Check if admin already exists
+        if admin_email in self.users:
+            # Ensure admin has correct user_id
+            if self.users[admin_email].get('user_id') != ADMIN_USER_ID:
+                self.users[admin_email]['user_id'] = ADMIN_USER_ID
+                self._save_users()
+            return
+        
+        # Create admin account
+        pwd_hash, salt = self._hash_password(admin_config['password'])
+        
+        self.users[admin_email] = {
+            'user_id': ADMIN_USER_ID,
+            'email': admin_email,
+            'full_name': admin_config['full_name'],
+            'password_hash': pwd_hash,
+            'salt': salt,
+            'plan': admin_config['plan'],
+            'created_at': datetime.now().isoformat(),
+            'last_login': None,
+            'is_active': admin_config['is_active'],
+            'payment_status': admin_config['payment_status']
+        }
+        
+        self._save_users()
     
     def _hash_password(self, password: str, salt: str = None) -> tuple:
         """Hash password with salt.
@@ -239,6 +272,28 @@ class UserAuth:
         
         return {'success': True, 'message': 'Plan updated successfully'}
     
+    def update_user_profile(self, email: str, profile_data: Dict) -> Dict:
+        """Update user profile information.
+
+        Args:
+            email: User email
+            profile_data: Dict with optional keys: full_name, phone, bio, location, profile_picture
+
+        Returns:
+            Update result
+        """
+        if email not in self.users:
+            return {'success': False, 'error': 'User not found'}
+
+        allowed = ('full_name', 'phone', 'bio', 'location', 'profile_picture')
+        for key in allowed:
+            if key in profile_data:
+                self.users[email][key] = str(profile_data[key])[:500]  # cap length
+
+        self.users[email]['profile_updated_at'] = datetime.now().isoformat()
+        self._save_users()
+        return {'success': True, 'message': 'Profile updated successfully'}
+
     def get_user_by_email(self, email: str) -> Optional[Dict]:
         """Get user by email.
         
@@ -258,5 +313,11 @@ class UserAuth:
             'full_name': user['full_name'],
             'plan': user['plan'],
             'created_at': user['created_at'],
-            'payment_status': user.get('payment_status', 'active')
+            'payment_status': user.get('payment_status', 'active'),
+            'is_active': user.get('is_active', True),
+            'phone': user.get('phone', ''),
+            'bio': user.get('bio', ''),
+            'location': user.get('location', ''),
+            'profile_picture': user.get('profile_picture', ''),
+            'profile_updated_at': user.get('profile_updated_at', ''),
         }

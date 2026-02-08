@@ -5,28 +5,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analyzer - SignalTrust AI</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        :root {
+            --bg-primary:#0f1117;--bg-card:#1a1d2e;--bg-card-hover:#222640;
+            --accent:#6c5ce7;--accent-glow:rgba(108,92,231,.3);
+            --green:#00d68f;--red:#ff6b6b;--yellow:#ffd43b;--blue:#3bc9db;
+            --text-primary:#e8eaed;--text-secondary:#8b92a5;--border:#2d3148;
+            --gradient-1:linear-gradient(135deg,#6c5ce7,#a855f7);
+            --gradient-2:linear-gradient(135deg,#00d68f,#20c997);
+            --gradient-3:linear-gradient(135deg,#3bc9db,#4dabf7);
+            --gradient-4:linear-gradient(135deg,#ffd43b,#ff922b);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;}
+        .dash-nav{background:rgba(26,29,46,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .dash-nav .brand{font-size:1.3rem;font-weight:800;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:1px;}
+        .dash-nav .nav-links{display:flex;gap:1.5rem;align-items:center;}
+        .dash-nav .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s;}
+        .dash-nav .nav-links a:hover,.dash-nav .nav-links a.active{color:var(--accent);}
+        .container{max-width:1400px;margin:0 auto;padding:1.5rem 2rem;}
+        .page-header{margin-bottom:1.5rem;}
+        .page-header h1{font-size:1.8rem;font-weight:700;margin-bottom:.3rem;}
+        .page-header p{color:var(--text-secondary);font-size:.95rem;}
+
+        /* Controls */
+        .analysis-controls{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;}
+        .analysis-controls input,.analysis-controls select{background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:.6rem 1rem;border-radius:10px;font-size:.9rem;outline:none;}
+        .analysis-controls input:focus,.analysis-controls select:focus{border-color:var(--accent);}
+        .btn-analyze{background:var(--gradient-1);color:#fff;border:none;padding:.6rem 1.6rem;border-radius:10px;font-weight:600;cursor:pointer;font-size:.9rem;transition:transform .15s;}
+        .btn-analyze:hover{transform:translateY(-1px);}
+        .btn-analyze:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+        .btn-analyze .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:.5rem;vertical-align:middle;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+
+        .loading-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1rem;display:none;}
+        .loading-bar.active{display:block;}
+        .loading-bar::after{content:'';display:block;height:100%;width:30%;background:var(--gradient-1);animation:loading 1.2s ease-in-out infinite;}
+        @keyframes loading{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
+
+        /* Result layout */
+        .analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.5rem;}
+        .card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.3rem;transition:transform .2s,box-shadow .2s;}
+        .card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+        .card-title{font-size:.9rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+        .card-wide{grid-column:span 2;}
+
+        /* Verdict */
+        .verdict-box{text-align:center;padding:1.5rem;}
+        .verdict-signal{font-size:2.5rem;font-weight:900;margin-bottom:.3rem;}
+        .verdict-conf{font-size:1.1rem;color:var(--text-secondary);}
+        .verdict-box.bullish .verdict-signal{color:var(--green);}
+        .verdict-box.bearish .verdict-signal{color:var(--red);}
+        .verdict-box.neutral .verdict-signal{color:var(--yellow);}
+
+        /* Indicator gauges */
+        .indicator-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;}
+        .indi{background:var(--bg-primary);border-radius:10px;padding:.8rem 1rem;}
+        .indi-name{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;margin-bottom:.3rem;}
+        .indi-val{font-size:1.2rem;font-weight:700;}
+        .indi-bar{height:4px;background:var(--border);border-radius:2px;margin-top:.4rem;overflow:hidden;}
+        .indi-bar-fill{height:100%;border-radius:2px;transition:width .4s;}
+
+        /* Sentiment */
+        .sentiment-row{display:flex;gap:1rem;align-items:center;flex-wrap:wrap;}
+        .sent-chip{padding:.4rem 1rem;border-radius:20px;font-size:.85rem;font-weight:600;}
+        .sent-chip.positive{background:rgba(0,214,143,.15);color:var(--green);}
+        .sent-chip.negative{background:rgba(255,107,107,.15);color:var(--red);}
+        .sent-chip.mixed{background:rgba(255,212,59,.15);color:var(--yellow);}
+
+        .empty-state{text-align:center;padding:4rem;color:var(--text-secondary);}
+        .empty-state .icon{font-size:3rem;margin-bottom:1rem;}
+
+        /* Quick symbols */
+        .quick-symbols{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+        .qsym{background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);padding:.3rem .8rem;border-radius:8px;font-size:.8rem;cursor:pointer;transition:all .2s;}
+        .qsym:hover{border-color:var(--accent);color:var(--accent);}
+
+        @media(max-width:768px){
+            .container{padding:1rem;}
+            .analysis-grid{grid-template-columns:1fr;}
+            .card-wide{grid-column:span 1;}
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">SignalTrust AI</div>
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/scanner">Scanner</a>
-                <a href="/analyzer" class="active">Analyzer</a>
-                <a href="/predictions">AI Predictions</a>
-                <a href="/dashboard">Dashboard</a>
+    {% include 'partials/nav.html' %}
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📈 Market Analyzer</h1>
+            <p>AI-powered technical analysis, sentiment &amp; pattern recognition</p>
+        </div>
+
+        <!-- Quick symbols -->
+        <div class="quick-symbols">
+            <span class="qsym" onclick="analyzeQuick('BTC')">BTC</span>
+            <span class="qsym" onclick="analyzeQuick('ETH')">ETH</span>
+            <span class="qsym" onclick="analyzeQuick('SOL')">SOL</span>
+            <span class="qsym" onclick="analyzeQuick('AAPL')">AAPL</span>
+            <span class="qsym" onclick="analyzeQuick('GOOGL')">GOOGL</span>
+            <span class="qsym" onclick="analyzeQuick('TSLA')">TSLA</span>
+            <span class="qsym" onclick="analyzeQuick('XRP')">XRP</span>
+            <span class="qsym" onclick="analyzeQuick('DOGE')">DOGE</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="analysis-controls">
+            <input type="text" id="symbolInput" placeholder="Enter symbol (e.g. BTC, AAPL)" style="flex:1;min-width:200px;">
+            <select id="timeframe">
+                <option value="1h">1 Hour</option>
+                <option value="4h">4 Hours</option>
+                <option value="1d" selected>1 Day</option>
+                <option value="1w">1 Week</option>
+            </select>
+            <button class="btn-analyze" id="btnAnalyze" onclick="runAnalysis()">
+                Analyze
+            </button>
+            <button class="btn-analyze" style="background:var(--gradient-3);" onclick="runSentiment()">
+                Sentiment
+            </button>
+            <button class="btn-analyze" style="background:var(--gradient-4);" onclick="runPatterns()">
+                Patterns
+            </button>
+        </div>
+
+        <div class="loading-bar" id="loadingBar"></div>
+
+        <!-- Results -->
+        <div id="resultsArea" style="display:none;">
+            <div class="analysis-grid">
+                <!-- Verdict -->
+                <div class="card" id="verdictCard">
+                    <div class="card-title">⚡ AI Verdict</div>
+                    <div class="verdict-box" id="verdictBox">
+                        <div class="verdict-signal" id="verdictSignal">—</div>
+                        <div class="verdict-conf" id="verdictConf"></div>
+                        <div id="verdictReason" style="margin-top:.8rem;font-size:.85rem;color:var(--text-secondary);"></div>
+                    </div>
+                </div>
+
+                <!-- Price Info -->
+                <div class="card" id="priceCard">
+                    <div class="card-title">💰 Price Data</div>
+                    <div id="priceInfo" style="text-align:center;padding:1rem;">
+                        <div style="font-size:2.2rem;font-weight:800;" id="currentPrice">—</div>
+                        <div style="font-size:1rem;margin-top:.3rem;" id="priceChange">—</div>
+                        <div style="margin-top:1rem;display:flex;justify-content:center;gap:2rem;">
+                            <div><div style="font-size:.75rem;color:var(--text-secondary);">SUPPORT</div><div id="supportLevel" style="font-weight:700;">—</div></div>
+                            <div><div style="font-size:.75rem;color:var(--text-secondary);">RESISTANCE</div><div id="resistanceLevel" style="font-weight:700;">—</div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Indicators -->
+                <div class="card card-wide" id="indicatorsCard">
+                    <div class="card-title">📊 Technical Indicators</div>
+                    <div class="indicator-list" id="indList"></div>
+                </div>
+
+                <!-- Sentiment -->
+                <div class="card" id="sentimentCard" style="display:none;">
+                    <div class="card-title">🧠 Sentiment Analysis</div>
+                    <div id="sentimentContent"></div>
+                </div>
+
+                <!-- Patterns -->
+                <div class="card" id="patternsCard" style="display:none;">
+                    <div class="card-title">🔮 Pattern Detection</div>
+                    <div id="patternsContent"></div>
+                </div>
             </div>
         </div>
-    </nav>
-    
-    <div class="container" style="padding: 2rem 0;">
-        <h1>Market Analyzer</h1>
-        <p>Technical analysis and pattern recognition</p>
-        <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 8px;">
-            <h2>Coming Soon</h2>
-            <p>Advanced market analysis features are being developed.</p>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+            <div class="icon">📊</div>
+            <p>Enter a symbol and click <strong>Analyze</strong> to see full technical analysis.</p>
         </div>
     </div>
+
+    <script>
+        function analyzeQuick(s) {
+            document.getElementById('symbolInput').value = s;
+            runAnalysis();
+        }
+
+        function getSymbol() {
+            const s = document.getElementById('symbolInput').value.trim().toUpperCase();
+            if (!s) { alert('Enter a symbol'); return null; }
+            return s;
+        }
+
+        async function runAnalysis() {
+            const symbol = getSymbol();
+            if (!symbol) return;
+            const btn = document.getElementById('btnAnalyze');
+            const bar = document.getElementById('loadingBar');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Analyzing...';
+            bar.classList.add('active');
+
+            try {
+                const r = await fetch('/api/analyze/technical', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({symbol, timeframe: document.getElementById('timeframe').value})
+                });
+                const j = await r.json();
+                if (j.success) renderTechnical(j.data, symbol);
+                else alert('Error: ' + (j.error || 'Unknown'));
+            } catch (e) { console.error(e); alert('Analysis failed'); }
+
+            btn.disabled = false;
+            btn.innerHTML = 'Analyze';
+            bar.classList.remove('active');
+        }
+
+        function renderTechnical(d, symbol) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsArea').style.display = 'block';
+
+            // Verdict
+            const rec = (d.recommendation || d.signal || 'HOLD').toUpperCase();
+            const conf = d.confidence || d.score || 50;
+            const cls = rec === 'BUY' ? 'bullish' : rec === 'SELL' ? 'bearish' : 'neutral';
+            const box = document.getElementById('verdictBox');
+            box.className = 'verdict-box ' + cls;
+            document.getElementById('verdictSignal').textContent = rec;
+            document.getElementById('verdictConf').textContent = `Confidence: ${conf}%`;
+            document.getElementById('verdictReason').textContent = d.reason || d.summary || '';
+
+            // Price
+            const price = d.price || d.current_price || 0;
+            document.getElementById('currentPrice').textContent = '$' + fmtNum(price);
+            const change = d.change_24h || d.price_change_24h || 0;
+            const pce = document.getElementById('priceChange');
+            pce.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+            pce.className = change >= 0 ? 'up' : 'down';
+
+            // Support / Resistance
+            const inds = d.indicators || {};
+            const sr = inds.support_resistance || inds.SR || {};
+            document.getElementById('supportLevel').textContent = sr.support ? '$' + fmtNum(sr.support) : '—';
+            document.getElementById('resistanceLevel').textContent = sr.resistance ? '$' + fmtNum(sr.resistance) : '—';
+
+            // Indicators
+            const list = document.getElementById('indList');
+            const indItems = [];
+            const keys = ['rsi','macd','sma_50','sma_200','ema_9','ema_21','adx','atr','obv','stochastic','bollinger','vwap','roc','williams'];
+            for (const k of keys) {
+                let val = inds[k] || inds[k.toUpperCase()];
+                if (val === undefined || val === null) continue;
+                if (typeof val === 'object') val = val.value || JSON.stringify(val);
+                let pct = 50, color = 'var(--blue)';
+                if (k === 'rsi') { pct = Number(val); color = pct > 70 ? 'var(--red)' : pct < 30 ? 'var(--green)' : 'var(--blue)'; }
+                else if (k === 'adx') { pct = Math.min(Number(val), 100); color = pct > 25 ? 'var(--green)' : 'var(--yellow)'; }
+                else { pct = 50; }
+                indItems.push(`<div class="indi">
+                    <div class="indi-name">${k.replace('_',' ').toUpperCase()}</div>
+                    <div class="indi-val">${typeof val === 'number' ? val.toFixed(2) : val}</div>
+                    <div class="indi-bar"><div class="indi-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+                </div>`);
+            }
+            list.innerHTML = indItems.length ? indItems.join('') : '<p style="color:var(--text-secondary)">No indicator data</p>';
+        }
+
+        async function runSentiment() {
+            const symbol = getSymbol();
+            if (!symbol) return;
+            document.getElementById('loadingBar').classList.add('active');
+            try {
+                const r = await fetch('/api/analyze/sentiment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({symbol})
+                });
+                const j = await r.json();
+                if (j.success) {
+                    document.getElementById('resultsArea').style.display = 'block';
+                    document.getElementById('emptyState').style.display = 'none';
+                    const card = document.getElementById('sentimentCard');
+                    card.style.display = 'block';
+                    const d = j.data;
+                    const score = d.score || d.sentiment_score || 0;
+                    const label = score > 0.2 ? 'positive' : score < -0.2 ? 'negative' : 'mixed';
+                    document.getElementById('sentimentContent').innerHTML = `
+                        <div class="sentiment-row">
+                            <span class="sent-chip ${label}">${label.toUpperCase()} (${(score * 100).toFixed(0)}%)</span>
+                        </div>
+                        <p style="margin-top:1rem;font-size:.9rem;color:var(--text-secondary);">${d.summary || d.analysis || 'No detailed sentiment available.'}</p>
+                    `;
+                }
+            } catch (e) { console.error(e); }
+            document.getElementById('loadingBar').classList.remove('active');
+        }
+
+        async function runPatterns() {
+            const symbol = getSymbol();
+            if (!symbol) return;
+            document.getElementById('loadingBar').classList.add('active');
+            try {
+                const r = await fetch('/api/analyze/patterns', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({symbol})
+                });
+                const j = await r.json();
+                if (j.success) {
+                    document.getElementById('resultsArea').style.display = 'block';
+                    document.getElementById('emptyState').style.display = 'none';
+                    const card = document.getElementById('patternsCard');
+                    card.style.display = 'block';
+                    const patterns = j.data.patterns || j.data || [];
+                    const arr = Array.isArray(patterns) ? patterns : [patterns];
+                    document.getElementById('patternsContent').innerHTML = arr.length ?
+                        arr.map(p => `<div style="background:var(--bg-primary);padding:.8rem 1rem;border-radius:10px;margin-bottom:.5rem;">
+                            <strong>${p.name || p.pattern || 'Pattern'}</strong>
+                            <span style="float:right;font-size:.85rem;color:${p.bullish ? 'var(--green)' : 'var(--red)'};">${p.type || (p.bullish ? 'Bullish' : 'Bearish')}</span>
+                            <div style="font-size:.82rem;color:var(--text-secondary);margin-top:.3rem;">${p.description || ''}</div>
+                        </div>`).join('') :
+                        '<p style="color:var(--text-secondary)">No patterns detected</p>';
+                }
+            } catch (e) { console.error(e); }
+            document.getElementById('loadingBar').classList.remove('active');
+        }
+
+        function fmtNum(n) {
+            if (n >= 1) return Number(n).toLocaleString(undefined, {maximumFractionDigits: 2});
+            return Number(n).toPrecision(4);
+        }
+    </script>
 </body>
 </html>

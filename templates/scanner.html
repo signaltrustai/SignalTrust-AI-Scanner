@@ -5,28 +5,295 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Market Scanner - SignalTrust AI</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-card: #1a1d2e;
+            --bg-card-hover: #222640;
+            --accent: #6c5ce7;
+            --accent-glow: rgba(108,92,231,0.3);
+            --green: #00d68f;
+            --red: #ff6b6b;
+            --yellow: #ffd43b;
+            --blue: #3bc9db;
+            --text-primary: #e8eaed;
+            --text-secondary: #8b92a5;
+            --border: #2d3148;
+            --gradient-1: linear-gradient(135deg,#6c5ce7,#a855f7);
+            --gradient-2: linear-gradient(135deg,#00d68f,#20c997);
+            --gradient-3: linear-gradient(135deg,#3bc9db,#4dabf7);
+            --gradient-4: linear-gradient(135deg,#ffd43b,#ff922b);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;}
+
+        /* Nav */
+        .dash-nav{background:rgba(26,29,46,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .dash-nav .brand{font-size:1.3rem;font-weight:800;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:1px;}
+        .dash-nav .nav-links{display:flex;gap:1.5rem;align-items:center;}
+        .dash-nav .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s;}
+        .dash-nav .nav-links a:hover,.dash-nav .nav-links a.active{color:var(--accent);}
+
+        .container{max-width:1400px;margin:0 auto;padding:1.5rem 2rem;}
+        .page-header{margin-bottom:1.5rem;}
+        .page-header h1{font-size:1.8rem;font-weight:700;margin-bottom:.3rem;}
+        .page-header p{color:var(--text-secondary);font-size:.95rem;}
+
+        /* Controls */
+        .scan-controls{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;}
+        .scan-controls select,.scan-controls input{background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:.6rem 1rem;border-radius:10px;font-size:.9rem;outline:none;}
+        .scan-controls select:focus,.scan-controls input:focus{border-color:var(--accent);}
+        .btn-scan{background:var(--gradient-1);color:#fff;border:none;padding:.6rem 1.6rem;border-radius:10px;font-weight:600;cursor:pointer;font-size:.9rem;transition:transform .15s;}
+        .btn-scan:hover{transform:translateY(-1px);}
+        .btn-scan:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+        .btn-scan .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:.5rem;vertical-align:middle;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+
+        /* Overview grid */
+        .overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;}
+        .ov-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;text-align:center;transition:transform .2s;}
+        .ov-card:hover{transform:translateY(-2px);}
+        .ov-card .ov-label{font-size:.8rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem;}
+        .ov-card .ov-value{font-size:1.5rem;font-weight:800;}
+        .ov-card .ov-sub{font-size:.8rem;color:var(--text-secondary);margin-top:.3rem;}
+        .up{color:var(--green);}
+        .down{color:var(--red);}
+        .neutral{color:var(--yellow);}
+
+        /* Trending */
+        .section-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+        .section-title .badge{background:var(--accent);color:#fff;font-size:.7rem;padding:.2rem .6rem;border-radius:10px;}
+        .trending-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:2rem;}
+        .asset-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.2rem;cursor:pointer;transition:transform .2s,box-shadow .2s;}
+        .asset-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+        .asset-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;}
+        .asset-name{font-weight:700;font-size:1rem;}
+        .asset-symbol{color:var(--text-secondary);font-size:.8rem;}
+        .asset-price{font-size:1.3rem;font-weight:800;margin-bottom:.3rem;}
+        .asset-change{font-size:.9rem;font-weight:600;}
+        .asset-meta{display:flex;gap:1rem;margin-top:.6rem;font-size:.78rem;color:var(--text-secondary);}
+        .signal-badge{display:inline-block;padding:.2rem .7rem;border-radius:8px;font-size:.75rem;font-weight:700;text-transform:uppercase;}
+        .signal-badge.buy{background:rgba(0,214,143,.15);color:var(--green);}
+        .signal-badge.sell{background:rgba(255,107,107,.15);color:var(--red);}
+        .signal-badge.hold{background:rgba(255,212,59,.15);color:var(--yellow);}
+
+        /* Scan results table */
+        .results-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.3rem;overflow-x:auto;}
+        .results-table{width:100%;border-collapse:collapse;}
+        .results-table th{text-align:left;padding:.7rem;font-size:.8rem;color:var(--text-secondary);text-transform:uppercase;border-bottom:1px solid var(--border);}
+        .results-table td{padding:.7rem;font-size:.9rem;border-bottom:1px solid rgba(45,49,72,.4);}
+        .results-table tr:hover{background:var(--bg-card-hover);}
+
+        .empty-state{text-align:center;padding:3rem;color:var(--text-secondary);}
+        .empty-state .icon{font-size:3rem;margin-bottom:1rem;}
+
+        /* Loading */
+        .loading-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1rem;display:none;}
+        .loading-bar.active{display:block;}
+        .loading-bar::after{content:'';display:block;height:100%;width:30%;background:var(--gradient-1);animation:loading 1.2s ease-in-out infinite;}
+        @keyframes loading{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
+
+        @media(max-width:768px){
+            .container{padding:1rem;}
+            .scan-controls{flex-direction:column;}
+            .overview-grid{grid-template-columns:repeat(2,1fr);}
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">SignalTrust AI</div>
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/scanner" class="active">Scanner</a>
-                <a href="/analyzer">Analyzer</a>
-                <a href="/predictions">AI Predictions</a>
-                <a href="/dashboard">Dashboard</a>
+    {% include 'partials/nav.html' %}
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🔍 Market Scanner</h1>
+            <p>Real-time market scanning powered by AI — Crypto, Stocks &amp; Forex</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="scan-controls">
+            <select id="marketType">
+                <option value="crypto">Crypto</option>
+                <option value="stocks">Stocks</option>
+                <option value="forex">Forex</option>
+            </select>
+            <input type="text" id="symbolsInput" placeholder="Symbols (e.g. BTC,ETH,SOL)" style="flex:1;min-width:200px;">
+            <button class="btn-scan" id="btnScan" onclick="runScan()">
+                Scan Markets
+            </button>
+            <button class="btn-scan" style="background:var(--gradient-2);" onclick="loadTrending()">
+                🔥 Trending
+            </button>
+        </div>
+
+        <div class="loading-bar" id="loadingBar"></div>
+
+        <!-- Overview Cards -->
+        <div class="overview-grid" id="overviewGrid">
+            <div class="ov-card"><div class="ov-label">Total Market Cap</div><div class="ov-value" id="ovMarketCap">—</div></div>
+            <div class="ov-card"><div class="ov-label">24h Volume</div><div class="ov-value" id="ovVolume">—</div></div>
+            <div class="ov-card"><div class="ov-label">BTC Dominance</div><div class="ov-value" id="ovBtcDom">—</div></div>
+            <div class="ov-card"><div class="ov-label">Fear &amp; Greed</div><div class="ov-value" id="ovFear">—</div><div class="ov-sub" id="ovFearLabel"></div></div>
+        </div>
+
+        <!-- Trending Section -->
+        <div id="trendingSection" style="display:none;">
+            <div class="section-title">🔥 Trending Assets <span class="badge" id="trendingCount">0</span></div>
+            <div class="trending-grid" id="trendingGrid"></div>
+        </div>
+
+        <!-- Scan Results -->
+        <div id="scanResults" style="display:none;">
+            <div class="section-title">📊 Scan Results <span class="badge" id="scanCount">0</span></div>
+            <div class="results-card">
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Price</th>
+                            <th>24h Change</th>
+                            <th>Volume</th>
+                            <th>RSI</th>
+                            <th>Signal</th>
+                            <th>Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scanTableBody"></tbody>
+                </table>
             </div>
         </div>
-    </nav>
-    
-    <div class="container" style="padding: 2rem 0;">
-        <h1>Market Scanner</h1>
-        <p>Real-time market scanning and analysis</p>
-        <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 8px;">
-            <h2>Coming Soon</h2>
-            <p>Advanced market scanning features are being developed.</p>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+            <div class="icon">🛰️</div>
+            <p>Select a market and click <strong>Scan Markets</strong> or <strong>Trending</strong> to begin.</p>
         </div>
     </div>
+
+    <script>
+        // ── Load overview on page load ──
+        document.addEventListener('DOMContentLoaded', loadOverview);
+
+        async function loadOverview() {
+            try {
+                const r = await fetch('/api/markets/overview');
+                const j = await r.json();
+                if (j.success && j.data) {
+                    const d = j.data;
+                    document.getElementById('ovMarketCap').textContent = fmtMoney(d.total_market_cap || d.market_cap);
+                    document.getElementById('ovVolume').textContent = fmtMoney(d.total_volume || d.volume_24h);
+                    const btcDom = d.btc_dominance || d.btc_market_cap_percentage;
+                    document.getElementById('ovBtcDom').textContent = btcDom ? btcDom.toFixed(1) + '%' : '—';
+                    const fg = d.fear_greed_index || d.fear_greed;
+                    if (fg) {
+                        const val = typeof fg === 'object' ? fg.value : fg;
+                        const label = typeof fg === 'object' ? fg.classification : (val > 60 ? 'Greed' : val < 40 ? 'Fear' : 'Neutral');
+                        document.getElementById('ovFear').textContent = val;
+                        document.getElementById('ovFear').className = 'ov-value ' + (val > 60 ? 'up' : val < 40 ? 'down' : 'neutral');
+                        document.getElementById('ovFearLabel').textContent = label;
+                    }
+                }
+            } catch (e) { console.error('Overview error', e); }
+        }
+
+        async function runScan() {
+            const btn = document.getElementById('btnScan');
+            const bar = document.getElementById('loadingBar');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Scanning...';
+            bar.classList.add('active');
+
+            try {
+                const type = document.getElementById('marketType').value;
+                const raw = document.getElementById('symbolsInput').value.trim();
+                const symbols = raw ? raw.split(',').map(s => s.trim().toUpperCase()) : [];
+
+                const r = await fetch('/api/markets/scan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({market_type: type, symbols: symbols})
+                });
+                const j = await r.json();
+                if (j.success) renderScanResults(j.data);
+            } catch (e) { console.error('Scan error', e); }
+
+            btn.disabled = false;
+            btn.innerHTML = 'Scan Markets';
+            bar.classList.remove('active');
+        }
+
+        async function loadTrending() {
+            const bar = document.getElementById('loadingBar');
+            bar.classList.add('active');
+            try {
+                const type = document.getElementById('marketType').value;
+                const r = await fetch('/api/markets/trending?market_type=' + type);
+                const j = await r.json();
+                if (j.success) renderTrending(j.data);
+            } catch (e) { console.error('Trending error', e); }
+            bar.classList.remove('active');
+        }
+
+        function renderTrending(data) {
+            const grid = document.getElementById('trendingGrid');
+            const items = Array.isArray(data) ? data : (data.assets || data.trending || []);
+            document.getElementById('trendingCount').textContent = items.length;
+            document.getElementById('trendingSection').style.display = items.length ? 'block' : 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            grid.innerHTML = items.map(a => {
+                const change = a.change_24h || a.price_change_24h || 0;
+                const cls = change >= 0 ? 'up' : 'down';
+                const signal = change > 3 ? 'buy' : change < -3 ? 'sell' : 'hold';
+                return `<div class="asset-card">
+                    <div class="asset-top">
+                        <div><div class="asset-name">${a.name || a.symbol}</div><div class="asset-symbol">${a.symbol || ''}</div></div>
+                        <span class="signal-badge ${signal}">${signal}</span>
+                    </div>
+                    <div class="asset-price">$${fmtNum(a.price || a.current_price || 0)}</div>
+                    <div class="asset-change ${cls}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</div>
+                    <div class="asset-meta">
+                        <span>Vol: ${fmtMoney(a.volume_24h || a.total_volume || 0)}</span>
+                        <span>MCap: ${fmtMoney(a.market_cap || 0)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderScanResults(data) {
+            const items = Array.isArray(data) ? data : (data.results || data.assets || []);
+            document.getElementById('scanCount').textContent = items.length;
+            document.getElementById('scanResults').style.display = items.length ? 'block' : 'none';
+            document.getElementById('emptyState').style.display = items.length ? 'none' : 'block';
+            const tbody = document.getElementById('scanTableBody');
+            tbody.innerHTML = items.map(a => {
+                const change = a.change_24h || a.price_change_24h || 0;
+                const cls = change >= 0 ? 'up' : 'down';
+                const rsi = a.rsi || a.indicators?.rsi || '—';
+                const sig = a.signal || (change > 2 ? 'BUY' : change < -2 ? 'SELL' : 'HOLD');
+                const conf = a.confidence || '—';
+                return `<tr>
+                    <td><strong>${a.symbol || a.name}</strong></td>
+                    <td>$${fmtNum(a.price || a.current_price || 0)}</td>
+                    <td class="${cls}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</td>
+                    <td>${fmtMoney(a.volume_24h || a.total_volume || 0)}</td>
+                    <td>${typeof rsi === 'number' ? rsi.toFixed(1) : rsi}</td>
+                    <td><span class="signal-badge ${sig.toLowerCase()}">${sig}</span></td>
+                    <td>${typeof conf === 'number' ? conf + '%' : conf}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function fmtMoney(n) {
+            if (!n || n === 0) return '—';
+            if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+            if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+            if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+            if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+            return '$' + Number(n).toFixed(2);
+        }
+        function fmtNum(n) {
+            if (n >= 1) return Number(n).toLocaleString(undefined, {maximumFractionDigits: 2});
+            return Number(n).toPrecision(4);
+        }
+    </script>
 </body>
 </html>

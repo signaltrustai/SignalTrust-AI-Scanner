@@ -1,0 +1,230 @@
+[
+  {
+    "timestamp": "2026-02-08T01:16:05.874185",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T01:16:05.874751"
+  },
+  {
+    "timestamp": "2026-02-08T01:46:08.454766",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T01:46:08.455128"
+  },
+  {
+    "timestamp": "2026-02-08T02:16:11.417858",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T02:16:11.418258"
+  },
+  {
+    "timestamp": "2026-02-08T02:46:15.024861",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T02:46:15.025291"
+  },
+  {
+    "timestamp": "2026-02-08T03:16:19.110803",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T03:16:19.111204"
+  },
+  {
+    "timestamp": "2026-02-08T03:46:24.394248",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T03:46:24.394837"
+  },
+  {
+    "timestamp": "2026-02-08T04:16:30.354022",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T04:16:30.354489"
+  },
+  {
+    "timestamp": "2026-02-08T04:46:37.262608",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T04:46:37.263108"
+  },
+  {
+    "timestamp": "2026-02-08T05:23:43.161405",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T05:23:43.162337"
+  },
+  {
+    "timestamp": "2026-02-08T05:54:00.259978",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T05:54:00.260905"
+  },
+  {
+    "timestamp": "2026-02-08T07:50:33.508147",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T07:50:33.509050"
+  },
+  {
+    "timestamp": "2026-02-08T08:20:52.180186",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T08:20:52.181567"
+  },
+  {
+    "timestamp": "2026-02-08T08:20:54.194226",
+    "from": "Evolution",
+    "to": "ALL",
+    "type": "evolution_complete",
+    "data": {
+      "individual_level": 1,
+      "collective_iq": 79.77,
+      "synergy": 2.59
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T08:20:54.195424"
+  },
+  {
+    "timestamp": "2026-02-08T08:51:13.183320",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T08:51:13.184511"
+  },
+  {
+    "timestamp": "2026-02-08T09:21:33.276359",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T09:21:33.277919"
+  },
+  {
+    "timestamp": "2026-02-08T09:51:54.725377",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T09:51:54.726968"
+  },
+  {
+    "timestamp": "2026-02-08T10:22:18.966846",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T10:22:18.968081"
+  },
+  {
+    "timestamp": "2026-02-08T10:52:30.440174",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T10:52:30.440987"
+  },
+  {
+    "timestamp": "2026-02-08T11:22:31.387480",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": false
+  }
+]

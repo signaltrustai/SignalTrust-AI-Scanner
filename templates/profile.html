@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignalTrust AI — My Profile</title>
+<style>
+:root {
+    --bg-primary: #0f1117;
+    --bg-card: #1a1d2e;
+    --bg-card-hover: #222640;
+    --accent: #6c5ce7;
+    --accent-glow: rgba(108, 92, 231, 0.3);
+    --green: #00d68f;
+    --red: #ff6b6b;
+    --yellow: #ffd43b;
+    --blue: #3bc9db;
+    --text-primary: #e8eaed;
+    --text-secondary: #8b92a5;
+    --border: #2d3148;
+    --gradient-1: linear-gradient(135deg, #6c5ce7, #a855f7);
+    --gradient-2: linear-gradient(135deg, #00d68f, #20c997);
+    --gradient-3: linear-gradient(135deg, #3bc9db, #4dabf7);
+    --gradient-4: linear-gradient(135deg, #ffd43b, #ff922b);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+
+/* ── Nav ── */
+.dash-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+    background: rgba(26,29,46,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+}
+.brand { font-weight: 800; font-size: 1.15rem; color: var(--accent); text-decoration: none; }
+.nav-links { display: flex; gap: 1.2rem; }
+.nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.88rem; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+.user-badge { font-size: 0.85rem; color: var(--text-secondary); }
+.user-badge .plan { color: var(--yellow); text-transform: uppercase; font-weight: 700; font-size: 0.75rem; }
+
+/* ── Profile Layout ── */
+.profile-container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+.profile-header { text-align: center; margin-bottom: 2rem; }
+.profile-header h1 { font-size: 1.6rem; margin-bottom: 0.5rem; }
+
+/* ── Avatar ── */
+.avatar-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 2rem; }
+.avatar-wrapper {
+    position: relative; width: 130px; height: 130px; border-radius: 50%;
+    overflow: hidden; border: 3px solid var(--accent);
+    box-shadow: 0 0 25px var(--accent-glow);
+    margin-bottom: 1rem; cursor: pointer;
+}
+.avatar-wrapper img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+.avatar-placeholder {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+    background: var(--gradient-1); font-size: 3rem; font-weight: 700; color: #fff;
+}
+.avatar-overlay {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 36px;
+    background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; color: #fff; opacity: 0; transition: opacity .2s;
+}
+.avatar-wrapper:hover .avatar-overlay { opacity: 1; }
+.avatar-input { display: none; }
+.avatar-hint { font-size: 0.75rem; color: var(--text-secondary); }
+
+/* ── Cards ── */
+.card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.card-title {
+    font-size: 1rem; font-weight: 700; margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    padding-bottom: 0.8rem; border-bottom: 1px solid var(--border);
+}
+.card-title .icon { font-size: 1.2rem; }
+
+/* ── Form ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+
+.form-group { display: flex; flex-direction: column; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+    font-size: 0.78rem; color: var(--text-secondary); text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 0.4rem; font-weight: 600;
+}
+.form-group input, .form-group textarea, .form-group select {
+    background: rgba(45,49,72,0.5); border: 1px solid var(--border); color: var(--text-primary);
+    border-radius: 8px; padding: 0.65rem 0.9rem; font-size: 0.9rem;
+    font-family: inherit; transition: border-color .2s;
+}
+.form-group input:focus, .form-group textarea:focus { border-color: var(--accent); outline: none; }
+.form-group input:read-only { opacity: 0.6; cursor: not-allowed; }
+.form-group textarea { min-height: 80px; resize: vertical; }
+
+.btn {
+    padding: 0.6rem 1.5rem; border-radius: 8px; border: none; font-weight: 600;
+    font-size: 0.9rem; cursor: pointer; transition: all .2s; display: inline-flex;
+    align-items: center; gap: 0.4rem;
+}
+.btn-primary { background: var(--gradient-1); color: #fff; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px var(--accent-glow); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-row { display: flex; justify-content: flex-end; gap: 0.8rem; margin-top: 1.2rem; }
+
+/* ── Plan Badge ── */
+.plan-card {
+    display: flex; align-items: center; gap: 1.5rem; padding: 1.2rem;
+     background: rgba(45,49,72,0.3); border-radius: 10px;
+}
+.plan-icon { font-size: 2.5rem; }
+.plan-info h3 { font-size: 1.1rem; text-transform: capitalize; }
+.plan-info p { font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.2rem; }
+.plan-features { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+.plan-features span {
+    font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 12px;
+    background: rgba(108,92,231,0.15); color: var(--accent);
+}
+.upgrade-link {
+    margin-left: auto; padding: 0.5rem 1.2rem; border-radius: 8px;
+    background: var(--gradient-4); color: #000; font-weight: 700; font-size: 0.82rem;
+    text-decoration: none; transition: transform .2s;
+}
+.upgrade-link:hover { transform: translateY(-1px); }
+
+/* ── Stats ── */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.8rem; }
+.stat-item { text-align: center; padding: 1rem; background: rgba(45,49,72,0.3); border-radius: 8px; }
+.stat-item .val { font-size: 1.4rem; font-weight: 700; color: var(--green); }
+.stat-item .lbl { font-size: 0.72rem; color: var(--text-secondary); margin-top: 0.3rem; }
+
+/* ── Toast ── */
+.toast {
+    position: fixed; bottom: 2rem; right: 2rem; padding: 0.8rem 1.5rem;
+    border-radius: 10px; font-size: 0.85rem; font-weight: 600; z-index: 9999;
+    animation: slideIn .3s ease;
+}
+.toast.success { background: var(--green); color: #000; }
+.toast.error { background: var(--red); color: #fff; }
+@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.saving-indicator {
+    display: none; font-size: 0.78rem; color: var(--accent);
+    align-items: center; gap: 0.3rem;
+}
+.saving-indicator.show { display: inline-flex; }
+.spinner-sm { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+{% include 'partials/nav.html' %}
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>👤 My Profile</h1>
+    </div>
+
+    <!-- AVATAR -->
+    <div class="avatar-section">
+        <div class="avatar-wrapper" onclick="document.getElementById('avatarInput').click()">
+            {% if user.profile_picture %}
+            <img id="avatarImg" src="{{ user.profile_picture }}" alt="Profile">
+            {% else %}
+            <div class="avatar-placeholder" id="avatarPlaceholder">
+                {{ (user.full_name or user.email or '?')[0]|upper }}
+            </div>
+            {% endif %}
+            <div class="avatar-overlay">📷 Change</div>
+        </div>
+        <input type="file" id="avatarInput" class="avatar-input" accept="image/png,image/jpeg,image/gif,image/webp">
+        <div class="avatar-hint">Click to upload a profile picture (PNG, JPG, GIF, WEBP)</div>
+    </div>
+
+    <!-- PERSONAL INFO -->
+    <div class="card">
+        <div class="card-title"><span class="icon">📝</span> Personal Information</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="fullName" value="{{ user.full_name or '' }}" placeholder="Your full name">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" value="{{ user.email or '' }}" readonly>
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="phone" value="{{ user.phone or '' }}" placeholder="+1 (555) 000-0000">
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="location" value="{{ user.location or '' }}" placeholder="City, Country">
+            </div>
+            <div class="form-group full">
+                <label>Bio</label>
+                <textarea id="bio" placeholder="Tell us about yourself, your trading style, interests...">{{ user.bio or '' }}</textarea>
+            </div>
+        </div>
+        <div class="btn-row">
+            <span class="saving-indicator" id="savingIndicator"><span class="spinner-sm"></span> Saving...</span>
+            <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()">💾 Save Changes</button>
+        </div>
+    </div>
+
+    <!-- SUBSCRIPTION PLAN -->
+    <div class="card">
+        <div class="card-title"><span class="icon">⭐</span> Subscription Plan</div>
+        <div class="plan-card">
+            <div class="plan-icon">
+                {% if user.plan == 'enterprise' %}🏢
+                {% elif user.plan == 'pro' %}💎
+                {% elif user.plan == 'basic' %}🥈
+                {% else %}🆓{% endif %}
+            </div>
+            <div class="plan-info">
+                <h3>{{ user.plan or 'free' }} Plan</h3>
+                <p>Status: {{ user.payment_status or 'active' }}</p>
+                <div class="plan-features">
+                    {% if user.plan == 'enterprise' %}
+                    <span>Unlimited Scans</span><span>All AI Agents</span><span>Priority Support</span><span>API Access</span>
+                    {% elif user.plan == 'pro' %}
+                    <span>Unlimited Scans</span><span>All AI Agents</span><span>Priority Support</span>
+                    {% elif user.plan == 'basic' %}
+                    <span>50 Scans/day</span><span>Basic AI</span><span>Email Support</span>
+                    {% else %}
+                    <span>5 Scans/day</span><span>Limited AI</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% if user.plan in ['free', 'basic'] %}
+            <a href="/pricing" class="upgrade-link">🚀 Upgrade</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ACCOUNT STATS -->
+    <div class="card">
+        <div class="card-title"><span class="icon">📊</span> Account Stats</div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="val" id="statSignals">--</div>
+                <div class="lbl">Signals Generated</div>
+            </div>
+            <div class="stat-item">
+                <div class="val" id="statScans">--</div>
+                <div class="lbl">Market Scans</div>
+            </div>
+            <div class="stat-item">
+                <div class="val" id="statMember">--</div>
+                <div class="lbl">Member Since</div>
+            </div>
+            <div class="stat-item">
+                <div class="val" id="statPlan">--</div>
+                <div class="lbl">Current Plan</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ACCOUNT ACTIONS -->
+    <div class="card">
+        <div class="card-title"><span class="icon">⚙️</span> Account</div>
+        <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+            <a href="/settings" class="btn btn-primary" style="text-decoration:none;">⚙️ Settings</a>
+            <a href="/pricing" class="btn btn-primary" style="text-decoration:none; background: var(--gradient-4); color: #000;">💳 Manage Subscription</a>
+            <button class="btn" style="background:rgba(255,107,107,0.15);color:var(--red);border:1px solid rgba(255,107,107,0.3);" onclick="if(confirm('Are you sure you want to log out?')) window.location='/api/logout'">🚪 Logout</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Avatar Upload ─────────────────────────────────
+document.getElementById('avatarInput').addEventListener('change', async function() {
+    const file = this.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast('File too large (max 5MB)', 'error'); return; }
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+        const res = await fetch('/api/profile/avatar', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+            // Replace avatar display
+            const wrapper = document.querySelector('.avatar-wrapper');
+            const existing = wrapper.querySelector('img') || wrapper.querySelector('.avatar-placeholder');
+            if (existing.tagName === 'IMG') {
+                existing.src = data.avatar_url + '?t=' + Date.now();
+            } else {
+                existing.outerHTML = `<img id="avatarImg" src="${data.avatar_url}?t=${Date.now()}" alt="Profile" style="width:100%;height:100%;object-fit:cover;">`;
+            }
+            showToast('Profile picture updated!', 'success');
+        } else {
+            showToast(data.error || 'Upload failed', 'error');
+        }
+    } catch(e) { showToast('Upload error', 'error'); }
+});
+
+// ── Save Profile ──────────────────────────────────
+async function saveProfile() {
+    const btn = document.getElementById('saveBtn');
+    const indicator = document.getElementById('savingIndicator');
+    btn.disabled = true;
+    indicator.classList.add('show');
+
+    const data = {
+        full_name: document.getElementById('fullName').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        bio: document.getElementById('bio').value.trim(),
+    };
+
+    try {
+        const res = await fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        const result = await res.json();
+        if (result.success) {
+            showToast('Profile saved!', 'success');
+            // Update nav badge if name changed
+            if (data.full_name) {
+                const badge = document.querySelector('.user-badge');
+                if (badge) badge.innerHTML = `${data.full_name} &middot; <span class="plan">{{ user.plan or 'free' }}</span>`;
+            }
+        } else {
+            showToast(result.error || 'Save failed', 'error');
+        }
+    } catch(e) { showToast('Network error', 'error'); }
+    finally {
+        btn.disabled = false;
+        indicator.classList.remove('show');
+    }
+}
+
+// ── Load Stats ────────────────────────────────────
+function loadStats() {
+    const created = '{{ user.created_at or "" }}';
+    if (created) {
+        const d = new Date(created);
+        document.getElementById('statMember').textContent = d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    }
+    document.getElementById('statPlan').textContent = '{{ user.plan or "free" }}'.toUpperCase();
+    // Try to get signal history count
+    fetch('/api/worker/status').then(r => r.json()).then(d => {
+        if (d.success) {
+            document.getElementById('statSignals').textContent = d.learning?.total_predictions || 0;
+            document.getElementById('statScans').textContent = d.worker?.tasks?.total_success || '--';
+        }
+    }).catch(() => {});
+}
+
+// ── Toast ─────────────────────────────────────────
+function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+loadStats();
+</script>
+</body>
+</html>

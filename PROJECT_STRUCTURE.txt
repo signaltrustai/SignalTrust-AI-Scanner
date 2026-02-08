@@ -1,0 +1,86 @@
+SignalTrust-AI-Scanner/
+│
+├── 📊 DOCUMENTATION (Complete)
+│   ├── README.md (Updated with multi-agent section)
+│   ├── QUICKSTART.md (5-minute start guide)
+│   ├── MULTI_AGENT_SYSTEM.md (Complete system guide)
+│   ├── ARCHITECTURE.md (Architecture diagrams)
+│   ├── CONFIGURATION.md (Config examples)
+│   └── IMPLEMENTATION_COMPLETE.md (Summary)
+│
+├── 🤖 AGENTS (6 Specialized Agents)
+│   ├── coordinator/ (Port 8000) - CrewAI orchestrator
+│   │   ├── main.py (FastAPI app)
+│   │   ├── crew.yaml (Workflow config)
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── crypto_agent/ (Port 8001) - FinGPT based
+│   │   ├── main.py (Crypto analysis)
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── stock_agent/ (Port 8002) - Stock-GPT based
+│   │   ├── main.py (Stock analysis)
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── whale_agent/ (Port 8003) - Whale watcher
+│   │   ├── main.py (Blockchain monitoring)
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── news_agent/ (Port 8004) - NewsGPT based
+│   │   ├── main.py (News aggregation)
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   ├── supervisor/ - Auto-GPT based
+│   │   ├── supervisor.py (Task monitoring)
+│   │   ├── auto_gpt.cfg (Config)
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   │
+│   └── README.md (Agent documentation)
+│
+├── 🐳 DOCKER
+│   ├── docker-compose.yml (Main orchestration)
+│   └── docker-compose.override.yml.example (Dev config)
+│
+├── 🛠️ AUTOMATION
+│   ├── setup_agents.sh (Automated setup)
+│   ├── test_agents.sh (Testing suite)
+│   └── Makefile (30+ commands)
+│
+├── 📝 EXAMPLES
+│   ├── example_multi_agent_usage.py (Python client)
+│   └── .env.example (Configuration template)
+│
+└── ⚙️ CONFIGURATION
+    ├── .env.example (All API keys)
+    ├── .gitignore (Updated)
+    └── requirements.txt (Main dependencies)
+
+STATISTICS:
+├── Total Files: 40+ new files
+├── Code Lines: 7000+ lines
+├── Agents: 6 specialized agents
+├── APIs: 5 external APIs integrated
+├── Ports: 5 exposed (8000-8004)
+└── Documentation: 9 comprehensive guides
+
+QUICK START:
+$ ./setup_agents.sh    # Setup and start all agents
+$ ./test_agents.sh     # Run comprehensive tests
+$ make workflow        # Execute test workflow
+
+API ENDPOINTS:
+├── http://localhost:8000 - Coordinator (POST /run-workflow)
+├── http://localhost:8001 - Crypto Agent (POST /predict)
+├── http://localhost:8002 - Stock Agent (POST /predict)
+├── http://localhost:8003 - Whale Agent (GET /whales)
+└── http://localhost:8004 - News Agent (POST /news)
+
+DOCUMENTATION:
+├── http://localhost:8000/docs - Swagger API docs
+└── See *.md files for complete guides

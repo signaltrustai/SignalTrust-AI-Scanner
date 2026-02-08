@@ -1,0 +1,506 @@
+[
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:20:13.089873",
+    "current_price": 44219.738644489786,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 99,
+    "indicators": {
+      "EMA9": 43713.75665812169,
+      "EMA21": 42688.53017678368,
+      "RSI": 31.07374069972245,
+      "MACD": {
+        "value": -32.41409248638861,
+        "signal": -25.931273989110892,
+        "histogram": -6.482818497277723
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:21:22.716206",
+    "current_price": 44833.25991937663,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 99,
+    "indicators": {
+      "EMA9": 44082.3304310786,
+      "EMA21": 43383.78130991658,
+      "RSI": 31.48607760251826,
+      "MACD": {
+        "value": -3.1748144172837343,
+        "signal": -2.5398515338269876,
+        "histogram": -0.6349628834567469
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:22:17.578437",
+    "current_price": 45642.363337354254,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 82,
+    "indicators": {
+      "EMA9": 45589.21573247624,
+      "EMA21": 44955.70684180506,
+      "RSI": 58.07322946735443,
+      "MACD": {
+        "value": 35.955135065829495,
+        "signal": 28.764108052663598,
+        "histogram": 7.1910270131658995
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "NASDAQ:AAPL",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:22:17.578758",
+    "current_price": 182.63856367669234,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 96,
+    "indicators": {
+      "EMA9": 180.0896694892635,
+      "EMA21": 175.47832545786332,
+      "RSI": 64.46226123043495,
+      "MACD": {
+        "value": -7.378982715894125,
+        "signal": -5.9031861727153006,
+        "histogram": -1.4757965431788251
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "BINANCE:ETHUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:22:17.579159",
+    "current_price": 2467.974868751495,
+    "signal": "SELL",
+    "strength": 100,
+    "confidence": 89,
+    "indicators": {
+      "EMA9": 2433.95002448926,
+      "EMA21": 2437.0469045698947,
+      "RSI": 68.6907259028871,
+      "MACD": {
+        "value": -23.53192642204933,
+        "signal": -18.825541137639465,
+        "histogram": -4.706385284409866
+      }
+    },
+    "recommendation": "Strong Sell - High conviction exit signal",
+    "entry_price": 100.49999999999999,
+    "stop_loss": 103.0,
+    "take_profit": 94.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:BTCUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.425414",
+    "current_price": 45756.98679043041,
+    "signal": "BUY",
+    "strength": 66,
+    "confidence": 91,
+    "indicators": {
+      "EMA9": 45525.375373848125,
+      "EMA21": 44325.557090593196,
+      "RSI": 64.96934907126335,
+      "MACD": {
+        "value": 25.02932556959003,
+        "signal": 20.023460455672023,
+        "histogram": 5.005865113918006
+      }
+    },
+    "recommendation": "Buy - Good entry opportunity",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BINANCE:ETHUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.425741",
+    "current_price": 2486.727986082248,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 83,
+    "indicators": {
+      "EMA9": 2456.619473702475,
+      "EMA21": 2454.4562368527218,
+      "RSI": 55.64153211183718,
+      "MACD": {
+        "value": -15.44477404077579,
+        "signal": -12.355819232620632,
+        "histogram": -3.088954808155158
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "BINANCE:PEPEUSDT",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.426159",
+    "current_price": 100.0,
+    "signal": "SELL",
+    "strength": 66,
+    "confidence": 91,
+    "indicators": {
+      "EMA9": 98.07709302429039,
+      "EMA21": 98.26863772701712,
+      "RSI": 42.68111467485681,
+      "MACD": {
+        "value": -46.02441523858849,
+        "signal": -36.819532190870795,
+        "histogram": -9.204883047717699
+      }
+    },
+    "recommendation": "Sell - Consider taking profits",
+    "entry_price": 100.49999999999999,
+    "stop_loss": 103.0,
+    "take_profit": 94.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "NASDAQ:AAPL",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.426569",
+    "current_price": 181.18670264511164,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 99,
+    "indicators": {
+      "EMA9": 177.70653525569486,
+      "EMA21": 176.2133534945822,
+      "RSI": 44.941245546657726,
+      "MACD": {
+        "value": -7.901956831920224,
+        "signal": -6.321565465536179,
+        "histogram": -1.5803913663840448
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "NYSE:JPM",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.427030",
+    "current_price": 100.0,
+    "signal": "HOLD",
+    "strength": 50,
+    "confidence": 98,
+    "indicators": {
+      "EMA9": 99.31523661520905,
+      "EMA21": 98.90947286026012,
+      "RSI": 41.68477225519874,
+      "MACD": {
+        "value": -45.84224956989592,
+        "signal": -36.67379965591674,
+        "histogram": -9.168449913979185
+      }
+    },
+    "recommendation": "Hold - No clear signal, wait for better setup",
+    "entry_price": null,
+    "stop_loss": null,
+    "take_profit": null,
+    "risk_reward": null
+  },
+  {
+    "symbol": "NASDAQ:NVDA",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-07T21:24:12.427507",
+    "current_price": 100.0,
+    "signal": "BUY",
+    "strength": 100,
+    "confidence": 94,
+    "indicators": {
+      "EMA9": 99.55069150091572,
+      "EMA21": 97.04505074003285,
+      "RSI": 33.83810158259947,
+      "MACD": {
+        "value": 36.12099782946018,
+        "signal": 28.896798263568144,
+        "histogram": 7.224199565892036
+      }
+    },
+    "recommendation": "Strong Buy - High conviction entry signal",
+    "entry_price": 99.5,
+    "stop_loss": 97.0,
+    "take_profit": 106.0,
+    "risk_reward": 2.0
+  },
+  {
+    "symbol": "BTC",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-08T07:56:02.609209+00:00",
+    "current_price": 104500,
+    "signal": "SELL",
+    "strength": 51,
+    "confidence": 54,
+    "indicators": {
+      "EMA9": 79402.025,
+      "EMA21": 81552.0365,
+      "EMA50": 85710.6173,
+      "RSI": 67.39,
+      "MACD": {
+        "value": -2976.579782,
+        "signal": -3979.151,
+        "histogram": 1002.571218,
+        "crossover": "bullish"
+      },
+      "BB": {
+        "upper": 111070.6402,
+        "middle": 81938.9908,
+        "lower": 52807.3415,
+        "pct_b": 0.8872,
+        "bandwidth": 0.7111
+      },
+      "STOCH": {
+        "k": 100.0,
+        "d": 50.21,
+        "crossover": "bullish"
+      },
+      "ADX": 21.59,
+      "ICHIMOKU": {
+        "tenkan": 83601.0488,
+        "kijun": 83601.0488,
+        "senkou_a": 83601.0488,
+        "senkou_b": 83601.0488,
+        "chikou": 104500,
+        "cloud_color": "neutral",
+        "price_vs_cloud": "above"
+      },
+      "OBV": {
+        "value": -809744288251.0,
+        "trend": "bearish"
+      },
+      "VWAP": 88581.2716,
+      "ROC": 17.1727,
+      "WILLIAMS": -0.0,
+      "ATR": 4809.964121,
+      "SR": {
+        "support": 88310.9062,
+        "resistance": 107635.0,
+        "levels": [
+          78688.7656,
+          86572.2188,
+          88310.9062,
+          89184.5703,
+          89503.875,
+          96929.3281
+        ]
+      },
+      "regime": "volatile",
+      "volatility": "high",
+      "multi_timeframe": {
+        "short": "bullish",
+        "medium": "bearish",
+        "long": "bearish",
+        "consensus": "bearish"
+      }
+    },
+    "recommendation": "Moderate Sell \u2014 Bearish pressure building, tighten stops",
+    "entry_price": 105461.9928,
+    "stop_loss": 116524.9103,
+    "take_profit": 87665.1256,
+    "risk_reward": 1.4,
+    "regime": "volatile",
+    "volatility": "high",
+    "mtf_consensus": "bearish",
+    "data_source": "live"
+  },
+  {
+    "symbol": "BTC",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-08T08:28:01.360059+00:00",
+    "current_price": 104000,
+    "signal": "SELL",
+    "strength": 51,
+    "confidence": 54,
+    "indicators": {
+      "EMA9": 79374.2563,
+      "EMA21": 81543.8915,
+      "EMA50": 85708.0189,
+      "RSI": 67.13,
+      "MACD": {
+        "value": -2988.661121,
+        "signal": -3975.805231,
+        "histogram": 987.14411,
+        "crossover": "bullish"
+      },
+      "BB": {
+        "upper": 110809.7987,
+        "middle": 81936.5631,
+        "lower": 53063.3275,
+        "pct_b": 0.8821,
+        "bandwidth": 0.7048
+      },
+      "STOCH": {
+        "k": 100.0,
+        "d": 50.78,
+        "crossover": "bullish"
+      },
+      "ADX": 21.07,
+      "ICHIMOKU": {
+        "tenkan": 83351.0488,
+        "kijun": 83351.0488,
+        "senkou_a": 83351.0488,
+        "senkou_b": 83351.0488,
+        "chikou": 104000,
+        "cloud_color": "neutral",
+        "price_vs_cloud": "above"
+      },
+      "OBV": {
+        "value": -811902761467.0,
+        "trend": "bearish"
+      },
+      "VWAP": 88593.895,
+      "ROC": 16.6121,
+      "WILLIAMS": -0.0,
+      "ATR": 4771.946543,
+      "SR": {
+        "support": 88310.9062,
+        "resistance": 107120.0,
+        "levels": [
+          78688.7656,
+          86572.2188,
+          88310.9062,
+          89184.5703,
+          89503.875,
+          96929.3281
+        ]
+      },
+      "regime": "volatile",
+      "volatility": "high",
+      "multi_timeframe": {
+        "short": "bullish",
+        "medium": "bearish",
+        "long": "bearish",
+        "consensus": "bearish"
+      }
+    },
+    "recommendation": "Moderate Sell \u2014 Bearish pressure building, tighten stops",
+    "entry_price": 104954.3893,
+    "stop_loss": 115929.8664,
+    "take_profit": 87298.1871,
+    "risk_reward": 1.4,
+    "regime": "volatile",
+    "volatility": "high",
+    "mtf_consensus": "bearish",
+    "data_source": "live"
+  },
+  {
+    "symbol": "BTC",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-08T08:34:41.966975+00:00",
+    "current_price": 104000,
+    "signal": "SELL",
+    "strength": 51,
+    "confidence": 54,
+    "indicators": {
+      "EMA9": 79413.1175,
+      "EMA21": 81563.9645,
+      "EMA50": 85717.1702,
+      "RSI": 67.12,
+      "MACD": {
+        "value": -2973.701869,
+        "signal": -3969.713338,
+        "histogram": 996.011469,
+        "crossover": "bullish"
+      },
+      "BB": {
+        "upper": 110777.0972,
+        "middle": 81948.7072,
+        "lower": 53120.3172,
+        "pct_b": 0.8825,
+        "bandwidth": 0.7036
+      },
+      "STOCH": {
+        "k": 100.0,
+        "d": 51.09,
+        "crossover": "bullish"
+      },
+      "ADX": 21.07,
+      "ICHIMOKU": {
+        "tenkan": 83351.0488,
+        "kijun": 83351.0488,
+        "senkou_a": 83351.0488,
+        "senkou_b": 83351.0488,
+        "chikou": 104000,
+        "cloud_color": "neutral",
+        "price_vs_cloud": "above"
+      },
+      "OBV": {
+        "value": -811766520315.0,
+        "trend": "bearish"
+      },
+      "VWAP": 88595.7659,
+      "ROC": 16.6121,
+      "WILLIAMS": -0.0,
+      "ATR": 4770.707345,
+      "SR": {
+        "support": 88310.9062,
+        "resistance": 107120.0,
+        "levels": [
+          78688.7656,
+          86572.2188,
+          88310.9062,
+          89184.5703,
+          89503.875,
+          96929.3281
+        ]
+      },
+      "regime": "volatile",
+      "volatility": "high",
+      "multi_timeframe": {
+        "short": "bullish",
+        "medium": "bearish",
+        "long": "bearish",
+        "consensus": "bearish"
+      }
+    },
+    "recommendation": "Moderate Sell \u2014 Bearish pressure building, tighten stops",
+    "entry_price": 104954.1415,
+    "stop_loss": 115926.7684,
+    "take_profit": 87302.5243,
+    "risk_reward": 1.4,
+    "regime": "volatile",
+    "volatility": "high",
+    "mtf_consensus": "bearish",
+    "data_source": "live"
+  }
+]
