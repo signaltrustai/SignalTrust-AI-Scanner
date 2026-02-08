@@ -38,6 +38,23 @@
 <body>
     {% include 'partials/nav.html' %}
     
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="pwa-install-banner" style="display: none;">
+        <div class="banner-content">
+            <div class="banner-text">
+                <h3>📱 Install SignalTrust AI</h3>
+                <p>Get instant access with our mobile app! Works offline.</p>
+            </div>
+            <div class="banner-actions">
+                <button class="install-banner-btn">Install Now</button>
+                <button class="close-banner">✕</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Online Status Indicator -->
+    <div id="online-status" class="status-indicator status-online">● Online</div>
+    
     <section class="hero">
         <div class="container">
             <div class="hero-content">
