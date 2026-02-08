@@ -386,6 +386,22 @@ curl -X POST http://localhost:5000/api/predict/price \
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+### 🤖 AI Assistant Collaboration
+
+Working with GitHub Copilot or other AI assistants? We've created comprehensive guides to help AI understand and contribute to this project:
+
+- **[AI_COPILOT_GUIDE.md](AI_COPILOT_GUIDE.md)** - Complete bilingual guide (French/English) for AI assistants
+- **[.copilot-instructions.md](.copilot-instructions.md)** - Quick reference for project context
+- **[.github/copilot-instructions.md](.github/copilot-instructions.md)** - GitHub Copilot-specific instructions
+
+These files provide context about:
+- Project architecture and structure
+- Code conventions and patterns
+- Common development tasks
+- API endpoints and data models
+- Security best practices
+- Quick commands and troubleshooting
+
 ## 📝 License
 
 Copyright © 2026 SignalTrust AI. All rights reserved.
