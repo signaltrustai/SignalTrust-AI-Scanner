@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
 from flask_cors import CORS
+from flask_compress import Compress
+from flask_caching import Cache
 import os
 from dotenv import load_dotenv
 import requests
@@ -71,9 +73,47 @@ except Exception:
 # Load environment variables from .env (if present)
 load_dotenv()
 
+# Configure logging first (before anything else)
+LOG_FILE = "signaltrust_events.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
+
+# Enable CORS
 CORS(app)
+
+# Enable Gzip Compression for better performance
+Compress(app)
+
+# Configure Caching
+cache_config = {
+    'CACHE_TYPE': 'SimpleCache',  # Use 'RedisCache' if Redis is available
+    'CACHE_DEFAULT_TIMEOUT': 300,
+    'CACHE_THRESHOLD': 500
+}
+
+# Check if Redis is available
+redis_url = os.getenv('REDIS_URL')
+if redis_url:
+    cache_config = {
+        'CACHE_TYPE': 'RedisCache',
+        'CACHE_REDIS_URL': redis_url,
+        'CACHE_DEFAULT_TIMEOUT': 300
+    }
+    logger.info("Using Redis cache")
+else:
+    logger.info("Using SimpleCache (in-memory)")
+
+cache = Cache(app, config=cache_config)
 
 # -----------------------------
 # CONFIGURATION AGENTS SIGNALTRUST
@@ -92,7 +132,6 @@ AGENT_IDS = {
     "DESIRE": os.getenv("DESIRE_AGENT_ID"),          # ASI6-DESIRE-006
 }
 
-LOG_FILE = "signaltrust_events.log"
 LEARNING_DATA_FILE = "data/ai_learning_data.json"
 
 # Initialize system components
@@ -637,6 +676,83 @@ def api_comm_hub_backup():
     try:
         backup_path = ai_hub.create_backup()
         return jsonify({"success": True, "backup_path": backup_path})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# ADMIN PAYMENT INFORMATION
+# -----------------------------
+
+@app.route("/admin/payment-info")
+@_require_admin
+def admin_payment_info():
+    """Admin-only page to view/manage payment information."""
+    try:
+        from admin_payment_manager import get_payment_manager
+        payment_manager = get_payment_manager()
+        payment_info = payment_manager.get_payment_info()
+        user = get_current_user()
+        return render_template("admin_payment_info.html", 
+                             user=user, 
+                             is_admin=True,
+                             payment_info=payment_info)
+    except Exception as e:
+        logger.error(f"Error loading admin payment info: {e}")
+        return f"Error loading payment info: {str(e)}", 500
+
+@app.route("/api/admin/payment-info", methods=["GET"])
+@_require_admin
+def api_admin_payment_info():
+    """API to get payment information."""
+    try:
+        from admin_payment_manager import get_payment_manager
+        payment_manager = get_payment_manager()
+        payment_info = payment_manager.get_payment_info()
+        return jsonify({
+            "success": True,
+            "payment_info": payment_info
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/admin/payment-info/update", methods=["POST"])
+@_require_admin
+def api_admin_payment_update():
+    """API to update payment information."""
+    try:
+        from admin_payment_manager import get_payment_manager
+        payment_manager = get_payment_manager()
+        
+        data = request.get_json() or {}
+        update_type = data.get("type")
+        
+        success = False
+        if update_type == "crypto":
+            network = data.get("network")
+            address = data.get("address")
+            success = payment_manager.update_crypto_wallet(network, address)
+        elif update_type == "bank":
+            currency = data.get("currency")
+            bank_data = data.get("bank_data", {})
+            success = payment_manager.update_bank_account(currency, bank_data)
+        elif update_type == "paypal":
+            email = data.get("email")
+            paypal_me = data.get("paypal_me", "")
+            success = payment_manager.update_paypal(email, paypal_me)
+        elif update_type == "stripe":
+            links = data.get("links", {})
+            success = payment_manager.update_stripe_links(links)
+        elif update_type == "notes":
+            notes = data.get("notes", "")
+            success = payment_manager.update_notes(notes)
+        else:
+            return jsonify({"success": False, "error": "Invalid update type"}), 400
+        
+        if success:
+            return jsonify({"success": True, "message": "Payment information updated"})
+        else:
+            return jsonify({"success": False, "error": "Failed to update"}), 500
+            
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 

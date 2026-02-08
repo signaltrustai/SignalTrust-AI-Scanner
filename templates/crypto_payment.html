@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Payment - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .crypto-payment-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .payment-header h1 {
+            color: #FFD700;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .payment-header .subtitle {
+            color: #aaa;
+            font-size: 1.1em;
+        }
+        
+        .network-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .network-card {
+            padding: 20px;
+            background: #333;
+            border: 2px solid #444;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .network-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-5px);
+        }
+        
+        .network-card.selected {
+            border-color: #FFD700;
+            background: #2a2a2a;
+        }
+        
+        .network-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .payment-details {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #444;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #aaa;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .wallet-address {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            word-break: break-all;
+            color: #FFD700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .copy-btn {
+            background: #FFD700;
+            color: #1e1e1e;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #FFC700;
+            transform: scale(1.05);
+        }
+        
+        .metamask-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #F6851B, #E2761B);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .metamask-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(246, 133, 27, 0.4);
+        }
+        
+        .metamask-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .status-success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+        }
+        
+        .status-error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid #f44336;
+            color: #f44336;
+        }
+        
+        .status-warning {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+            color: #ff9800;
+        }
+        
+        .instructions {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .instructions h3 {
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ol {
+            color: #ccc;
+            line-height: 1.8;
+        }
+        
+        .qr-code {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .qr-code canvas {
+            max-width: 250px;
+        }
+    </style>
+</head>
+<body>
+    <div class="crypto-payment-container">
+        <div class="payment-header">
+            <h1>🔐 Crypto Payment</h1>
+            <p class="subtitle">Pay securely with cryptocurrency via MetaMask</p>
+        </div>
+
+        <div id="statusMessage" class="status-message" style="display: none;"></div>
+
+        <!-- Network Selector -->
+        <div class="network-selector">
+            <div class="network-card" data-network="polygon" onclick="selectNetwork('polygon')">
+                <div class="network-icon">🔷</div>
+                <div>Polygon</div>
+                <small style="color: #888;">MATIC</small>
+            </div>
+            <div class="network-card" data-network="ethereum" onclick="selectNetwork('ethereum')">
+                <div class="network-icon">💎</div>
+                <div>Ethereum</div>
+                <small style="color: #888;">ETH</small>
+            </div>
+            <div class="network-card" data-network="binance" onclick="selectNetwork('binance')">
+                <div class="network-icon">🟡</div>
+                <div>BSC</div>
+                <small style="color: #888;">BNB</small>
+            </div>
+            <div class="network-card" data-network="arbitrum" onclick="selectNetwork('arbitrum')">
+                <div class="network-icon">🔵</div>
+                <div>Arbitrum</div>
+                <small style="color: #888;">ETH</small>
+            </div>
+        </div>
+
+        <!-- Payment Details -->
+        <div class="payment-details">
+            <div class="detail-row">
+                <span class="detail-label">Plan:</span>
+                <span class="detail-value" id="planName">Pro Plan</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">USD Price:</span>
+                <span class="detail-value" id="usdPrice">$79.99</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Network:</span>
+                <span class="detail-value" id="networkName">Polygon</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Amount to Send:</span>
+                <span class="detail-value" id="cryptoAmount">Loading...</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Recipient Address:</span>
+                <div class="wallet-address">
+                    <span id="recipientAddress">Loading...</span>
+                    <button class="copy-btn" onclick="copyAddress()">📋 Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MetaMask Payment Button -->
+        <button id="metamaskBtn" class="metamask-btn" onclick="payWithMetaMask()">
+            <span>🦊</span>
+            <span>Pay with MetaMask</span>
+        </button>
+
+        <!-- QR Code (optional) -->
+        <div class="qr-code" id="qrCode" style="display: none;">
+            <canvas id="qrCanvas"></canvas>
+            <p style="color: #333; margin-top: 10px;">Scan to pay</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>📝 Payment Instructions</h3>
+            <ol>
+                <li>Select your preferred blockchain network above</li>
+                <li>Click "Pay with MetaMask" button</li>
+                <li>Confirm the transaction in your MetaMask wallet</li>
+                <li>Wait for blockchain confirmation</li>
+                <li>Your subscription will be activated automatically</li>
+            </ol>
+            <p style="color: #888; margin-top: 15px;">
+                <strong>Note:</strong> Make sure you have enough balance to cover the transaction fee (gas).
+            </p>
+        </div>
+    </div>
+
+    <!-- Include MetaMask Web3 -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@latest/build/qrcode.min.js"></script>
+    
+    <script>
+        let selectedNetwork = 'polygon';
+        let paymentData = {};
+        let web3;
+
+        // Initialize
+        async function init() {
+            // Get plan from URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || 'pro';
+            
+            // Select default network
+            selectNetwork('polygon');
+            
+            // Load payment data
+            await loadPaymentData(plan);
+            
+            // Check MetaMask
+            checkMetaMaskInstalled();
+        }
+
+        async function loadPaymentData(plan) {
+            try {
+                const response = await fetch(`/api/crypto/payment-info?plan=${plan}&network=${selectedNetwork}`);
+                paymentData = await response.json();
+                
+                if (paymentData.success) {
+                    updatePaymentDetails();
+                } else {
+                    showMessage('Error loading payment data', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Failed to load payment information', 'error');
+            }
+        }
+
+        function selectNetwork(network) {
+            selectedNetwork = network;
+            
+            // Update UI
+            document.querySelectorAll('.network-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-network="${network}"]`).classList.add('selected');
+            
+            // Reload payment data
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || 'pro';
+            loadPaymentData(plan);
+        }
+
+        function updatePaymentDetails() {
+            document.getElementById('planName').textContent = paymentData.plan.toUpperCase() + ' Plan';
+            document.getElementById('usdPrice').textContent = '$' + paymentData.usd_price;
+            document.getElementById('networkName').textContent = paymentData.network;
+            document.getElementById('cryptoAmount').textContent = 
+                `${paymentData.crypto_amount} ${paymentData.currency}`;
+            document.getElementById('recipientAddress').textContent = 
+                paymentData.recipient_address;
+            
+            // Generate QR code
+            generateQRCode();
+        }
+
+        function generateQRCode() {
+            const qrData = `${paymentData.recipient_address}?amount=${paymentData.crypto_amount}`;
+            const canvas = document.getElementById('qrCanvas');
+            QRCode.toCanvas(canvas, qrData, { width: 250 }, function (error) {
+                if (!error) {
+                    document.getElementById('qrCode').style.display = 'block';
+                }
+            });
+        }
+
+        function copyAddress() {
+            const address = document.getElementById('recipientAddress').textContent;
+            navigator.clipboard.writeText(address).then(() => {
+                showMessage('Address copied to clipboard!', 'success');
+            });
+        }
+
+        function checkMetaMaskInstalled() {
+            if (typeof window.ethereum === 'undefined') {
+                showMessage('MetaMask is not installed. Please install MetaMask extension.', 'warning');
+                document.getElementById('metamaskBtn').disabled = true;
+            }
+        }
+
+        async function payWithMetaMask() {
+            if (typeof window.ethereum === 'undefined') {
+                showMessage('Please install MetaMask extension first!', 'error');
+                window.open('https://metamask.io/download/', '_blank');
+                return;
+            }
+
+            try {
+                // Request account access
+                const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+
+                // Initialize Web3
+                web3 = new Web3(window.ethereum);
+
+                // Check if correct network
+                const chainId = await ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== paymentData.chain_id) {
+                    await switchNetwork(paymentData.chain_id);
+                }
+
+                // Prepare transaction
+                const amountInWei = web3.utils.toWei(paymentData.crypto_amount.toString(), 'ether');
+                
+                const transactionParameters = {
+                    from: account,
+                    to: paymentData.recipient_address,
+                    value: web3.utils.toHex(amountInWei),
+                    gas: '21000',
+                };
+
+                // Send transaction
+                showMessage('Please confirm transaction in MetaMask...', 'warning');
+                
+                const txHash = await ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [transactionParameters],
+                });
+
+                showMessage('Transaction sent! Waiting for confirmation...', 'success');
+                console.log('Transaction Hash:', txHash);
+
+                // Verify payment on backend
+                await verifyPayment(txHash);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('Payment failed: ' + error.message, 'error');
+            }
+        }
+
+        async function switchNetwork(chainId) {
+            try {
+                await ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: chainId }],
+                });
+            } catch (switchError) {
+                // Network not added, add it
+                if (switchError.code === 4902) {
+                    await addNetwork(chainId);
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+
+        async function addNetwork(chainId) {
+            // Network configurations
+            const networks = {
+                '0x89': {
+                    chainId: '0x89',
+                    chainName: 'Polygon Mainnet',
+                    nativeCurrency: { name: 'MATIC', symbol: 'MATIC', decimals: 18 },
+                    rpcUrls: ['https://polygon-rpc.com'],
+                    blockExplorerUrls: ['https://polygonscan.com']
+                },
+                '0x38': {
+                    chainId: '0x38',
+                    chainName: 'Binance Smart Chain',
+                    nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 },
+                    rpcUrls: ['https://bsc-dataseed.binance.org'],
+                    blockExplorerUrls: ['https://bscscan.com']
+                }
+            };
+
+            const networkParams = networks[chainId];
+            if (networkParams) {
+                await ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [networkParams],
+                });
+            }
+        }
+
+        async function verifyPayment(txHash) {
+            try {
+                const response = await fetch('/api/crypto/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        payment_id: paymentData.payment_id,
+                        tx_hash: txHash
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('Payment confirmed! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard?payment=success';
+                    }, 3000);
+                } else {
+                    showMessage('Payment verification pending. Please check back later.', 'warning');
+                }
+            } catch (error) {
+                console.error('Verification error:', error);
+                showMessage('Payment sent but verification pending', 'warning');
+            }
+        }
+
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status-message status-' + type;
+            statusDiv.style.display = 'block';
+        }
+
+        // Initialize on page load
+        window.onload = init;
+    </script>
+</body>
+</html>

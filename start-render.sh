@@ -26,7 +26,33 @@ mkdir -p uploads
 [ ! -f data/usage_tracking.json ] && echo "{}" > data/usage_tracking.json
 
 echo "Environment initialized successfully!"
-echo "Starting Gunicorn server..."
+echo "Starting Gunicorn server with optimized configuration..."
 
-# Start Gunicorn
-exec gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --worker-class sync --access-logfile - --error-logfile -
+# Calculate optimal workers based on CPU cores
+# Formula: (2 x $num_cores) + 1
+# Default to 3 workers if nproc unavailable (1 core assumed)
+WORKERS=${GUNICORN_WORKERS:-$(( $(nproc 2>/dev/null || echo 1) * 2 + 1 ))}
+
+# Ensure minimum of 2 and maximum of 4 workers on free tier
+if [ "$WORKERS" -lt 2 ]; then
+    WORKERS=2
+elif [ "$WORKERS" -gt 4 ]; then
+    WORKERS=4
+fi
+
+echo "Using $WORKERS workers"
+
+# Start Gunicorn with optimized settings
+exec gunicorn app:app \
+    --bind 0.0.0.0:$PORT \
+    --workers $WORKERS \
+    --worker-class gthread \
+    --threads 2 \
+    --timeout 60 \
+    --keep-alive 5 \
+    --max-requests 1000 \
+    --max-requests-jitter 100 \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level info \
+    --preload
