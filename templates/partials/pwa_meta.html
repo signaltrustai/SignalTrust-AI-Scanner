@@ -1,0 +1,38 @@
+<!-- PWA Meta Tags - Enhanced for Mobile -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="description" content="Ultimate AI-powered crypto & NFT market scanner with whale tracking, AI predictions, and real-time analytics">
+<meta name="theme-color" content="#ffd700">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SignalTrust AI">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-TileColor" content="#ffd700">
+<meta name="msapplication-tap-highlight" content="no">
+
+<!-- PWA Manifest -->
+<link rel="manifest" href="/manifest.json">
+
+<!-- App Icons -->
+<link rel="icon" type="image/x-icon" href="/static/icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/icons/icon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/static/icons/icon-16x16.png">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/static/icons/icon-192x192.png">
+
+<!-- Preconnect to improve loading speed -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="dns-prefetch" href="https://fonts.googleapis.com">
+
+<!-- Service Worker Registration -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('[SW] Registered'))
+                .catch(err => console.error('[SW] Registration failed:', err));
+        });
+    }
+</script>
