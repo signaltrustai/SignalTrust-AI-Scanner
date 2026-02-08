@@ -3,12 +3,14 @@
     "user_id": "owner_admin_001",
     "email": "signaltrustai@gmail.com",
     "full_name": "SignalTrust Admin",
-    "password_hash": "49339a87ee155d8c17e6ba3d734af513d7036a195368b993f9a16c2d9a87840e",
-    "salt": "3718b4b6b13b88f01131efae24774adad36954b580fa7d17d1dfc2a694d0b0ef",
+    "password_hash": "09366e49680373ff61e8e6a790d9b314d2347651a4da95708f7342d61746604d",
+    "salt": "8d6d7fd03351d3c0987a1d74154e06b88db572541537486219258789fdc49fc2",
     "plan": "enterprise",
-    "created_at": "2026-02-08T22:07:08.525379",
-    "last_login": "2026-02-08T22:07:09.975173",
+    "created_at": "2026-02-07T03:52:55.375470",
+    "last_login": "2026-02-07T23:47:41.300788",
     "is_active": true,
-    "payment_status": "active"
+    "payment_status": "active",
+    "payment_bypass": true,
+    "notes": "Compte owner - Acc\u00e8s complet sans paiement requis"
   }
 }
