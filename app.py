@@ -1698,18 +1698,6 @@ def api_signalai_performance():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-@app.route("/api/signalai/performance", methods=["POST"])
-def api_signalai_performance():
-    """Get SignalAI performance statistics"""
-    try:
-        data = request.get_json()
-        symbol = data.get("symbol")
-        
-        stats = signalai_strategy.get_performance_stats(symbol)
-        return jsonify({"success": True, "stats": stats}), 200
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
-
 # -----------------------------
 # API ROUTES - AI OPTIMIZER
 # -----------------------------
