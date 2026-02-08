@@ -109,7 +109,8 @@ except Exception:
 @app.route("/service-worker.js")
 def serve_service_worker():
     """Serve service worker from root URL (required by browsers)."""
-    return send_from_directory("static", "service-worker.js", mimetype="application/javascript")
+    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+    return send_from_directory(static_dir, "service-worker.js", mimetype="application/javascript")
 
 def login_required(f):
     """Decorator to require login for routes."""
@@ -724,18 +725,25 @@ def api_analyze_technical():
         save_learning_data("technical_analysis", {"symbol": symbol, "analysis": analysis})
 
         # Record prediction in learning system
-        direction = "BULLISH" if analysis.get("recommendation") == "BUY" else (
-            "BEARISH" if analysis.get("recommendation") == "SELL" else "NEUTRAL"
+        rec = analysis.get("recommendation", {})
+        rec_action = rec.get("action", "HOLD") if isinstance(rec, dict) else str(rec)
+        direction = "BULLISH" if "BUY" in rec_action else (
+            "BEARISH" if "SELL" in rec_action else "NEUTRAL"
         )
-        confidence = (analysis.get("confidence", 50) or 50) / 100.0
-        ai_learning.record_prediction(
-            symbol=symbol,
-            ai_worker="market_analyzer",
-            strategy="technical",
-            predicted_direction=direction,
-            confidence=confidence,
-            market_data_snapshot=analysis.get("indicators"),
-        )
+        confidence = (rec.get("confidence", 50) if isinstance(rec, dict) else 50) / 100.0
+        current_price = analysis.get("indicators", {}).get("current_price", 0)
+        try:
+            ai_learning.record_prediction(
+                symbol=symbol,
+                model="market_analyzer",
+                strategy="technical",
+                direction=direction,
+                confidence=confidence,
+                price_at_prediction=current_price,
+                extra=analysis.get("indicators"),
+            )
+        except Exception:
+            pass
         
         return jsonify({"success": True, "data": analysis}), 200
     except Exception as e:
@@ -1147,14 +1155,19 @@ def api_coordinator_analyze():
         # Record in learning system
         direction = result.get("analysis", {}).get("direction", "NEUTRAL")
         confidence = result.get("analysis", {}).get("confidence", 0.5)
-        ai_learning.record_prediction(
-            symbol=symbol,
-            ai_worker=result.get("worker_used", "coordinator"),
-            strategy=result.get("strategy_used", "auto"),
-            predicted_direction=direction,
-            confidence=confidence,
-            market_data_snapshot=data,
-        )
+        price_now = result.get("analysis", {}).get("price", 0)
+        try:
+            ai_learning.record_prediction(
+                symbol=symbol,
+                model=result.get("worker_used", "coordinator"),
+                strategy=result.get("strategy_used", "auto"),
+                direction=direction,
+                confidence=confidence,
+                price_at_prediction=price_now,
+                extra=data,
+            )
+        except Exception:
+            pass
 
         return jsonify({"success": True, "data": result}), 200
     except Exception as e:
