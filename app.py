@@ -2200,9 +2200,14 @@ class BackgroundAIWorker:
 # Initialize background worker
 background_worker = BackgroundAIWorker()
 
-# -----------------------------
-# LANCEMENT SERVEUR
-# -----------------------------
+# Auto-start background worker when loaded by gunicorn (not in __main__)
+# Gunicorn imports the module but never calls main(), so we start here.
+if os.getenv("GUNICORN_WORKER") or not hasattr(sys, 'ps1'):
+    try:
+        background_worker.start()
+    except Exception:
+        pass  # Non-fatal: worker is optional
+
 # -----------------------------
 # MAIN APPLICATION ENTRY POINT
 # -----------------------------
@@ -2222,8 +2227,6 @@ def main():
     print("Press CTRL+C to stop the server")
     print("=" * 70)
     
-    # Start background AI worker for 24/7 operation
-    background_worker.start()
     log_event("SERVER_STARTED", {
         "host": "0.0.0.0",
         "port": port,

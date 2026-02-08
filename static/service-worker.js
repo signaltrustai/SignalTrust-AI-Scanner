@@ -1,20 +1,22 @@
-// SignalTrust AI — Service Worker v1.0
-const CACHE_NAME = 'signaltrust-v1';
+// SignalTrust AI — Service Worker v1.1
+const CACHE_NAME = 'signaltrust-v2';
 const ASSETS = [
   '/',
   '/static/css/style.css',
-  '/dashboard',
   '/scanner',
   '/analyzer',
   '/predictions'
 ];
 
-// Install — cache core assets
+// Install — cache core assets (skip failures for auth-protected pages)
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => {
+      // Use individual add() calls so one failure doesn't block others
+      return Promise.allSettled(
+        ASSETS.map(url => cache.add(url).catch(() => {}))
+      );
+    }).then(() => self.skipWaiting())
   );
 });
 
