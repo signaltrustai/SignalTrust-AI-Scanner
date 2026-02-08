@@ -1,0 +1,80 @@
+services:
+  # Main Web Service
+  - type: web
+    name: signaltrust-ai-scanner
+    env: python
+    region: oregon  # Change to your preferred region
+    plan: free  # Change to your plan (free, starter, standard, pro)
+    buildCommand: ./build.sh
+    startCommand: ./start-render.sh
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
+      - key: PORT
+        generateValue: true
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
+      - key: GUNICORN_WORKER
+        value: "1"
+      # AI Provider Configuration
+      - key: AI_PROVIDER
+        value: openai
+      - key: OPENAI_API_KEY
+        sync: false  # Manually set in Render dashboard
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: AI_TEMPERATURE
+        value: "0.7"
+      - key: AI_MAX_TOKENS
+        value: "2000"
+      - key: USE_AI_PREDICTIONS
+        value: "true"
+      - key: USE_AI_ANALYSIS
+        value: "true"
+      - key: USE_AI_CHAT
+        value: "true"
+      # API Keys (set these in Render dashboard for security)
+      - key: COINGECKO_API_KEY
+        sync: false
+      - key: ALPHAVANTAGE_API_KEY
+        sync: false
+      - key: WHALEALERT_API_KEY
+        sync: false
+      - key: NEWS_CATCHER_API_KEY
+        sync: false
+      # Agent Configuration (optional)
+      - key: AGENT_API_BASE_URL
+        value: https://api.signaltrust.ai
+      - key: AGENT_API_KEY
+        sync: false
+      - key: AGENT_STOCK_ID
+        sync: false
+      - key: AGENT_CRYPTO_ID
+        sync: false
+      - key: AGENT_WHALE_ID
+        sync: false
+      - key: AGENT_SITE_ID
+        sync: false
+      - key: AGENT_SUPERVISOR_ID
+        sync: false
+      - key: DESIRE_AGENT_ID
+        sync: false
+      # Cloud Storage Configuration
+      - key: CLOUD_PROVIDER
+        value: local  # Change to aws/gcp/azure if needed
+      - key: CLOUD_COMPRESS
+        value: "true"
+      - key: CLOUD_AUTO_SYNC
+        value: "false"
+      # AWS S3 Configuration (if using AWS)
+      - key: AWS_S3_BUCKET
+        sync: false
+      - key: AWS_REGION
+        value: us-east-1
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false

@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2026-02-08T00:11:38.815560",
+    "timestamp": "2026-02-08T01:16:05.874185",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -9,10 +9,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T00:11:38.815943"
+    "broadcast_time": "2026-02-08T01:16:05.874751"
   },
   {
-    "timestamp": "2026-02-08T00:41:40.194343",
+    "timestamp": "2026-02-08T01:46:08.454766",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -21,10 +21,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T00:41:40.194727"
+    "broadcast_time": "2026-02-08T01:46:08.455128"
   },
   {
-    "timestamp": "2026-02-08T01:11:42.046729",
+    "timestamp": "2026-02-08T02:16:11.417858",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -33,10 +33,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T01:11:42.047348"
+    "broadcast_time": "2026-02-08T02:16:11.418258"
   },
   {
-    "timestamp": "2026-02-08T01:41:44.840215",
+    "timestamp": "2026-02-08T02:46:15.024861",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -45,10 +45,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T01:41:44.840740"
+    "broadcast_time": "2026-02-08T02:46:15.025291"
   },
   {
-    "timestamp": "2026-02-08T02:11:48.869295",
+    "timestamp": "2026-02-08T03:16:19.110803",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -57,10 +57,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T02:11:48.869910"
+    "broadcast_time": "2026-02-08T03:16:19.111204"
   },
   {
-    "timestamp": "2026-02-08T02:41:52.596687",
+    "timestamp": "2026-02-08T03:46:24.394248",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -69,10 +69,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T02:41:52.597307"
+    "broadcast_time": "2026-02-08T03:46:24.394837"
   },
   {
-    "timestamp": "2026-02-08T03:11:56.573404",
+    "timestamp": "2026-02-08T04:16:30.354022",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -81,10 +81,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T03:11:56.574014"
+    "broadcast_time": "2026-02-08T04:16:30.354489"
   },
   {
-    "timestamp": "2026-02-08T03:42:01.936406",
+    "timestamp": "2026-02-08T04:46:37.262608",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -93,10 +93,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T03:42:01.937055"
+    "broadcast_time": "2026-02-08T04:46:37.263108"
   },
   {
-    "timestamp": "2026-02-08T04:12:08.680450",
+    "timestamp": "2026-02-08T05:23:43.161405",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -105,10 +105,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T04:12:08.681055"
+    "broadcast_time": "2026-02-08T05:23:43.162337"
   },
   {
-    "timestamp": "2026-02-08T04:42:16.187815",
+    "timestamp": "2026-02-08T05:54:00.259978",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -117,10 +117,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T04:42:16.188376"
+    "broadcast_time": "2026-02-08T05:54:00.260905"
   },
   {
-    "timestamp": "2026-02-08T05:19:20.093624",
+    "timestamp": "2026-02-08T07:50:33.508147",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -129,10 +129,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T05:19:20.094897"
+    "broadcast_time": "2026-02-08T07:50:33.509050"
   },
   {
-    "timestamp": "2026-02-08T05:49:36.435344",
+    "timestamp": "2026-02-08T08:20:52.180186",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -141,23 +141,23 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T05:49:36.436641"
+    "broadcast_time": "2026-02-08T08:20:52.181567"
   },
   {
-    "timestamp": "2026-02-08T05:49:38.749429",
+    "timestamp": "2026-02-08T08:20:54.194226",
     "from": "Evolution",
     "to": "ALL",
     "type": "evolution_complete",
     "data": {
       "individual_level": 1,
-      "collective_iq": 79.17,
-      "synergy": 2.3899999999999997
+      "collective_iq": 79.77,
+      "synergy": 2.59
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T05:49:38.751269"
+    "broadcast_time": "2026-02-08T08:20:54.195424"
   },
   {
-    "timestamp": "2026-02-08T07:46:13.578646",
+    "timestamp": "2026-02-08T08:51:13.183320",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -166,10 +166,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T07:46:13.580210"
+    "broadcast_time": "2026-02-08T08:51:13.184511"
   },
   {
-    "timestamp": "2026-02-08T08:16:32.605206",
+    "timestamp": "2026-02-08T09:21:33.276359",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -178,10 +178,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T08:16:32.606616"
+    "broadcast_time": "2026-02-08T09:21:33.277919"
   },
   {
-    "timestamp": "2026-02-08T08:46:53.014222",
+    "timestamp": "2026-02-08T09:51:54.725377",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -190,10 +190,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T08:46:53.015828"
+    "broadcast_time": "2026-02-08T09:51:54.726968"
   },
   {
-    "timestamp": "2026-02-08T09:17:14.005485",
+    "timestamp": "2026-02-08T10:22:18.966846",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -202,10 +202,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T09:17:14.007385"
+    "broadcast_time": "2026-02-08T10:22:18.968081"
   },
   {
-    "timestamp": "2026-02-08T09:47:39.995111",
+    "timestamp": "2026-02-08T10:52:30.440174",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
@@ -214,34 +214,10 @@
       "high_potential": 0
     },
     "delivered": true,
-    "broadcast_time": "2026-02-08T09:47:39.996310"
+    "broadcast_time": "2026-02-08T10:52:30.440987"
   },
   {
-    "timestamp": "2026-02-08T10:18:01.838448",
-    "from": "GemFinder",
-    "to": "ALL",
-    "type": "gem_discovery",
-    "data": {
-      "total_gems": 100,
-      "high_potential": 0
-    },
-    "delivered": true,
-    "broadcast_time": "2026-02-08T10:18:01.840436"
-  },
-  {
-    "timestamp": "2026-02-08T10:48:17.244149",
-    "from": "GemFinder",
-    "to": "ALL",
-    "type": "gem_discovery",
-    "data": {
-      "total_gems": 100,
-      "high_potential": 0
-    },
-    "delivered": true,
-    "broadcast_time": "2026-02-08T10:48:17.244903"
-  },
-  {
-    "timestamp": "2026-02-08T11:18:18.281410",
+    "timestamp": "2026-02-08T11:22:31.387480",
     "from": "GemFinder",
     "to": "ALL",
     "type": "gem_discovery",
