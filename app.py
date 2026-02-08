@@ -34,6 +34,7 @@ from signalai_strategy import signalai_strategy
 from multi_ai_coordinator import get_coordinator
 from ai_learning_system import get_learning_system
 from agent_client import get_agent_client
+from api_processor import get_api_processor
 
 # Import optimizer safely (new module)
 try:
@@ -110,6 +111,14 @@ try:
 except Exception as e:
     logger.warning(f"Multi-agent client initialization failed: {e}")
     agent_client = None
+
+# Initialize automatic API processor
+try:
+    api_processor = get_api_processor()
+    logger.info("API processor initialized successfully")
+except Exception as e:
+    logger.warning(f"API processor initialization failed: {e}")
+    api_processor = None
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -357,6 +366,13 @@ def agents_page():
     """Multi-agent system dashboard page."""
     user = get_current_user()
     return render_template("agents.html", user=user)
+
+@app.route("/api-manager")
+@login_required
+def api_manager_page():
+    """API processor management dashboard page."""
+    user = get_current_user()
+    return render_template("api_manager.html", user=user)
 
 
 @app.route("/api/worker/status")
@@ -1582,6 +1598,121 @@ def api_agents_complete_analysis():
         return jsonify({
             "success": True,
             "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - API PROCESSOR
+# -----------------------------
+
+@app.route("/api/processor/status", methods=["GET"])
+def api_processor_status():
+    """Get API processor status and statistics."""
+    if not api_processor:
+        return jsonify({
+            "success": False,
+            "error": "API processor not available"
+        }), 503
+    
+    try:
+        stats = api_processor.get_stats()
+        return jsonify({
+            "success": True,
+            "stats": stats,
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/processor/cache/clear", methods=["POST"])
+def api_processor_clear_cache():
+    """Clear API response cache."""
+    if not api_processor:
+        return jsonify({
+            "success": False,
+            "error": "API processor not available"
+        }), 503
+    
+    try:
+        api_processor.clear_cache()
+        return jsonify({
+            "success": True,
+            "message": "Cache cleared successfully"
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/processor/stats/reset", methods=["POST"])
+def api_processor_reset_stats():
+    """Reset API processor statistics."""
+    if not api_processor:
+        return jsonify({
+            "success": False,
+            "error": "API processor not available"
+        }), 503
+    
+    try:
+        api_processor.reset_stats()
+        return jsonify({
+            "success": True,
+            "message": "Statistics reset successfully"
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/processor/register", methods=["POST"])
+def api_processor_register_api():
+    """Register a new API with custom rate limit."""
+    if not api_processor:
+        return jsonify({
+            "success": False,
+            "error": "API processor not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        api_name = data.get("api_name")
+        rate_limit = data.get("rate_limit", 60)
+        per_seconds = data.get("per_seconds", 60)
+        
+        if not api_name:
+            return jsonify({"success": False, "error": "api_name required"}), 400
+        
+        api_processor.register_api(api_name, rate_limit, per_seconds)
+        
+        return jsonify({
+            "success": True,
+            "message": f"API '{api_name}' registered with limit {rate_limit}/{per_seconds}s"
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/processor/test", methods=["POST"])
+def api_processor_test():
+    """Test API processor with a sample request."""
+    if not api_processor:
+        return jsonify({
+            "success": False,
+            "error": "API processor not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        url = data.get("url", "https://api.coinpaprika.com/v1/coins")
+        method = data.get("method", "GET")
+        api_name = data.get("api_name", "test")
+        
+        result = api_processor.request(
+            method=method,
+            url=url,
+            api_name=api_name,
+            timeout=10
+        )
+        
+        return jsonify({
+            "success": True,
+            "result": result
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
