@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
 from flask_cors import CORS
+from flask_compress import Compress
+from flask_caching import Cache
 import os
 from dotenv import load_dotenv
 import requests
@@ -64,9 +66,47 @@ except Exception:
 # Load environment variables from .env (if present)
 load_dotenv()
 
+# Configure logging first (before anything else)
+LOG_FILE = "signaltrust_events.log"
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
+
+# Enable CORS
 CORS(app)
+
+# Enable Gzip Compression for better performance
+Compress(app)
+
+# Configure Caching
+cache_config = {
+    'CACHE_TYPE': 'SimpleCache',  # Use 'RedisCache' if Redis is available
+    'CACHE_DEFAULT_TIMEOUT': 300,
+    'CACHE_THRESHOLD': 500
+}
+
+# Check if Redis is available
+redis_url = os.getenv('REDIS_URL')
+if redis_url:
+    cache_config = {
+        'CACHE_TYPE': 'RedisCache',
+        'CACHE_REDIS_URL': redis_url,
+        'CACHE_DEFAULT_TIMEOUT': 300
+    }
+    logger.info("Using Redis cache")
+else:
+    logger.info("Using SimpleCache (in-memory)")
+
+cache = Cache(app, config=cache_config)
 
 # -----------------------------
 # CONFIGURATION AGENTS SIGNALTRUST
@@ -85,19 +125,7 @@ AGENT_IDS = {
     "DESIRE": os.getenv("DESIRE_AGENT_ID"),          # ASI6-DESIRE-006
 }
 
-LOG_FILE = "signaltrust_events.log"
 LEARNING_DATA_FILE = "data/ai_learning_data.json"
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOG_FILE),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger(__name__)
 
 # Initialize system components
 user_auth = UserAuth()

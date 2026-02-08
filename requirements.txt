@@ -4,6 +4,8 @@
 # Web Framework
 flask>=2.3.0
 flask-cors>=4.0.0
+flask-compress>=1.14
+flask-caching>=2.1.0
 
 # Data Analysis & AI
 numpy>=1.21.0
@@ -34,6 +36,10 @@ schedule>=1.1.0
 
 # Production Server
 gunicorn>=21.2.0
+
+# Performance & Caching (Optional but recommended for production)
+redis>=5.0.0
+hiredis>=2.3.0
 
 # ML & Meta-Model (Optional - for advanced features)
 # xgboost>=2.0.0
