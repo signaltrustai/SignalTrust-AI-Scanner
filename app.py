@@ -73,6 +73,37 @@ except Exception:
 # Load environment variables from .env (if present)
 load_dotenv()
 
+# Base directory for static assets
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def _get_asset_path(filename: str) -> str:
+    """Resolve PWA asset path, preferring repo root then static folder."""
+    if filename not in {"service-worker.js", "manifest.json"}:
+        raise ValueError("Filename must be service-worker.js or manifest.json")
+    
+    def _resolve_from(base_dir: str) -> str | None:
+        target = os.path.realpath(os.path.join(base_dir, filename))
+        try:
+            rel = os.path.relpath(target, base_dir)
+        except ValueError:
+            return None
+        if rel.startswith(os.pardir):
+            return None
+        if os.path.basename(target) != filename:
+            return None
+        return target if os.path.exists(target) else None
+    
+    root_path = _resolve_from(BASE_DIR)
+    if root_path:
+        return root_path
+    
+    static_path = _resolve_from(os.path.join(BASE_DIR, "static"))
+    if static_path:
+        return static_path
+    
+    raise FileNotFoundError(f"Asset not found: {filename}")
+
 # Configure logging first (before anything else)
 LOG_FILE = "signaltrust_events.log"
 logging.basicConfig(
@@ -195,25 +226,25 @@ except Exception:
 @app.route("/service-worker.js")
 def serve_service_worker():
     """Serve service worker from root URL (required by browsers)."""
-    sw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "service-worker.js")
     try:
+        sw_path = _get_asset_path("service-worker.js")
         with open(sw_path, "r", encoding="utf-8") as f:
             content = f.read()
         return Response(content, mimetype="application/javascript",
                         headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"})
-    except FileNotFoundError:
+    except (FileNotFoundError, ValueError):
         return Response("// service worker not found", status=404, mimetype="application/javascript")
 
 @app.route("/manifest.json")
 def serve_manifest():
     """Serve PWA manifest from root URL (required for PWA)."""
-    manifest_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "manifest.json")
     try:
+        manifest_path = _get_asset_path("manifest.json")
         with open(manifest_path, "r", encoding="utf-8") as f:
             content = f.read()
         return Response(content, mimetype="application/json",
                         headers={"Cache-Control": "no-cache"})
-    except FileNotFoundError:
+    except (FileNotFoundError, ValueError):
         return Response('{"error": "manifest not found"}', status=404, mimetype="application/json")
 
 def login_required(f):
@@ -3227,4 +3258,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
