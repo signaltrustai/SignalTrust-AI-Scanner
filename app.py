@@ -33,6 +33,7 @@ from tradingview_manager import tradingview_manager
 from signalai_strategy import signalai_strategy
 from multi_ai_coordinator import get_coordinator
 from ai_learning_system import get_learning_system
+from agent_client import get_agent_client
 
 # Import optimizer safely (new module)
 try:
@@ -101,6 +102,14 @@ ai_evolution = AIEvolutionSystem()
 ai_coordinator = get_coordinator()
 ai_learning = get_learning_system()
 ai_optimizer = get_optimizer()
+
+# Initialize multi-agent client
+try:
+    agent_client = get_agent_client()
+    logger.info("Multi-agent client initialized successfully")
+except Exception as e:
+    logger.warning(f"Multi-agent client initialization failed: {e}")
+    agent_client = None
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -341,6 +350,13 @@ def dashboard():
     is_admin = user.get('user_id') == 'owner_admin_001' or \
                user.get('email', '').lower() == 'signaltrustai@gmail.com'
     return render_template("dashboard.html", user=user, is_admin=is_admin)
+
+@app.route("/agents")
+@login_required
+def agents_page():
+    """Multi-agent system dashboard page."""
+    user = get_current_user()
+    return render_template("agents.html", user=user)
 
 
 @app.route("/api/worker/status")
@@ -1236,6 +1252,337 @@ def api_symbol_insights(symbol):
     """Get learning insights for a specific symbol."""
     try:
         return jsonify({"success": True, "data": ai_learning.get_symbol_insights(symbol)}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - MULTI-AGENT SYSTEM
+# -----------------------------
+
+@app.route("/api/agents/status", methods=["GET"])
+def api_agents_status():
+    """Get status of all AI agents."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        status = agent_client.check_all_agents()
+        return jsonify({
+            "success": True,
+            "agents": status,
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/workflow", methods=["POST"])
+def api_agents_workflow():
+    """Run complete multi-agent workflow."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        symbol = data.get("symbol", "BTC/USDT")
+        ticker = data.get("ticker", "AAPL")
+        network = data.get("network", "btc")
+        topics = data.get("topics", ["crypto", "stocks", "market"])
+        
+        result = agent_client.run_workflow(
+            symbol=symbol,
+            ticker=ticker,
+            network=network,
+            topics=topics
+        )
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/crypto/analyze", methods=["POST"])
+def api_agents_crypto_analyze():
+    """Analyze cryptocurrency using crypto agent."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        symbol = data.get("symbol")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        timeframe = data.get("timeframe", "1d")
+        result = agent_client.analyze_crypto(symbol, timeframe)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/stock/analyze", methods=["POST"])
+def api_agents_stock_analyze():
+    """Analyze stock using stock agent."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        ticker = data.get("ticker")
+        if not ticker:
+            return jsonify({"success": False, "error": "Ticker required"}), 400
+        
+        result = agent_client.analyze_stock(ticker)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/whale/watch", methods=["GET"])
+def api_agents_whale_watch():
+    """Monitor whale transactions."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        network = request.args.get("network", "btc")
+        min_usd = int(request.args.get("min_usd", 5_000_000))
+        
+        result = agent_client.watch_whales(network, min_usd)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/news/get", methods=["POST"])
+def api_agents_news_get():
+    """Get and analyze market news."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        topics = data.get("topics", ["crypto", "stocks"])
+        max_items = data.get("max_items", 10)
+        
+        result = agent_client.get_news(topics, max_items)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/sentiment/analyze", methods=["POST"])
+def api_agents_sentiment_analyze():
+    """Analyze social media sentiment."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        symbol = data.get("symbol")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        platforms = data.get("platforms", ["twitter", "reddit"])
+        result = agent_client.analyze_sentiment(symbol, platforms)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/sentiment/trending", methods=["GET"])
+def api_agents_sentiment_trending():
+    """Get trending symbols from social media."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        result = agent_client.get_trending()
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/onchain/analyze", methods=["POST"])
+def api_agents_onchain_analyze():
+    """Analyze on-chain blockchain metrics."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        symbol = data.get("symbol")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        network = data.get("network", "mainnet")
+        result = agent_client.analyze_onchain(symbol, network)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/macro/indicators", methods=["POST"])
+def api_agents_macro_indicators():
+    """Get macroeconomic indicators."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        indicators = data.get("indicators", ["gdp", "inflation", "interest_rate"])
+        
+        result = agent_client.get_macro_data(indicators)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/macro/fed-events", methods=["GET"])
+def api_agents_macro_fed():
+    """Analyze Federal Reserve events."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        result = agent_client.analyze_fed_events()
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/portfolio/optimize", methods=["POST"])
+def api_agents_portfolio_optimize():
+    """Optimize portfolio allocation."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        holdings = data.get("holdings")
+        if not holdings:
+            return jsonify({"success": False, "error": "Holdings required"}), 400
+        
+        risk_tolerance = data.get("risk_tolerance", "moderate")
+        result = agent_client.optimize_portfolio(holdings, risk_tolerance)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/portfolio/risk", methods=["POST"])
+def api_agents_portfolio_risk():
+    """Calculate portfolio risk metrics."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        holdings = data.get("holdings")
+        if not holdings:
+            return jsonify({"success": False, "error": "Holdings required"}), 400
+        
+        result = agent_client.calculate_risk(holdings)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/agents/complete-analysis", methods=["POST"])
+def api_agents_complete_analysis():
+    """Run complete multi-agent analysis for a symbol."""
+    if not agent_client:
+        return jsonify({
+            "success": False,
+            "error": "Multi-agent system not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        symbol = data.get("symbol")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        
+        asset_type = data.get("asset_type", "crypto")
+        result = agent_client.complete_analysis(symbol, asset_type)
+        
+        return jsonify({
+            "success": True,
+            "data": result
+        }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
