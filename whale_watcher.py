@@ -13,7 +13,7 @@ Keeps access control for premium features.
 """
 
 import os
-import random
+import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
@@ -327,28 +327,37 @@ class WhaleWatcher:
     # ── Fallback data generator ──────────────────────────────────────
 
     def _generate_whale_transactions(self, limit: int, min_value: float) -> List[Dict]:
-        """Generate whale transaction data as fallback."""
+        """Generate deterministic whale transaction data as fallback."""
         transactions = []
         tokens = ['BTC', 'ETH', 'USDT', 'USDC', 'BNB', 'WBTC', 'WETH']
         chains = ['Ethereum', 'Binance Smart Chain', 'Polygon', 'Avalanche']
-        
+        types = ['transfer', 'swap', 'stake', 'unstake']
+
         for i in range(limit):
-            token = random.choice(tokens)
-            value_usd = random.uniform(min_value, min_value * 100)
+            # Deterministic values from index
+            seed = f"whale_tx_{i}_{datetime.now(timezone.utc).strftime('%Y%m%d')}"
+            h = hashlib.sha256(seed.encode()).hexdigest()
+            h_int = int(h[:8], 16)
+
+            token = tokens[h_int % len(tokens)]
+            value_usd = min_value + (h_int % int(min_value * 99))
+            token_price = max(1, int(h[8:12], 16) % 50000)
+            minutes_ago = (h_int % 1440) + 1
+
             transactions.append({
-                'id': f'tx_{random.randint(100000, 999999)}',
+                'id': f'tx_{100000 + i}',
                 'token': token,
-                'amount': round(value_usd / random.uniform(1, 50000), 4),
+                'amount': round(value_usd / token_price, 4),
                 'value_usd': round(value_usd, 2),
-                'from_address': f'0x{random.randbytes(20).hex()}',
-                'to_address': f'0x{random.randbytes(20).hex()}',
-                'chain': random.choice(chains),
-                'type': random.choice(['transfer', 'swap', 'stake', 'unstake']),
-                'timestamp': (datetime.now(timezone.utc) - timedelta(minutes=random.randint(1, 1440))).isoformat(),
-                'tx_hash': f'0x{random.randbytes(32).hex()}',
+                'from_address': f'0x{h[:40]}',
+                'to_address': f'0x{h[24:64]}',
+                'chain': chains[int(h[12:14], 16) % len(chains)],
+                'type': types[int(h[14:16], 16) % len(types)],
+                'timestamp': (datetime.now(timezone.utc) - timedelta(minutes=minutes_ago)).isoformat(),
+                'tx_hash': f'0x{h}',
                 'data_source': 'simulated',
             })
-        
+
         transactions.sort(key=lambda x: x['value_usd'], reverse=True)
         return transactions
 

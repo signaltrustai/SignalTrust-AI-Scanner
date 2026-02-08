@@ -626,6 +626,27 @@ def api_verify():
             }}), 200
     return jsonify({"authenticated": False}), 401
 
+# Convenience aliases for common API paths
+@app.route("/api/login", methods=["POST"])
+def api_login_alias():
+    """Alias for /api/auth/login."""
+    return api_login()
+
+@app.route("/api/register", methods=["POST"])
+def api_register_alias():
+    """Alias for /api/auth/register."""
+    return api_register()
+
+@app.route("/api/markets/analyze", methods=["POST"])
+def api_markets_analyze_alias():
+    """Alias for /api/analyze/technical."""
+    return api_analyze_technical()
+
+@app.route("/api/ai/predict", methods=["POST"])
+def api_ai_predict_alias():
+    """Alias for /api/predict/price."""
+    return api_predict_price()
+
 # -----------------------------
 # API ROUTES - MARKET DATA
 # -----------------------------

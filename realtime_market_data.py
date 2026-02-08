@@ -9,7 +9,7 @@ Fetches LIVE data from free public APIs (no keys required):
 Falls back to cached/estimated data if APIs are temporarily unreachable.
 """
 
-import random
+import hashlib
 import requests
 import time
 import json
@@ -240,20 +240,23 @@ class RealTimeMarketData:
             return None
 
     def _fallback_crypto(self) -> List[Dict]:
-        """Last-resort estimated crypto data."""
+        """Last-resort estimated crypto data using deterministic baselines."""
         baselines = {"BTC": 55000, "ETH": 3000, "BNB": 300, "SOL": 150, "XRP": 0.55,
                      "ADA": 0.35, "DOGE": 0.08, "DOT": 6, "AVAX": 35, "LINK": 15}
+        volume_est = {"BTC": 30000, "ETH": 15000, "BNB": 2000, "SOL": 3000, "XRP": 1500,
+                      "ADA": 800, "DOGE": 1000, "DOT": 500, "AVAX": 700, "LINK": 600}
+        mcap_est = {"BTC": 1100, "ETH": 360, "BNB": 45, "SOL": 65, "XRP": 30,
+                    "ADA": 12, "DOGE": 11, "DOT": 8, "AVAX": 13, "LINK": 9}
         out = []
         for i, sym in enumerate(self.CRYPTOCURRENCIES):
-            bp = baselines.get(sym, random.uniform(0.05, 30))
-            chg = random.uniform(-8, 8)
+            bp = baselines.get(sym, 1.0)
             out.append({
                 "symbol": sym, "name": f"{sym}", "category": "Crypto",
-                "price": round(bp * (1 + random.uniform(-0.03, 0.03)), 4),
-                "change_percent": round(chg, 2),
-                "change": round(bp * chg / 100, 4),
-                "volume_24h": f"${random.randint(50, 5000)}M",
-                "market_cap": f"${random.randint(1, 300)}B",
+                "price": bp,
+                "change_percent": 0.0,
+                "change": 0.0,
+                "volume_24h": f"${volume_est.get(sym, 100)}M",
+                "market_cap": f"${mcap_est.get(sym, 1)}B",
                 "rank": i + 1,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "source": "fallback",
@@ -311,14 +314,16 @@ class RealTimeMarketData:
             return self._fallback_stock(symbol, market, currency)
 
     def _fallback_stock(self, symbol: str, market: str, currency: str) -> Dict:
-        bp = random.uniform(15, 400)
-        pct = random.uniform(-4, 4)
+        """Fallback stock data with deterministic baseline values."""
+        # Deterministic price from symbol hash
+        h = int(hashlib.md5(symbol.encode()).hexdigest()[:8], 16)
+        bp = 15 + (h % 385)  # 15–400 range
         return {
             "symbol": symbol, "name": symbol.replace(".TO", ""),
             "market": market, "currency": currency,
-            "price": round(bp, 2), "change": round(bp * pct / 100, 2),
-            "change_percent": round(pct, 2),
-            "volume": random.randint(500_000, 30_000_000),
+            "price": round(bp, 2), "change": 0.0,
+            "change_percent": 0.0,
+            "volume": 0,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "source": "fallback",
         }

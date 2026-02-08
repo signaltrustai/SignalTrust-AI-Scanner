@@ -5,7 +5,7 @@ Performs technical and sentiment analysis on market data
 Uses real price data from realtime_market_data module
 """
 
-import random
+import hashlib
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List
@@ -322,23 +322,31 @@ class MarketAnalyzer:
             Historical data points
         """
         num_points = 100
-        base_price = random.uniform(50, 500)
+        # Deterministic seed from symbol name
+        seed = int(hashlib.md5(symbol.encode()).hexdigest()[:8], 16)
+        base_price = 50 + (seed % 450)
         data = []
-        
+
         for i in range(num_points):
-            # Random walk with drift
-            change = random.gauss(0, 2)
+            # Deterministic sine-wave pattern for historical simulation
+            phase = (seed + i) / num_points * math.pi * 4
+            change = math.sin(phase) * 2 + math.cos(phase * 0.3) * 1.5
             base_price = max(1, base_price + change)
-            
+
+            # Deterministic intraday spread based on index
+            hi_factor = 1.0 + 0.01 * ((seed + i * 7) % 5)
+            lo_factor = 1.0 - 0.01 * ((seed + i * 3) % 5)
+            vol = 1_000_000 + ((seed + i * 13) % 49_000_000)
+
             data.append({
-                'timestamp': (datetime.now() - timedelta(days=num_points-i)).isoformat(),
+                'timestamp': (datetime.now() - timedelta(days=num_points - i)).isoformat(),
                 'open': round(base_price, 2),
-                'high': round(base_price * random.uniform(1.0, 1.05), 2),
-                'low': round(base_price * random.uniform(0.95, 1.0), 2),
+                'high': round(base_price * hi_factor, 2),
+                'low': round(base_price * lo_factor, 2),
                 'close': round(base_price, 2),
-                'volume': random.randint(1000000, 50000000)
+                'volume': vol,
             })
-        
+
         return data
     
     def _calculate_indicators(self, historical_data: List[Dict]) -> Dict:

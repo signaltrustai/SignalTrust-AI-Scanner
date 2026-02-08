@@ -342,5 +342,165 @@
     "volatility": "high",
     "mtf_consensus": "bearish",
     "data_source": "live"
+  },
+  {
+    "symbol": "BTC",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-08T08:28:01.360059+00:00",
+    "current_price": 104000,
+    "signal": "SELL",
+    "strength": 51,
+    "confidence": 54,
+    "indicators": {
+      "EMA9": 79374.2563,
+      "EMA21": 81543.8915,
+      "EMA50": 85708.0189,
+      "RSI": 67.13,
+      "MACD": {
+        "value": -2988.661121,
+        "signal": -3975.805231,
+        "histogram": 987.14411,
+        "crossover": "bullish"
+      },
+      "BB": {
+        "upper": 110809.7987,
+        "middle": 81936.5631,
+        "lower": 53063.3275,
+        "pct_b": 0.8821,
+        "bandwidth": 0.7048
+      },
+      "STOCH": {
+        "k": 100.0,
+        "d": 50.78,
+        "crossover": "bullish"
+      },
+      "ADX": 21.07,
+      "ICHIMOKU": {
+        "tenkan": 83351.0488,
+        "kijun": 83351.0488,
+        "senkou_a": 83351.0488,
+        "senkou_b": 83351.0488,
+        "chikou": 104000,
+        "cloud_color": "neutral",
+        "price_vs_cloud": "above"
+      },
+      "OBV": {
+        "value": -811902761467.0,
+        "trend": "bearish"
+      },
+      "VWAP": 88593.895,
+      "ROC": 16.6121,
+      "WILLIAMS": -0.0,
+      "ATR": 4771.946543,
+      "SR": {
+        "support": 88310.9062,
+        "resistance": 107120.0,
+        "levels": [
+          78688.7656,
+          86572.2188,
+          88310.9062,
+          89184.5703,
+          89503.875,
+          96929.3281
+        ]
+      },
+      "regime": "volatile",
+      "volatility": "high",
+      "multi_timeframe": {
+        "short": "bullish",
+        "medium": "bearish",
+        "long": "bearish",
+        "consensus": "bearish"
+      }
+    },
+    "recommendation": "Moderate Sell \u2014 Bearish pressure building, tighten stops",
+    "entry_price": 104954.3893,
+    "stop_loss": 115929.8664,
+    "take_profit": 87298.1871,
+    "risk_reward": 1.4,
+    "regime": "volatile",
+    "volatility": "high",
+    "mtf_consensus": "bearish",
+    "data_source": "live"
+  },
+  {
+    "symbol": "BTC",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-08T08:34:41.966975+00:00",
+    "current_price": 104000,
+    "signal": "SELL",
+    "strength": 51,
+    "confidence": 54,
+    "indicators": {
+      "EMA9": 79413.1175,
+      "EMA21": 81563.9645,
+      "EMA50": 85717.1702,
+      "RSI": 67.12,
+      "MACD": {
+        "value": -2973.701869,
+        "signal": -3969.713338,
+        "histogram": 996.011469,
+        "crossover": "bullish"
+      },
+      "BB": {
+        "upper": 110777.0972,
+        "middle": 81948.7072,
+        "lower": 53120.3172,
+        "pct_b": 0.8825,
+        "bandwidth": 0.7036
+      },
+      "STOCH": {
+        "k": 100.0,
+        "d": 51.09,
+        "crossover": "bullish"
+      },
+      "ADX": 21.07,
+      "ICHIMOKU": {
+        "tenkan": 83351.0488,
+        "kijun": 83351.0488,
+        "senkou_a": 83351.0488,
+        "senkou_b": 83351.0488,
+        "chikou": 104000,
+        "cloud_color": "neutral",
+        "price_vs_cloud": "above"
+      },
+      "OBV": {
+        "value": -811766520315.0,
+        "trend": "bearish"
+      },
+      "VWAP": 88595.7659,
+      "ROC": 16.6121,
+      "WILLIAMS": -0.0,
+      "ATR": 4770.707345,
+      "SR": {
+        "support": 88310.9062,
+        "resistance": 107120.0,
+        "levels": [
+          78688.7656,
+          86572.2188,
+          88310.9062,
+          89184.5703,
+          89503.875,
+          96929.3281
+        ]
+      },
+      "regime": "volatile",
+      "volatility": "high",
+      "multi_timeframe": {
+        "short": "bullish",
+        "medium": "bearish",
+        "long": "bearish",
+        "consensus": "bearish"
+      }
+    },
+    "recommendation": "Moderate Sell \u2014 Bearish pressure building, tighten stops",
+    "entry_price": 104954.1415,
+    "stop_loss": 115926.7684,
+    "take_profit": 87302.5243,
+    "risk_reward": 1.4,
+    "regime": "volatile",
+    "volatility": "high",
+    "mtf_consensus": "bearish",
+    "data_source": "live"
   }
 ]

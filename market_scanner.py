@@ -13,7 +13,7 @@ Falls back gracefully to cached / estimated data when APIs are unreachable.
 """
 
 import logging
-import random
+import hashlib
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
@@ -374,9 +374,10 @@ class MarketScanner:
         results = []
         for pair in pairs:
             rate = base_rates.get(pair, 1.0)
-            # Small realistic jitter (±0.3%)
-            jitter = rate * random.uniform(-0.003, 0.003)
-            change_pct = round(random.uniform(-0.5, 0.5), 3)
+            # Deterministic micro-spread from pair name + date
+            h = int(hashlib.md5(f"{pair}{datetime.now(timezone.utc).strftime('%Y%m%d')}".encode()).hexdigest()[:8], 16)
+            jitter = rate * ((h % 600 - 300) / 100_000)  # ±0.3%
+            change_pct = round((h % 1000 - 500) / 1000, 3)  # ±0.5%
             results.append({
                 'pair': pair,
                 'rate': round(rate + jitter, 4),
