@@ -325,6 +325,15 @@ def create_chatkit_session():
 def home():
     return render_template("index.html")
 
+@app.route("/health")
+def health():
+    """Health check endpoint for Render and monitoring."""
+    return jsonify({
+        "status": "healthy",
+        "service": "SignalTrust AI Scanner",
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+    }), 200
+
 @app.route("/ai-chat")
 def ai_chat_page():
     return render_template("ai_chat.html")
