@@ -121,10 +121,19 @@ if ('serviceWorker' in navigator) {
             .then((registration) => {
                 console.log('Service Worker registered:', registration);
                 
-                // Check for updates periodically
+                // Check for updates periodically (every 5 minutes to save battery)
                 setInterval(() => {
                     registration.update();
-                }, 60000); // Check every minute
+                }, 300000); // Check every 5 minutes
+                
+                // Also check when page becomes visible (user returns to app)
+                if ('visibilityState' in document) {
+                    document.addEventListener('visibilitychange', () => {
+                        if (!document.hidden) {
+                            registration.update();
+                        }
+                    });
+                }
                 
                 // Handle service worker updates
                 registration.addEventListener('updatefound', () => {

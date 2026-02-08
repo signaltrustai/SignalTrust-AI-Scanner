@@ -155,15 +155,21 @@ self.addEventListener('fetch', e => {
           }
           
           // If HTML page and not in cache, return offline page
-          if (request.headers.get('accept').includes('text/html')) {
-            return caches.match('/').then(homeResponse => {
-              return homeResponse || new Response(
-                '<h1>Offline</h1><p>You are offline and this page is not cached.</p>',
-                {
-                  headers: { 'Content-Type': 'text/html' }
-                }
-              );
-            });
+          // Safely check accept header with null checks
+          try {
+            const acceptHeader = request.headers ? request.headers.get('accept') : null;
+            if (acceptHeader && acceptHeader.includes('text/html')) {
+              return caches.match('/').then(homeResponse => {
+                return homeResponse || new Response(
+                  '<h1>Offline</h1><p>You are offline and this page is not cached.</p>',
+                  {
+                    headers: { 'Content-Type': 'text/html' }
+                  }
+                );
+              });
+            }
+          } catch (e) {
+            console.log('[Service Worker] Error checking accept header:', e);
           }
           
           // For other resources, return error
