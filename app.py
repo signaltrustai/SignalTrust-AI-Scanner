@@ -35,6 +35,7 @@ from multi_ai_coordinator import get_coordinator
 from ai_learning_system import get_learning_system
 from agent_client import get_agent_client
 from api_processor import get_api_processor
+from ai_evolution_engine import get_evolution_engine
 
 # Import optimizer safely (new module)
 try:
@@ -119,6 +120,14 @@ try:
 except Exception as e:
     logger.warning(f"API processor initialization failed: {e}")
     api_processor = None
+
+# Initialize AI Evolution Engine
+try:
+    evolution_engine = get_evolution_engine()
+    logger.info("AI Evolution Engine initialized successfully with 10 specialized agents")
+except Exception as e:
+    logger.warning(f"AI Evolution Engine initialization failed: {e}")
+    evolution_engine = None
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -373,6 +382,13 @@ def api_manager_page():
     """API processor management dashboard page."""
     user = get_current_user()
     return render_template("api_manager.html", user=user)
+
+@app.route("/ai-evolution")
+@login_required
+def ai_evolution_page():
+    """AI Evolution Engine dashboard page."""
+    user = get_current_user()
+    return render_template("ai_evolution.html", user=user)
 
 
 @app.route("/api/worker/status")
@@ -1713,6 +1729,137 @@ def api_processor_test():
         return jsonify({
             "success": True,
             "result": result
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - AI EVOLUTION ENGINE
+# -----------------------------
+
+@app.route("/api/evolution/status", methods=["GET"])
+def api_evolution_status():
+    """Get status of all AI agents."""
+    if not evolution_engine:
+        return jsonify({
+            "success": False,
+            "error": "AI Evolution Engine not available"
+        }), 503
+    
+    try:
+        status = evolution_engine.get_all_status()
+        return jsonify({
+            "success": True,
+            "status": status,
+            "timestamp": datetime.datetime.utcnow().isoformat()
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/evolution/agent/<agent_name>", methods=["GET"])
+def api_evolution_agent_status(agent_name):
+    """Get status of a specific AI agent."""
+    if not evolution_engine:
+        return jsonify({
+            "success": False,
+            "error": "AI Evolution Engine not available"
+        }), 503
+    
+    try:
+        agent = evolution_engine.get_agent(agent_name)
+        if not agent:
+            return jsonify({
+                "success": False,
+                "error": f"Agent '{agent_name}' not found"
+            }), 404
+        
+        return jsonify({
+            "success": True,
+            "agent": agent.get_status()
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/evolution/learn", methods=["POST"])
+def api_evolution_daily_learning():
+    """Trigger daily learning for all agents."""
+    if not evolution_engine:
+        return jsonify({
+            "success": False,
+            "error": "AI Evolution Engine not available"
+        }), 503
+    
+    try:
+        result = evolution_engine.daily_learning()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/evolution/evolve", methods=["POST"])
+def api_evolution_evolve_all():
+    """Evolve all AI agents."""
+    if not evolution_engine:
+        return jsonify({
+            "success": False,
+            "error": "AI Evolution Engine not available"
+        }), 503
+    
+    try:
+        result = evolution_engine.evolve_all()
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/evolution/agent/<agent_name>/predict", methods=["POST"])
+def api_evolution_agent_predict(agent_name):
+    """Make a prediction using a specific AI agent."""
+    if not evolution_engine:
+        return jsonify({
+            "success": False,
+            "error": "AI Evolution Engine not available"
+        }), 503
+    
+    try:
+        agent = evolution_engine.get_agent(agent_name)
+        if not agent:
+            return jsonify({
+                "success": False,
+                "error": f"Agent '{agent_name}' not found"
+            }), 404
+        
+        data = request.get_json() or {}
+        result = agent.predict(data)
+        
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/evolution/knowledge/search", methods=["POST"])
+def api_evolution_knowledge_search():
+    """Search in the knowledge base."""
+    if not evolution_engine:
+        return jsonify({
+            "success": False,
+            "error": "AI Evolution Engine not available"
+        }), 503
+    
+    try:
+        data = request.get_json() or {}
+        category = data.get("category", "")
+        query = data.get("query", "")
+        
+        if not category or not query:
+            return jsonify({
+                "success": False,
+                "error": "category and query required"
+            }), 400
+        
+        results = evolution_engine.knowledge_base.search(category, query)
+        
+        return jsonify({
+            "success": True,
+            "results": results,
+            "count": len(results)
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
