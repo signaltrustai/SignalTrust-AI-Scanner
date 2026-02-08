@@ -5,29 +5,354 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Predictions - SignalTrust AI</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        :root {
+            --bg-primary:#0f1117;--bg-card:#1a1d2e;--bg-card-hover:#222640;
+            --accent:#6c5ce7;--accent-glow:rgba(108,92,231,.3);
+            --green:#00d68f;--red:#ff6b6b;--yellow:#ffd43b;--blue:#3bc9db;
+            --text-primary:#e8eaed;--text-secondary:#8b92a5;--border:#2d3148;
+            --gradient-1:linear-gradient(135deg,#6c5ce7,#a855f7);
+            --gradient-2:linear-gradient(135deg,#00d68f,#20c997);
+            --gradient-3:linear-gradient(135deg,#3bc9db,#4dabf7);
+            --gradient-4:linear-gradient(135deg,#ffd43b,#ff922b);
+        }
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:var(--bg-primary);color:var(--text-primary);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;}
+        .dash-nav{background:rgba(26,29,46,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:.8rem 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .dash-nav .brand{font-size:1.3rem;font-weight:800;background:var(--gradient-1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;letter-spacing:1px;}
+        .dash-nav .nav-links{display:flex;gap:1.5rem;align-items:center;}
+        .dash-nav .nav-links a{color:var(--text-secondary);text-decoration:none;font-size:.9rem;font-weight:500;transition:color .2s;}
+        .dash-nav .nav-links a:hover,.dash-nav .nav-links a.active{color:var(--accent);}
+        .container{max-width:1400px;margin:0 auto;padding:1.5rem 2rem;}
+        .page-header{margin-bottom:1.5rem;}
+        .page-header h1{font-size:1.8rem;font-weight:700;margin-bottom:.3rem;}
+        .page-header p{color:var(--text-secondary);font-size:.95rem;}
+
+        /* Controls */
+        .pred-controls{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;align-items:center;}
+        .pred-controls input,.pred-controls select{background:var(--bg-card);border:1px solid var(--border);color:var(--text-primary);padding:.6rem 1rem;border-radius:10px;font-size:.9rem;outline:none;}
+        .pred-controls input:focus,.pred-controls select:focus{border-color:var(--accent);}
+        .btn-pred{background:var(--gradient-1);color:#fff;border:none;padding:.6rem 1.6rem;border-radius:10px;font-weight:600;cursor:pointer;font-size:.9rem;transition:transform .15s;}
+        .btn-pred:hover{transform:translateY(-1px);}
+        .btn-pred:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+        .btn-pred .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;margin-right:.5rem;vertical-align:middle;}
+        @keyframes spin{to{transform:rotate(360deg);}}
+
+        .loading-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:1rem;display:none;}
+        .loading-bar.active{display:block;}
+        .loading-bar::after{content:'';display:block;height:100%;width:30%;background:var(--gradient-1);animation:loading 1.2s ease-in-out infinite;}
+        @keyframes loading{0%{transform:translateX(-100%);}100%{transform:translateX(400%);}}
+
+        /* Quick symbols */
+        .quick-symbols{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+        .qsym{background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);padding:.3rem .8rem;border-radius:8px;font-size:.8rem;cursor:pointer;transition:all .2s;}
+        .qsym:hover{border-color:var(--accent);color:var(--accent);}
+
+        /* Prediction cards */
+        .pred-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:1.2rem;margin-bottom:1.5rem;}
+        .card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:1.3rem;transition:transform .2s,box-shadow .2s;}
+        .card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.3);}
+        .card-title{font-size:.9rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+        .card-wide{grid-column:span 2;}
+
+        /* Direction big */
+        .direction-box{text-align:center;padding:1rem;}
+        .direction-arrow{font-size:3rem;margin-bottom:.3rem;}
+        .direction-label{font-size:1.8rem;font-weight:900;}
+        .direction-label.up{color:var(--green);}
+        .direction-label.down{color:var(--red);}
+        .direction-label.neutral{color:var(--yellow);}
+
+        /* Confidence meter */
+        .conf-meter{margin:1.5rem auto;max-width:250px;}
+        .conf-bar-bg{height:12px;background:var(--border);border-radius:6px;overflow:hidden;}
+        .conf-bar-fill{height:100%;border-radius:6px;transition:width .6s;}
+        .conf-labels{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-secondary);margin-top:.3rem;}
+        .conf-value{text-align:center;font-size:1.5rem;font-weight:800;margin-bottom:.5rem;}
+
+        /* Price target */
+        .target-row{display:flex;justify-content:space-around;text-align:center;margin-top:1rem;flex-wrap:wrap;gap:1rem;}
+        .target-item .t-label{font-size:.75rem;color:var(--text-secondary);text-transform:uppercase;}
+        .target-item .t-value{font-size:1.3rem;font-weight:700;margin-top:.2rem;}
+
+        /* Signals */
+        .signal-list{display:flex;flex-direction:column;gap:.6rem;}
+        .sig-item{display:flex;justify-content:space-between;align-items:center;background:var(--bg-primary);padding:.7rem 1rem;border-radius:10px;}
+        .sig-item .sig-name{font-weight:600;font-size:.9rem;}
+        .sig-badge{display:inline-block;padding:.2rem .7rem;border-radius:8px;font-size:.75rem;font-weight:700;text-transform:uppercase;}
+        .sig-badge.buy{background:rgba(0,214,143,.15);color:var(--green);}
+        .sig-badge.sell{background:rgba(255,107,107,.15);color:var(--red);}
+        .sig-badge.hold{background:rgba(255,212,59,.15);color:var(--yellow);}
+
+        /* Risk */
+        .risk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem;}
+        .risk-item{background:var(--bg-primary);border-radius:10px;padding:.8rem;text-align:center;}
+        .risk-item .r-label{font-size:.75rem;color:var(--text-secondary);text-transform:uppercase;margin-bottom:.3rem;}
+        .risk-item .r-value{font-size:1.1rem;font-weight:700;}
+
+        .empty-state{text-align:center;padding:4rem;color:var(--text-secondary);}
+        .empty-state .icon{font-size:3rem;margin-bottom:1rem;}
+
+        @media(max-width:768px){
+            .container{padding:1rem;}
+            .pred-grid{grid-template-columns:1fr;}
+            .card-wide{grid-column:span 1;}
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="nav-brand" style="text-decoration: none;">SignalTrust AI</a>
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/scanner">Scanner</a>
-                <a href="/tradingview">📊 TradingLive</a>
-                <a href="/analyzer">Analyzer</a>
-                <a href="/predictions" class="active">AI Predictions</a>
-                <a href="/dashboard">Dashboard</a>
-            </div>
+    <nav class="dash-nav">
+        <a href="/" class="brand">SignalTrust AI</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/scanner">Scanner</a>
+            <a href="/tradingview">TradingLive</a>
+            <a href="/analyzer">Analyzer</a>
+            <a href="/predictions" class="active">Predictions</a>
+            <a href="/dashboard">Dashboard</a>
         </div>
     </nav>
-    
-    <div class="container" style="padding: 2rem 0;">
-        <h1>AI Predictions</h1>
-        <p>Machine learning powered market predictions</p>
-        <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 8px;">
-            <h2>Coming Soon</h2>
-            <p>AI prediction features are being developed.</p>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🤖 AI Predictions</h1>
+            <p>Multi-AI price predictions, signals &amp; risk analysis powered by GPT-4, Claude &amp; ML models</p>
+        </div>
+
+        <!-- Quick symbols -->
+        <div class="quick-symbols">
+            <span class="qsym" onclick="predictQuick('BTC')">BTC</span>
+            <span class="qsym" onclick="predictQuick('ETH')">ETH</span>
+            <span class="qsym" onclick="predictQuick('SOL')">SOL</span>
+            <span class="qsym" onclick="predictQuick('AAPL')">AAPL</span>
+            <span class="qsym" onclick="predictQuick('TSLA')">TSLA</span>
+            <span class="qsym" onclick="predictQuick('XRP')">XRP</span>
+            <span class="qsym" onclick="predictQuick('ADA')">ADA</span>
+            <span class="qsym" onclick="predictQuick('DOGE')">DOGE</span>
+        </div>
+
+        <!-- Controls -->
+        <div class="pred-controls">
+            <input type="text" id="symbolInput" placeholder="Enter symbol (e.g. BTC, AAPL)" style="flex:1;min-width:200px;">
+            <select id="predDays">
+                <option value="1">1 Day</option>
+                <option value="3">3 Days</option>
+                <option value="7" selected>7 Days</option>
+                <option value="14">14 Days</option>
+                <option value="30">30 Days</option>
+            </select>
+            <button class="btn-pred" id="btnPredict" onclick="runPrediction()">
+                🔮 Predict Price
+            </button>
+            <button class="btn-pred" style="background:var(--gradient-2);" onclick="runSignals()">
+                📡 Signals
+            </button>
+            <button class="btn-pred" style="background:var(--gradient-4);" onclick="runRisk()">
+                ⚠️ Risk
+            </button>
+        </div>
+
+        <div class="loading-bar" id="loadingBar"></div>
+
+        <!-- Results -->
+        <div id="resultsArea" style="display:none;">
+            <div class="pred-grid">
+                <!-- Direction -->
+                <div class="card" id="directionCard">
+                    <div class="card-title">🧭 AI Direction</div>
+                    <div class="direction-box">
+                        <div class="direction-arrow" id="dirArrow">—</div>
+                        <div class="direction-label" id="dirLabel">—</div>
+                    </div>
+                    <div class="conf-meter">
+                        <div class="conf-value" id="confValue">—</div>
+                        <div class="conf-bar-bg"><div class="conf-bar-fill" id="confBar" style="width:0%;background:var(--blue);"></div></div>
+                        <div class="conf-labels"><span>0%</span><span>Confidence</span><span>100%</span></div>
+                    </div>
+                </div>
+
+                <!-- Price Targets -->
+                <div class="card" id="targetCard">
+                    <div class="card-title">🎯 Price Targets</div>
+                    <div style="text-align:center;margin-bottom:1rem;">
+                        <span style="font-size:.85rem;color:var(--text-secondary);" id="targetSymbol"></span>
+                    </div>
+                    <div class="target-row" id="targetRow">
+                        <div class="target-item"><div class="t-label">Current</div><div class="t-value" id="tCurrent">—</div></div>
+                        <div class="target-item"><div class="t-label">Predicted</div><div class="t-value up" id="tPredicted">—</div></div>
+                        <div class="target-item"><div class="t-label">Low</div><div class="t-value down" id="tLow">—</div></div>
+                        <div class="target-item"><div class="t-label">High</div><div class="t-value up" id="tHigh">—</div></div>
+                    </div>
+                    <div id="predReason" style="text-align:center;margin-top:1rem;font-size:.85rem;color:var(--text-secondary);"></div>
+                </div>
+
+                <!-- Signals -->
+                <div class="card" id="signalsCard" style="display:none;">
+                    <div class="card-title">📡 Trading Signals</div>
+                    <div class="signal-list" id="sigList"></div>
+                </div>
+
+                <!-- Risk -->
+                <div class="card" id="riskCard" style="display:none;">
+                    <div class="card-title">⚠️ Risk Assessment</div>
+                    <div class="risk-grid" id="riskGrid"></div>
+                    <div id="riskSummary" style="margin-top:1rem;font-size:.85rem;color:var(--text-secondary);"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState">
+            <div class="icon">🤖</div>
+            <p>Enter a symbol and click <strong>Predict Price</strong> to get AI-powered market predictions.</p>
         </div>
     </div>
+
+    <script>
+        function predictQuick(s) {
+            document.getElementById('symbolInput').value = s;
+            runPrediction();
+        }
+
+        function getSymbol() {
+            const s = document.getElementById('symbolInput').value.trim().toUpperCase();
+            if (!s) { alert('Enter a symbol'); return null; }
+            return s;
+        }
+
+        async function runPrediction() {
+            const symbol = getSymbol();
+            if (!symbol) return;
+            const btn = document.getElementById('btnPredict');
+            const bar = document.getElementById('loadingBar');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Predicting...';
+            bar.classList.add('active');
+
+            try {
+                const days = parseInt(document.getElementById('predDays').value);
+                const r = await fetch('/api/predict/price', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({symbol, days})
+                });
+                const j = await r.json();
+                if (j.success) renderPrediction(j.data, symbol, days);
+                else alert('Error: ' + (j.error || 'Unknown'));
+            } catch (e) { console.error(e); alert('Prediction failed'); }
+
+            btn.disabled = false;
+            btn.innerHTML = '🔮 Predict Price';
+            bar.classList.remove('active');
+        }
+
+        function renderPrediction(d, symbol, days) {
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsArea').style.display = 'block';
+
+            // Direction
+            const dir = (d.direction || d.predicted_direction || 'neutral').toUpperCase();
+            const isUp = dir.includes('UP') || dir.includes('BULL');
+            const isDown = dir.includes('DOWN') || dir.includes('BEAR');
+            const cls = isUp ? 'up' : isDown ? 'down' : 'neutral';
+            document.getElementById('dirArrow').textContent = isUp ? '📈' : isDown ? '📉' : '➡️';
+            const lbl = document.getElementById('dirLabel');
+            lbl.textContent = isUp ? 'BULLISH' : isDown ? 'BEARISH' : 'NEUTRAL';
+            lbl.className = 'direction-label ' + cls;
+
+            // Confidence
+            const conf = d.confidence || d.prediction_confidence || 50;
+            const confPct = typeof conf === 'number' && conf <= 1 ? conf * 100 : conf;
+            document.getElementById('confValue').textContent = confPct.toFixed(0) + '%';
+            const cBar = document.getElementById('confBar');
+            cBar.style.width = confPct + '%';
+            cBar.style.background = confPct > 70 ? 'var(--green)' : confPct > 40 ? 'var(--yellow)' : 'var(--red)';
+
+            // Targets
+            document.getElementById('targetSymbol').textContent = symbol + ' — ' + days + ' day prediction';
+            const cur = d.current_price || d.price || 0;
+            const pred = d.predicted_price || d.target_price || cur;
+            const low = d.predicted_low || d.low || pred * 0.95;
+            const high = d.predicted_high || d.high || pred * 1.05;
+            document.getElementById('tCurrent').textContent = '$' + fmtNum(cur);
+            document.getElementById('tPredicted').textContent = '$' + fmtNum(pred);
+            document.getElementById('tLow').textContent = '$' + fmtNum(low);
+            document.getElementById('tHigh').textContent = '$' + fmtNum(high);
+            document.getElementById('predReason').textContent = d.reason || d.analysis || d.summary || '';
+        }
+
+        async function runSignals() {
+            const symbol = getSymbol();
+            if (!symbol) return;
+            document.getElementById('loadingBar').classList.add('active');
+            try {
+                const r = await fetch('/api/predict/signals', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({symbol})
+                });
+                const j = await r.json();
+                if (j.success) {
+                    document.getElementById('resultsArea').style.display = 'block';
+                    document.getElementById('emptyState').style.display = 'none';
+                    const card = document.getElementById('signalsCard');
+                    card.style.display = 'block';
+                    const sigs = j.data.signals || j.data || [];
+                    const arr = Array.isArray(sigs) ? sigs : [sigs];
+                    document.getElementById('sigList').innerHTML = arr.length ?
+                        arr.map(s => {
+                            const sig = (s.signal || s.action || 'HOLD').toUpperCase();
+                            const cls = sig.includes('BUY') ? 'buy' : sig.includes('SELL') ? 'sell' : 'hold';
+                            return `<div class="sig-item">
+                                <span class="sig-name">${s.name || s.indicator || s.type || 'Signal'}</span>
+                                <span class="sig-badge ${cls}">${sig}</span>
+                            </div>`;
+                        }).join('') :
+                        '<p style="color:var(--text-secondary);text-align:center;padding:1rem;">No signals available</p>';
+                }
+            } catch (e) { console.error(e); }
+            document.getElementById('loadingBar').classList.remove('active');
+        }
+
+        async function runRisk() {
+            const symbol = getSymbol();
+            if (!symbol) return;
+            document.getElementById('loadingBar').classList.add('active');
+            try {
+                const r = await fetch('/api/predict/risk', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({symbol})
+                });
+                const j = await r.json();
+                if (j.success) {
+                    document.getElementById('resultsArea').style.display = 'block';
+                    document.getElementById('emptyState').style.display = 'none';
+                    const card = document.getElementById('riskCard');
+                    card.style.display = 'block';
+                    const d = j.data;
+                    const items = [];
+                    const riskFields = ['risk_score','volatility','max_drawdown','sharpe_ratio','risk_level','beta','var_95'];
+                    for (const k of riskFields) {
+                        let v = d[k];
+                        if (v === undefined || v === null) continue;
+                        const label = k.replace(/_/g,' ').toUpperCase();
+                        const color = k === 'risk_score' || k === 'risk_level' ?
+                            (typeof v === 'number' ? (v > 70 ? 'var(--red)' : v > 40 ? 'var(--yellow)' : 'var(--green)') : 'var(--text-primary)') :
+                            'var(--text-primary)';
+                        items.push(`<div class="risk-item"><div class="r-label">${label}</div><div class="r-value" style="color:${color};">${typeof v === 'number' ? v.toFixed(2) : v}</div></div>`);
+                    }
+                    document.getElementById('riskGrid').innerHTML = items.length ? items.join('') : '<p style="color:var(--text-secondary)">No risk data</p>';
+                    document.getElementById('riskSummary').textContent = d.summary || d.analysis || '';
+                }
+            } catch (e) { console.error(e); }
+            document.getElementById('loadingBar').classList.remove('active');
+        }
+
+        function fmtNum(n) {
+            if (n >= 1) return Number(n).toLocaleString(undefined, {maximumFractionDigits: 2});
+            return Number(n).toPrecision(4);
+        }
+    </script>
 </body>
 </html>

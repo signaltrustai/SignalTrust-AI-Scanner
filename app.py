@@ -33,6 +33,7 @@ from tradingview_manager import tradingview_manager
 from signalai_strategy import signalai_strategy
 from multi_ai_coordinator import get_coordinator
 from ai_learning_system import get_learning_system
+from ai_optimizer import get_optimizer
 
 # Load environment variables from .env (if present)
 load_dotenv()
@@ -77,6 +78,7 @@ total_collector = TotalMarketDataCollector()
 ai_evolution = AIEvolutionSystem()
 ai_coordinator = get_coordinator()
 ai_learning = get_learning_system()
+ai_optimizer = get_optimizer()
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -1696,6 +1698,51 @@ def api_signalai_performance():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+@app.route("/api/signalai/performance", methods=["POST"])
+def api_signalai_performance():
+    """Get SignalAI performance statistics"""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        
+        stats = signalai_strategy.get_performance_stats(symbol)
+        return jsonify({"success": True, "stats": stats}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - AI OPTIMIZER
+# -----------------------------
+
+@app.route("/api/optimizer/status", methods=["GET"])
+def api_optimizer_status():
+    """Get AI optimizer status and current weights."""
+    try:
+        status = ai_optimizer.get_status()
+        return jsonify({"success": True, "data": status}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/optimizer/optimize", methods=["POST"])
+def api_optimizer_optimize():
+    """Run full optimization cycle."""
+    try:
+        results = ai_optimizer.run_full_optimization()
+        return jsonify({"success": True, "data": results}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/optimizer/strategy", methods=["POST"])
+def api_optimizer_strategy():
+    """Get optimal strategy for a task type."""
+    try:
+        data = request.get_json()
+        task_type = data.get("task_type", "general")
+        result = ai_optimizer.get_optimal_strategy(task_type)
+        return jsonify({"success": True, "data": result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 # -----------------------------
 # BACKGROUND WORKERS - 24/7 AI AGENTS (Optimized v2)
 # -----------------------------
@@ -1814,10 +1861,11 @@ class BackgroundAIWorker:
                 if self.cycle_count % 48 == 0:
                     self._run_task("total_collection", self._collect_total_data)
 
-                # ── Every 6 hours: AI evolution + learning ──
+                # ── Every 6 hours: AI evolution + learning + optimization ──
                 if self.cycle_count % 72 == 0:
                     self._run_task("ai_evolution", self._evolve_ai)
                     self._run_task("ai_learning", self._learn_from_data)
+                    self._run_task("ai_optimization", self._run_optimization)
 
                 # ── Every 12 hours: save all persistent data ──
                 if self.cycle_count % 144 == 0:
@@ -2075,6 +2123,14 @@ class BackgroundAIWorker:
         except Exception as e:
             log_event("SAVE_HUB_ERROR", {"error": str(e)})
         log_event("AUTO_DATA_SAVE", {"time": datetime.datetime.now(datetime.timezone.utc).isoformat()})
+
+    def _run_optimization(self):
+        """Run AI optimizer to refine worker weights and indicator scores."""
+        results = ai_optimizer.run_full_optimization()
+        log_event("AI_OPTIMIZATION", {
+            "worker_weights": results.get("worker_weights"),
+            "regime": results.get("current_regime"),
+        })
 
     def _health_check(self, cycle_count):
         """Perform system health check and cleanup."""

@@ -1115,7 +1115,10 @@ class SignalAIStrategy:
         mtf: Dict,
         sr: Dict,
     ) -> Dict:
-        """AI enhancement: confluence bonus, regime-adaptive risk, S/R-based levels."""
+        """AI enhancement: real GPT-4/Claude consultation + confluence bonus + regime-adaptive risk."""
+
+        # ── Real AI consultation via coordinator ──
+        ai_insight = self._consult_ai(signal, indicators, current_price, regime, mtf)
 
         # ── Confluence bonus ──
         rsi = indicators.get("RSI", 50)
@@ -1159,6 +1162,25 @@ class SignalAIStrategy:
                 bonus += 3
 
         signal["confidence"] = min(signal["confidence"] + bonus, 98)
+
+        # ── AI insight integration ──
+        if ai_insight.get("success"):
+            ai_dir = ai_insight.get("direction", "").upper()
+            ai_conf = ai_insight.get("ai_confidence", 0)
+            signal["ai_analysis"] = ai_insight.get("analysis", "")
+            signal["ai_worker"] = ai_insight.get("worker_used", "unknown")
+
+            # AI agrees with indicators → boost confidence
+            if (ai_dir == "BULLISH" and signal["type"] == "BUY") or \
+               (ai_dir == "BEARISH" and signal["type"] == "SELL"):
+                signal["confidence"] = min(signal["confidence"] + 5, 98)
+                signal["ai_agrees"] = True
+            # AI disagrees → reduce confidence slightly
+            elif ai_dir and ai_dir != "NEUTRAL":
+                signal["confidence"] = max(signal["confidence"] - 3, 10)
+                signal["ai_agrees"] = False
+            else:
+                signal["ai_agrees"] = None
 
         # ── Regime-adaptive risk levels ──
         sl_mult = regime.get("sl_multiplier", 1.5)
@@ -1220,6 +1242,93 @@ class SignalAIStrategy:
         signal["risk_reward"] = round(tp_dist / sl_dist, 2) if sl_dist > 0 else 0
 
         return signal
+
+    # ── Real AI consultation ──────────────────────────────────────
+
+    def _consult_ai(
+        self,
+        signal: Dict,
+        indicators: Dict,
+        current_price: float,
+        regime: Dict,
+        mtf: Dict,
+    ) -> Dict:
+        """Call the multi-AI coordinator (GPT-4/Claude) for signal validation.
+
+        Returns dict with 'success', 'direction', 'ai_confidence', 'analysis', 'worker_used'.
+        Falls back gracefully if AI is unavailable.
+        """
+        try:
+            from multi_ai_coordinator import get_coordinator
+            coordinator = get_coordinator()
+
+            if not coordinator.workers:
+                return {"success": False, "reason": "No AI workers available"}
+
+            # Build concise prompt with real indicator data
+            rsi = indicators.get("RSI", "N/A")
+            macd = indicators.get("MACD", {})
+            macd_val = macd.get("value", "N/A") if isinstance(macd, dict) else "N/A"
+            macd_sig = macd.get("signal", "N/A") if isinstance(macd, dict) else "N/A"
+            adx = indicators.get("ADX", "N/A")
+            ichi = indicators.get("ICHIMOKU", {})
+            cloud_pos = ichi.get("price_vs_cloud", "N/A") if isinstance(ichi, dict) else "N/A"
+
+            prompt = (
+                f"Analyze this trading signal and give your directional opinion.\n"
+                f"Price: ${current_price}\n"
+                f"Current signal: {signal.get('type', 'HOLD')} (strength {signal.get('strength', 0)}%)\n"
+                f"RSI: {rsi} | MACD: {macd_val} vs signal {macd_sig}\n"
+                f"ADX: {adx} | Ichimoku cloud: {cloud_pos}\n"
+                f"Regime: {regime.get('regime', 'unknown')} | Volatility: {regime.get('volatility', 'N/A')}\n"
+                f"MTF consensus: {mtf.get('consensus', 'neutral')}\n\n"
+                f"Reply with JSON: {{\"direction\": \"BULLISH/BEARISH/NEUTRAL\", "
+                f"\"confidence\": 0-100, \"reason\": \"brief explanation\"}}"
+            )
+
+            result = coordinator.analyze(
+                task_type="technical_analysis",
+                prompt=prompt,
+                data={"price": current_price, "indicators": {
+                    "RSI": rsi, "ADX": adx, "regime": regime.get("regime"),
+                }},
+                strategy="specialist",
+                timeout=10,
+                cache_ttl=60,
+            )
+
+            if result.get("success"):
+                analysis = result.get("analysis", {})
+                # Try to extract direction from AI response
+                direction = "NEUTRAL"
+                ai_confidence = 50
+                analysis_text = ""
+
+                if isinstance(analysis, dict):
+                    direction = analysis.get("direction", "NEUTRAL").upper()
+                    ai_confidence = analysis.get("confidence", 50)
+                    analysis_text = analysis.get("reason", "")
+                elif isinstance(analysis, str):
+                    analysis_text = analysis
+                    a_upper = analysis.upper()
+                    if "BULLISH" in a_upper or "BUY" in a_upper:
+                        direction = "BULLISH"
+                    elif "BEARISH" in a_upper or "SELL" in a_upper:
+                        direction = "BEARISH"
+
+                return {
+                    "success": True,
+                    "direction": direction,
+                    "ai_confidence": ai_confidence,
+                    "analysis": analysis_text[:500],
+                    "worker_used": result.get("worker_used", "coordinator"),
+                }
+
+            return {"success": False, "reason": result.get("error", "AI unavailable")}
+
+        except Exception as e:
+            logger.debug(f"AI consultation skipped: {e}")
+            return {"success": False, "reason": str(e)}
 
     # ── helpers ─────────────────────────────────────────────────────
 
