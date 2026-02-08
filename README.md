@@ -4,13 +4,20 @@ The **Ultimate AI-Powered Market Scanner** for intelligent trading and investmen
 
 ## 🤖 NEW: Multi-Agent System EU ✨
 
-SignalTrust now includes a powerful **multi-agent architecture** with 6 specialized agents working together for comprehensive market analysis:
+SignalTrust now includes a powerful **multi-agent architecture** with **9 specialized agents** working together for comprehensive market analysis:
 
-- **🎯 Coordinator**: Orchestrates all agents using CrewAI framework
-- **💰 Crypto-Analyst**: FinGPT-based cryptocurrency market analysis
-- **📈 Stock-Analyst**: Stock-GPT-based stock market analysis  
-- **🐋 Whale-Watcher**: Monitors large blockchain transactions
-- **📰 News-Agent**: Aggregates and analyzes market news
+### Core Agents
+- **🎯 Coordinator** (Port 8000): Orchestrates all agents using CrewAI framework
+- **💰 Crypto Agent** (Port 8001): FinGPT-based cryptocurrency market analysis
+- **📈 Stock Agent** (Port 8002): Stock-GPT-based stock market analysis  
+- **🐋 Whale Agent** (Port 8003): Monitors large blockchain transactions
+- **📰 News Agent** (Port 8004): Aggregates and analyzes market news
+
+### Advanced Agents ✨ NEW
+- **💬 Social Sentiment** (Port 8005): Real-time sentiment from Twitter, Reddit, Discord
+- **⛓️ On-Chain Data** (Port 8006): Blockchain metrics and whale activity
+- **🌍 Macro Economics** (Port 8007): GDP, inflation, Fed events analysis
+- **📊 Portfolio Optimizer** (Port 8008): Risk management and allocation optimization
 - **🔍 Supervisor**: Auto-GPT-based task orchestration and monitoring
 
 **Quick Start with Multi-Agent System:**
@@ -19,7 +26,14 @@ SignalTrust now includes a powerful **multi-agent architecture** with 6 speciali
 ./test_agents.sh    # Test all agents
 ```
 
-📚 **Full Documentation**: See [MULTI_AGENT_SYSTEM.md](MULTI_AGENT_SYSTEM.md) for complete guide.
+**Access Agent Dashboard:**
+- Web Interface: `http://localhost:5000/agents`
+- API Status: `http://localhost:5000/api/agents/status`
+
+📚 **Full Documentation**: 
+- [MULTI_AGENT_SYSTEM.md](MULTI_AGENT_SYSTEM.md) - Complete system guide
+- [AGENT_INTEGRATION_GUIDE.md](AGENT_INTEGRATION_GUIDE.md) - Integration & API reference
+- [agents/README.md](agents/README.md) - Individual agent documentation
 
 ## 🚀 Features
 
