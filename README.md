@@ -2,6 +2,33 @@
 
 The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
 
+## 🧠 NEW: AI Evolution System ✨✨✨
+
+SignalTrust intègre maintenant un **système d'IA évolutif** avec **10 agents IA spécialisés** qui:
+- 🎓 **Apprennent quotidiennement** à partir de nouvelles données
+- 🚀 **Évoluent continuellement** pour devenir plus puissants
+- 🤝 **Partagent leurs connaissances** via une base commune
+- 🎯 **Ont chacun un rôle spécifique** bien défini
+
+### Les 10 Agents IA
+1. **💹 MarketIntelligence** - Analyse des marchés et prédictions
+2. **👤 UserExperience** - Personnalisation de l'expérience
+3. **🛡️ RiskManager** - Gestion des risques
+4. **📈 TradingOptimizer** - Optimisation des stratégies
+5. **📝 ContentGenerator** - Génération de contenu
+6. **🔐 SecurityGuard** - Détection de fraudes
+7. **💬 SupportAssistant** - Support automatisé 24/7
+8. **🔍 PatternRecognizer** - Reconnaissance de patterns
+9. **😊 SentimentAnalyzer** - Analyse de sentiment
+10. **💼 PortfolioManager** - Gestion de portefeuille
+
+**Accéder au système:**
+```
+http://localhost:5000/ai-evolution
+```
+
+📚 **Documentation complète**: [AI_EVOLUTION_GUIDE.md](AI_EVOLUTION_GUIDE.md)
+
 ## 🤖 NEW: Multi-Agent System EU ✨
 
 SignalTrust now includes a powerful **multi-agent architecture** with **9 specialized agents** working together for comprehensive market analysis:
