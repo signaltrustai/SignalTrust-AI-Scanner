@@ -2085,15 +2085,13 @@ body::after {
     }
 }
 
-/* Performance optimizations */
-* {
-    /* Hardware acceleration for smoother scrolling */
+/* Performance optimizations - Selective hardware acceleration */
+.btn, .feature-card, .stat-card, .pricing-card, .modal, .notification {
+    /* Hardware acceleration for animated elements only */
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    perspective: 1000;
 }
 
 /* Smooth scrolling on all devices */

@@ -100,17 +100,8 @@ if ('serviceWorker' in navigator) {
 // MOBILE OPTIMIZATIONS
 // ====================================
 
-// Prevent double-tap zoom on buttons
+// Prevent double-tap zoom and add visual feedback for touch events
 let lastTouchEnd = 0;
-document.addEventListener('touchend', (e) => {
-    const now = Date.now();
-    if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-    }
-    lastTouchEnd = now;
-}, false);
-
-// Add visual feedback for touch events
 document.addEventListener('touchstart', (e) => {
     if (e.target.matches('button, .btn, a.btn')) {
         e.target.style.transform = 'scale(0.97)';
@@ -118,12 +109,20 @@ document.addEventListener('touchstart', (e) => {
 }, { passive: true });
 
 document.addEventListener('touchend', (e) => {
+    // Prevent double-tap zoom
+    const now = Date.now();
+    if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+    }
+    lastTouchEnd = now;
+    
+    // Reset visual feedback for buttons
     if (e.target.matches('button, .btn, a.btn')) {
         setTimeout(() => {
             e.target.style.transform = '';
         }, 100);
     }
-}, { passive: true });
+}, { passive: false }); // Can't be passive due to preventDefault
 
 // Optimize scroll performance
 let ticking = false;
