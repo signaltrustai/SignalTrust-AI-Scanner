@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-08T02:46:15.028350",
+  "timestamp": "2026-02-08T03:42:01.937864",
   "total_assets_analyzed": 1316,
   "markets": {
     "us_stocks": {
@@ -7,143 +7,143 @@
       "analyzed": 100,
       "opportunities": [
         {
-          "symbol": "DHR",
-          "score": 98.84886814272005,
+          "symbol": "TMO",
+          "score": 98.824209914621,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+117%",
+          "target_gain": "+169%",
           "market": "us_stocks"
         },
         {
-          "symbol": "HII",
-          "score": 98.82337605810878,
+          "symbol": "PARA",
+          "score": 98.67508678168116,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+62%",
+          "target_gain": "+141%",
           "market": "us_stocks"
         },
         {
-          "symbol": "F",
-          "score": 97.54898033198647,
+          "symbol": "TMUS",
+          "score": 97.84346059165378,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+123%",
+          "target_gain": "+155%",
           "market": "us_stocks"
         },
         {
-          "symbol": "RIVN",
-          "score": 97.26522649223932,
+          "symbol": "HAL",
+          "score": 97.1908826389438,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+57%",
+          "target_gain": "+48%",
           "market": "us_stocks"
         },
         {
-          "symbol": "MPC",
-          "score": 96.19695231247618,
+          "symbol": "CL",
+          "score": 97.10921994481645,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+199%",
+          "target_gain": "+121%",
           "market": "us_stocks"
         },
         {
-          "symbol": "LLY",
-          "score": 95.54747513114503,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+61%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "STOCK4",
-          "score": 94.83007968918926,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+153%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "JPM",
-          "score": 94.74872263379831,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+57%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "MRK",
-          "score": 94.46933072031561,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+198%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "AAPL",
-          "score": 93.03884441249878,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+73%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "PEP",
-          "score": 92.6059149627894,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+131%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "COST",
-          "score": 92.16835610861781,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+110%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "SCHW",
-          "score": 91.43882628403279,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+189%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "LHX",
-          "score": 91.4000438312209,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+178%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "BBBY",
-          "score": 91.34687645657975,
-          "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+38%",
-          "market": "us_stocks"
-        },
-        {
-          "symbol": "LCID",
-          "score": 89.45388237989116,
+          "symbol": "XOM",
+          "score": 96.92588593890535,
           "recommendation": "\ud83d\ude80 BUY",
           "target_gain": "+66%",
           "market": "us_stocks"
         },
         {
-          "symbol": "STOCK1",
-          "score": 89.37726382242064,
+          "symbol": "NFLX",
+          "score": 96.39559458401308,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+92%",
+          "target_gain": "+147%",
           "market": "us_stocks"
         },
         {
-          "symbol": "MMM",
-          "score": 89.2083325199715,
+          "symbol": "VLO",
+          "score": 93.03325446973966,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+38%",
+          "target_gain": "+155%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "CVX",
+          "score": 92.62020353883327,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+101%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "KO",
+          "score": 92.32017811796067,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+117%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "GE",
+          "score": 92.23838499995047,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+155%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "LOW",
+          "score": 92.12948898468633,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+88%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "GS",
+          "score": 92.10036540792112,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+157%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "PM",
+          "score": 91.75135135715222,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+184%",
           "market": "us_stocks"
         },
         {
           "symbol": "XPEV",
-          "score": 87.88483248762954,
+          "score": 91.31248452679068,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+143%",
+          "target_gain": "+161%",
           "market": "us_stocks"
         },
         {
-          "symbol": "BAC",
-          "score": 87.78565773759607,
+          "symbol": "PYPL",
+          "score": 91.23617205084342,
           "recommendation": "\ud83d\ude80 BUY",
-          "target_gain": "+68%",
+          "target_gain": "+72%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "GD",
+          "score": 91.17360281650491,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+125%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "DIS",
+          "score": 90.65866616920516,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+194%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "GOOGL",
+          "score": 90.58406464332435,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+119%",
+          "market": "us_stocks"
+        },
+        {
+          "symbol": "PFE",
+          "score": 90.50457121774562,
+          "recommendation": "\ud83d\ude80 BUY",
+          "target_gain": "+155%",
           "market": "us_stocks"
         }
       ]
@@ -153,73 +153,73 @@
       "analyzed": 50,
       "opportunities": [
         {
-          "symbol": "BMO.TO",
-          "score": 98.19056296796256,
+          "symbol": "TSX26.TO",
+          "score": 98.86776804983839,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+104%",
+          "target_gain": "+82%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX2.TO",
-          "score": 96.9348385968463,
+          "symbol": "TSX8.TO",
+          "score": 97.86501844786946,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+135%",
+          "target_gain": "+102%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX18.TO",
-          "score": 95.65375946042641,
+          "symbol": "CNQ.TO",
+          "score": 97.20608437761375,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+67%",
+          "target_gain": "+123%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX13.TO",
-          "score": 93.9256110216794,
+          "symbol": "TSX23.TO",
+          "score": 95.4885595422771,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+88%",
+          "target_gain": "+94%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "MFC.TO",
-          "score": 93.81308117555271,
+          "symbol": "BCE.TO",
+          "score": 94.62932199454642,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+28%",
+          "target_gain": "+19%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX29.TO",
-          "score": 89.33213930148469,
+          "symbol": "RY.TO",
+          "score": 92.61636560943265,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+115%",
+          "target_gain": "+147%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX9.TO",
-          "score": 89.24268185024766,
+          "symbol": "T.TO",
+          "score": 88.80833832635906,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+130%",
+          "target_gain": "+90%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "ABX.TO",
-          "score": 86.16581993287765,
+          "symbol": "SU.TO",
+          "score": 88.19843427928842,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+81%",
+          "target_gain": "+150%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX3.TO",
-          "score": 85.87268853769547,
+          "symbol": "TSX28.TO",
+          "score": 87.5216986400663,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+52%",
+          "target_gain": "+79%",
           "market": "canadian_stocks"
         },
         {
-          "symbol": "TSX27.TO",
-          "score": 84.733249907456,
+          "symbol": "TSX20.TO",
+          "score": 87.34306656474568,
           "recommendation": "\ud83c\udf41 BUY",
-          "target_gain": "+103%",
+          "target_gain": "+149%",
           "market": "canadian_stocks"
         }
       ]
@@ -229,178 +229,129 @@
       "analyzed": 60,
       "opportunities": [
         {
-          "symbol": "ANT",
-          "score": 98.22542387094582,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+269%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "GRT",
-          "score": 96.90481843132648,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+786%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "NEO",
-          "score": 94.4889397432644,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+671%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "BAL",
-          "score": 94.47783676846103,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+111%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "NEAR",
-          "score": 94.38071003094602,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+617%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "HBAR",
-          "score": 94.2811607366113,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+494%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "ZIL",
-          "score": 94.22110527129307,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+429%",
-          "market": "cryptocurrencies"
-        },
-        {
           "symbol": "MANA",
-          "score": 94.01687542691646,
+          "score": 98.14374173368019,
           "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+80%",
+          "target_gain": "+776%",
           "market": "cryptocurrencies"
         },
         {
-          "symbol": "UMA",
-          "score": 92.91552457474768,
+          "symbol": "COMP",
+          "score": 97.44766982360662,
           "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+181%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "CHZ",
-          "score": 92.37355183906467,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+257%",
+          "target_gain": "+886%",
           "market": "cryptocurrencies"
         },
         {
           "symbol": "MLN",
-          "score": 92.2866438842508,
+          "score": 96.95609883406928,
           "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+279%",
+          "target_gain": "+566%",
           "market": "cryptocurrencies"
         },
         {
-          "symbol": "SAND",
-          "score": 92.11694992628006,
+          "symbol": "LRC",
+          "score": 96.1329716411461,
           "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+713%",
+          "target_gain": "+136%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "MATIC",
+          "score": 95.86328582398882,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+386%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "BAL",
+          "score": 94.9351676590212,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+115%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "ALGO",
+          "score": 94.7181342846674,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+775%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "WAVES",
+          "score": 94.4270300354761,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+987%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "UMA",
+          "score": 94.3283254946814,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+882%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "BTC",
+          "score": 92.3304279133952,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+493%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "GRT",
+          "score": 92.00837888633137,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+82%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "ATOM",
+          "score": 91.90620954779865,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+939%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "REN",
+          "score": 89.85825987497702,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+499%",
           "market": "cryptocurrencies"
         },
         {
           "symbol": "ADA",
-          "score": 91.24341897055419,
+          "score": 89.84769733391943,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+513%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "NEAR",
+          "score": 85.68577108014094,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+465%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "ENJ",
+          "score": 85.68081914349239,
+          "recommendation": "\ud83d\udc8e STRONG BUY",
+          "target_gain": "+412%",
+          "market": "cryptocurrencies"
+        },
+        {
+          "symbol": "AXS",
+          "score": 85.57095710031422,
           "recommendation": "\ud83d\udc8e STRONG BUY",
           "target_gain": "+860%",
           "market": "cryptocurrencies"
         },
         {
-          "symbol": "ETH",
-          "score": 91.14542055259422,
+          "symbol": "YFI",
+          "score": 85.28996823634861,
           "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+243%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "EOS",
-          "score": 90.38163287908908,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+816%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "EGLD",
-          "score": 90.30632216406303,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+713%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "ZEC",
-          "score": 90.11290400260268,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+582%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "KSM",
-          "score": 89.87016545333171,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+874%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "THETA",
-          "score": 89.13881181142143,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+820%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "WAVES",
-          "score": 88.80200447253904,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+650%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "SNX",
-          "score": 88.68894146872574,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+456%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "REN",
-          "score": 88.41528604538374,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+97%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "1INCH",
-          "score": 88.06447843254897,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+159%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "LRC",
-          "score": 85.79452375434735,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+732%",
-          "market": "cryptocurrencies"
-        },
-        {
-          "symbol": "BCH",
-          "score": 85.29181024572677,
-          "recommendation": "\ud83d\udc8e STRONG BUY",
-          "target_gain": "+451%",
+          "target_gain": "+558%",
           "market": "cryptocurrencies"
         }
       ]
@@ -415,138 +366,120 @@
       "analyzed": 50,
       "opportunities": [
         {
+          "name": "NFT Collection 32",
+          "symbol": "NFT32",
+          "floor_price": 3.4328452424342832,
+          "score": 91.91475908217674,
+          "recommendation": "\ud83c\udfa8 BUY",
+          "target_gain": "+95%",
+          "market": "nfts"
+        },
+        {
+          "name": "NFT Collection 2",
+          "symbol": "NFT2",
+          "floor_price": 14.319744538023894,
+          "score": 91.12966575910123,
+          "recommendation": "\ud83c\udfa8 BUY",
+          "target_gain": "+393%",
+          "market": "nfts"
+        },
+        {
+          "name": "NFT Collection 4",
+          "symbol": "NFT4",
+          "floor_price": 30.37575094333054,
+          "score": 88.79581062276847,
+          "recommendation": "\ud83c\udfa8 BUY",
+          "target_gain": "+390%",
+          "market": "nfts"
+        },
+        {
+          "name": "NFT Collection 27",
+          "symbol": "NFT27",
+          "floor_price": 6.67180435563815,
+          "score": 88.77444612715448,
+          "recommendation": "\ud83c\udfa8 BUY",
+          "target_gain": "+478%",
+          "market": "nfts"
+        },
+        {
           "name": "NFT Collection 1",
           "symbol": "NFT1",
-          "floor_price": 39.76578450640313,
-          "score": 94.94826752881116,
+          "floor_price": 25.181788987259097,
+          "score": 88.49648743064081,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+405%",
+          "target_gain": "+125%",
           "market": "nfts"
         },
         {
-          "name": "NFT Collection 25",
-          "symbol": "NFT25",
-          "floor_price": 11.312566381520062,
-          "score": 94.48587171570668,
+          "name": "NFT Collection 37",
+          "symbol": "NFT37",
+          "floor_price": 26.30951568343049,
+          "score": 88.40062182658926,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+306%",
+          "target_gain": "+111%",
           "market": "nfts"
         },
         {
-          "name": "NFT Collection 13",
-          "symbol": "NFT13",
-          "floor_price": 21.066116533997604,
-          "score": 94.44955077620034,
+          "name": "Mutant Ape Yacht Club",
+          "symbol": "MAYC",
+          "floor_price": 12.8,
+          "score": 87.02848788987272,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+155%",
+          "target_gain": "+205%",
           "market": "nfts"
         },
         {
-          "name": "Bored Ape Yacht Club",
-          "symbol": "BAYC",
-          "floor_price": 45.5,
-          "score": 93.63102180601399,
+          "name": "NFT Collection 40",
+          "symbol": "NFT40",
+          "floor_price": 15.077495776539564,
+          "score": 86.55082514706288,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+169%",
+          "target_gain": "+275%",
           "market": "nfts"
         },
         {
-          "name": "NFT Collection 42",
-          "symbol": "NFT42",
-          "floor_price": 34.25376435836693,
-          "score": 93.42137036821812,
+          "name": "NFT Collection 33",
+          "symbol": "NFT33",
+          "floor_price": 44.3724250628668,
+          "score": 86.23936086101367,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+145%",
+          "target_gain": "+376%",
           "market": "nfts"
         },
         {
-          "name": "NFT Collection 28",
-          "symbol": "NFT28",
-          "floor_price": 44.89083759634542,
-          "score": 92.490211827493,
+          "name": "Azuki",
+          "symbol": "AZUKI",
+          "floor_price": 18.5,
+          "score": 85.28901064885571,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+94%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 20",
-          "symbol": "NFT20",
-          "floor_price": 40.70997829067395,
-          "score": 92.37215570460839,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+484%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 14",
-          "symbol": "NFT14",
-          "floor_price": 12.500206717379536,
-          "score": 91.18958680138908,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+201%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 26",
-          "symbol": "NFT26",
-          "floor_price": 6.778388795511824,
-          "score": 90.25057094753885,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+404%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 24",
-          "symbol": "NFT24",
-          "floor_price": 23.29924903223152,
-          "score": 89.8200605503883,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+197%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 16",
-          "symbol": "NFT16",
-          "floor_price": 37.71107969696351,
-          "score": 88.78294003510644,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+342%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 36",
-          "symbol": "NFT36",
-          "floor_price": 21.05286064071969,
-          "score": 88.34322675717173,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+444%",
-          "market": "nfts"
-        },
-        {
-          "name": "NFT Collection 35",
-          "symbol": "NFT35",
-          "floor_price": 31.970289498153786,
-          "score": 87.40654565098863,
-          "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+357%",
+          "target_gain": "+453%",
           "market": "nfts"
         },
         {
           "name": "NFT Collection 31",
           "symbol": "NFT31",
-          "floor_price": 30.29575020684043,
-          "score": 86.73272182467966,
+          "floor_price": 41.21410046367535,
+          "score": 82.74199045287774,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+227%",
+          "target_gain": "+380%",
           "market": "nfts"
         },
         {
-          "name": "NFT Collection 8",
-          "symbol": "NFT8",
-          "floor_price": 30.52733017100617,
-          "score": 86.6891105904871,
+          "name": "NFT Collection 15",
+          "symbol": "NFT15",
+          "floor_price": 40.125748399536555,
+          "score": 81.26233282409474,
           "recommendation": "\ud83c\udfa8 BUY",
-          "target_gain": "+272%",
+          "target_gain": "+140%",
+          "market": "nfts"
+        },
+        {
+          "name": "NFT Collection 23",
+          "symbol": "NFT23",
+          "floor_price": 38.910231318229926,
+          "score": 80.15812977703084,
+          "recommendation": "\ud83c\udfa8 BUY",
+          "target_gain": "+404%",
           "market": "nfts"
         }
       ]
@@ -556,82 +489,82 @@
       "analyzed": 30,
       "opportunities": [
         {
-          "symbol": "FXS",
-          "score": 97.67540416320375,
-          "tvl": "$589M",
-          "apy": "29%",
+          "symbol": "BAL",
+          "score": 97.14253409959048,
+          "tvl": "$888M",
+          "apy": "470%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         },
         {
-          "symbol": "COMP",
-          "score": 97.29732296459187,
-          "tvl": "$913M",
-          "apy": "139%",
-          "recommendation": "\ud83c\udfe6 INVEST",
-          "market": "defi"
-        },
-        {
-          "symbol": "OHM",
-          "score": 96.44070911437598,
-          "tvl": "$459M",
-          "apy": "410%",
-          "recommendation": "\ud83c\udfe6 INVEST",
-          "market": "defi"
-        },
-        {
-          "symbol": "DEFI6",
-          "score": 94.26439388044983,
+          "symbol": "YFI",
+          "score": 95.32779133936045,
           "tvl": "$643M",
-          "apy": "260%",
-          "recommendation": "\ud83c\udfe6 INVEST",
-          "market": "defi"
-        },
-        {
-          "symbol": "DEFI1",
-          "score": 91.05443687003964,
-          "tvl": "$638M",
-          "apy": "365%",
+          "apy": "115%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         },
         {
           "symbol": "CVX",
-          "score": 91.00872159308031,
-          "tvl": "$215M",
-          "apy": "363%",
+          "score": 94.68861760377547,
+          "tvl": "$524M",
+          "apy": "226%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         },
         {
-          "symbol": "1INCH",
-          "score": 90.87259756679609,
-          "tvl": "$334M",
-          "apy": "82%",
+          "symbol": "SUSHI",
+          "score": 93.35598740281652,
+          "tvl": "$718M",
+          "apy": "269%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         },
         {
-          "symbol": "DEFI7",
-          "score": 90.62300923635209,
-          "tvl": "$966M",
-          "apy": "258%",
+          "symbol": "TRIBE",
+          "score": 92.32961438251769,
+          "tvl": "$653M",
+          "apy": "168%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         },
         {
-          "symbol": "FRAX",
-          "score": 90.60576627689646,
-          "tvl": "$940M",
-          "apy": "273%",
+          "symbol": "ANCHOR",
+          "score": 91.2960540453478,
+          "tvl": "$34M",
+          "apy": "143%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         },
         {
-          "symbol": "MKR",
-          "score": 88.82015741308174,
-          "tvl": "$341M",
-          "apy": "67%",
+          "symbol": "FXS",
+          "score": 90.94000372860815,
+          "tvl": "$308M",
+          "apy": "73%",
+          "recommendation": "\ud83c\udfe6 INVEST",
+          "market": "defi"
+        },
+        {
+          "symbol": "MIRROR",
+          "score": 90.11731205411778,
+          "tvl": "$795M",
+          "apy": "241%",
+          "recommendation": "\ud83c\udfe6 INVEST",
+          "market": "defi"
+        },
+        {
+          "symbol": "AAVE",
+          "score": 88.01627973038289,
+          "tvl": "$647M",
+          "apy": "192%",
+          "recommendation": "\ud83c\udfe6 INVEST",
+          "market": "defi"
+        },
+        {
+          "symbol": "DEFI6",
+          "score": 86.94768411808298,
+          "tvl": "$318M",
+          "apy": "41%",
           "recommendation": "\ud83c\udfe6 INVEST",
           "market": "defi"
         }
@@ -642,59 +575,59 @@
       "analyzed": 20,
       "opportunities": [
         {
-          "symbol": "META1",
-          "score": 95.23365487216458,
-          "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+1032%",
-          "market": "metaverse"
-        },
-        {
-          "symbol": "STARL",
-          "score": 94.64578520806784,
-          "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+1663%",
-          "market": "metaverse"
-        },
-        {
           "symbol": "FLUX",
-          "score": 93.96839226695005,
+          "score": 95.02367552711873,
           "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+155%",
+          "target_gain": "+1295%",
           "market": "metaverse"
         },
         {
-          "symbol": "META4",
-          "score": 92.93378245322435,
+          "symbol": "MANA",
+          "score": 93.51165078817965,
           "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+591%",
+          "target_gain": "+1946%",
           "market": "metaverse"
         },
         {
           "symbol": "META3",
-          "score": 92.36145894705487,
+          "score": 93.02784692154228,
           "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+136%",
+          "target_gain": "+854%",
           "market": "metaverse"
         },
         {
-          "symbol": "ILV",
-          "score": 92.08247668857592,
+          "symbol": "WILD",
+          "score": 92.56389772290588,
           "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+1955%",
+          "target_gain": "+1559%",
           "market": "metaverse"
         },
         {
-          "symbol": "UFO",
-          "score": 92.02007819014307,
+          "symbol": "STARL",
+          "score": 92.05439655492152,
           "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+1565%",
+          "target_gain": "+1115%",
           "market": "metaverse"
         },
         {
-          "symbol": "SAND",
-          "score": 86.78469052035905,
+          "symbol": "DOME",
+          "score": 91.51320440712377,
           "recommendation": "\ud83c\udf10 BUY",
-          "target_gain": "+759%",
+          "target_gain": "+453%",
+          "market": "metaverse"
+        },
+        {
+          "symbol": "NAKA",
+          "score": 90.94257913635681,
+          "recommendation": "\ud83c\udf10 BUY",
+          "target_gain": "+450%",
+          "market": "metaverse"
+        },
+        {
+          "symbol": "META2",
+          "score": 87.69970627506294,
+          "recommendation": "\ud83c\udf10 BUY",
+          "target_gain": "+245%",
           "market": "metaverse"
         }
       ]
@@ -704,59 +637,59 @@
       "analyzed": 20,
       "opportunities": [
         {
-          "symbol": "GAME1",
-          "score": 95.12190629647857,
-          "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+274%",
-          "market": "gamefi"
-        },
-        {
           "symbol": "SLP",
-          "score": 95.02868633637061,
+          "score": 95.78201471343316,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+329%",
+          "target_gain": "+1167%",
           "market": "gamefi"
         },
         {
-          "symbol": "PYR",
-          "score": 93.34924539871012,
+          "symbol": "GAME2",
+          "score": 93.71053301121599,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+695%",
+          "target_gain": "+587%",
           "market": "gamefi"
         },
         {
-          "symbol": "TLM",
-          "score": 92.97210860714613,
+          "symbol": "REVO",
+          "score": 91.25075528932587,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+328%",
+          "target_gain": "+573%",
+          "market": "gamefi"
+        },
+        {
+          "symbol": "AXS",
+          "score": 90.45779461214042,
+          "recommendation": "\ud83c\udfae BUY",
+          "target_gain": "+469%",
           "market": "gamefi"
         },
         {
           "symbol": "YGG",
-          "score": 91.68613592455954,
+          "score": 89.67178533755268,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+1208%",
+          "target_gain": "+184%",
           "market": "gamefi"
         },
         {
-          "symbol": "ILV",
-          "score": 91.611802858457,
+          "symbol": "SKILL",
+          "score": 88.8845776267633,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+369%",
+          "target_gain": "+870%",
           "market": "gamefi"
         },
         {
-          "symbol": "ALICE",
-          "score": 87.41326138909504,
+          "symbol": "MBOX",
+          "score": 87.66828684414516,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+442%",
+          "target_gain": "+920%",
           "market": "gamefi"
         },
         {
-          "symbol": "GAME5",
-          "score": 87.34523091410732,
+          "symbol": "GALA",
+          "score": 85.23020909140571,
           "recommendation": "\ud83c\udfae BUY",
-          "target_gain": "+1298%",
+          "target_gain": "+1199%",
           "market": "gamefi"
         }
       ]
@@ -764,372 +697,362 @@
   },
   "top_opportunities": [
     {
-      "symbol": "DHR",
-      "score": 98.84886814272005,
+      "symbol": "TSX26.TO",
+      "score": 98.86776804983839,
+      "recommendation": "\ud83c\udf41 BUY",
+      "target_gain": "+82%",
+      "market": "canadian_stocks"
+    },
+    {
+      "symbol": "TMO",
+      "score": 98.824209914621,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+169%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "PARA",
+      "score": 98.67508678168116,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+141%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "MANA",
+      "score": 98.14374173368019,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+776%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "TSX8.TO",
+      "score": 97.86501844786946,
+      "recommendation": "\ud83c\udf41 BUY",
+      "target_gain": "+102%",
+      "market": "canadian_stocks"
+    },
+    {
+      "symbol": "TMUS",
+      "score": 97.84346059165378,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+155%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "COMP",
+      "score": 97.44766982360662,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+886%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "CNQ.TO",
+      "score": 97.20608437761375,
+      "recommendation": "\ud83c\udf41 BUY",
+      "target_gain": "+123%",
+      "market": "canadian_stocks"
+    },
+    {
+      "symbol": "HAL",
+      "score": 97.1908826389438,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+48%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "BAL",
+      "score": 97.14253409959048,
+      "tvl": "$888M",
+      "apy": "470%",
+      "recommendation": "\ud83c\udfe6 INVEST",
+      "market": "defi"
+    },
+    {
+      "symbol": "CL",
+      "score": 97.10921994481645,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+121%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "MLN",
+      "score": 96.95609883406928,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+566%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "XOM",
+      "score": 96.92588593890535,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+66%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "NFLX",
+      "score": 96.39559458401308,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+147%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "LRC",
+      "score": 96.1329716411461,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+136%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "MATIC",
+      "score": 95.86328582398882,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+386%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "SLP",
+      "score": 95.78201471343316,
+      "recommendation": "\ud83c\udfae BUY",
+      "target_gain": "+1167%",
+      "market": "gamefi"
+    },
+    {
+      "symbol": "TSX23.TO",
+      "score": 95.4885595422771,
+      "recommendation": "\ud83c\udf41 BUY",
+      "target_gain": "+94%",
+      "market": "canadian_stocks"
+    },
+    {
+      "symbol": "YFI",
+      "score": 95.32779133936045,
+      "tvl": "$643M",
+      "apy": "115%",
+      "recommendation": "\ud83c\udfe6 INVEST",
+      "market": "defi"
+    },
+    {
+      "symbol": "FLUX",
+      "score": 95.02367552711873,
+      "recommendation": "\ud83c\udf10 BUY",
+      "target_gain": "+1295%",
+      "market": "metaverse"
+    },
+    {
+      "symbol": "BAL",
+      "score": 94.9351676590212,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+115%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "ALGO",
+      "score": 94.7181342846674,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+775%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "CVX",
+      "score": 94.68861760377547,
+      "tvl": "$524M",
+      "apy": "226%",
+      "recommendation": "\ud83c\udfe6 INVEST",
+      "market": "defi"
+    },
+    {
+      "symbol": "BCE.TO",
+      "score": 94.62932199454642,
+      "recommendation": "\ud83c\udf41 BUY",
+      "target_gain": "+19%",
+      "market": "canadian_stocks"
+    },
+    {
+      "symbol": "WAVES",
+      "score": 94.4270300354761,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+987%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "UMA",
+      "score": 94.3283254946814,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+882%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "GAME2",
+      "score": 93.71053301121599,
+      "recommendation": "\ud83c\udfae BUY",
+      "target_gain": "+587%",
+      "market": "gamefi"
+    },
+    {
+      "symbol": "MANA",
+      "score": 93.51165078817965,
+      "recommendation": "\ud83c\udf10 BUY",
+      "target_gain": "+1946%",
+      "market": "metaverse"
+    },
+    {
+      "symbol": "SUSHI",
+      "score": 93.35598740281652,
+      "tvl": "$718M",
+      "apy": "269%",
+      "recommendation": "\ud83c\udfe6 INVEST",
+      "market": "defi"
+    },
+    {
+      "symbol": "VLO",
+      "score": 93.03325446973966,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+155%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "META3",
+      "score": 93.02784692154228,
+      "recommendation": "\ud83c\udf10 BUY",
+      "target_gain": "+854%",
+      "market": "metaverse"
+    },
+    {
+      "symbol": "CVX",
+      "score": 92.62020353883327,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+101%",
+      "market": "us_stocks"
+    },
+    {
+      "symbol": "RY.TO",
+      "score": 92.61636560943265,
+      "recommendation": "\ud83c\udf41 BUY",
+      "target_gain": "+147%",
+      "market": "canadian_stocks"
+    },
+    {
+      "symbol": "WILD",
+      "score": 92.56389772290588,
+      "recommendation": "\ud83c\udf10 BUY",
+      "target_gain": "+1559%",
+      "market": "metaverse"
+    },
+    {
+      "symbol": "BTC",
+      "score": 92.3304279133952,
+      "recommendation": "\ud83d\udc8e STRONG BUY",
+      "target_gain": "+493%",
+      "market": "cryptocurrencies"
+    },
+    {
+      "symbol": "TRIBE",
+      "score": 92.32961438251769,
+      "tvl": "$653M",
+      "apy": "168%",
+      "recommendation": "\ud83c\udfe6 INVEST",
+      "market": "defi"
+    },
+    {
+      "symbol": "KO",
+      "score": 92.32017811796067,
       "recommendation": "\ud83d\ude80 BUY",
       "target_gain": "+117%",
       "market": "us_stocks"
     },
     {
-      "symbol": "HII",
-      "score": 98.82337605810878,
+      "symbol": "GE",
+      "score": 92.23838499995047,
       "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+62%",
+      "target_gain": "+155%",
       "market": "us_stocks"
     },
     {
-      "symbol": "ANT",
-      "score": 98.22542387094582,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+269%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "BMO.TO",
-      "score": 98.19056296796256,
-      "recommendation": "\ud83c\udf41 BUY",
-      "target_gain": "+104%",
-      "market": "canadian_stocks"
-    },
-    {
-      "symbol": "FXS",
-      "score": 97.67540416320375,
-      "tvl": "$589M",
-      "apy": "29%",
-      "recommendation": "\ud83c\udfe6 INVEST",
-      "market": "defi"
-    },
-    {
-      "symbol": "F",
-      "score": 97.54898033198647,
+      "symbol": "LOW",
+      "score": 92.12948898468633,
       "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+123%",
+      "target_gain": "+88%",
       "market": "us_stocks"
     },
     {
-      "symbol": "COMP",
-      "score": 97.29732296459187,
-      "tvl": "$913M",
-      "apy": "139%",
-      "recommendation": "\ud83c\udfe6 INVEST",
-      "market": "defi"
-    },
-    {
-      "symbol": "RIVN",
-      "score": 97.26522649223932,
+      "symbol": "GS",
+      "score": 92.10036540792112,
       "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+57%",
-      "market": "us_stocks"
-    },
-    {
-      "symbol": "TSX2.TO",
-      "score": 96.9348385968463,
-      "recommendation": "\ud83c\udf41 BUY",
-      "target_gain": "+135%",
-      "market": "canadian_stocks"
-    },
-    {
-      "symbol": "GRT",
-      "score": 96.90481843132648,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+786%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "OHM",
-      "score": 96.44070911437598,
-      "tvl": "$459M",
-      "apy": "410%",
-      "recommendation": "\ud83c\udfe6 INVEST",
-      "market": "defi"
-    },
-    {
-      "symbol": "MPC",
-      "score": 96.19695231247618,
-      "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+199%",
-      "market": "us_stocks"
-    },
-    {
-      "symbol": "TSX18.TO",
-      "score": 95.65375946042641,
-      "recommendation": "\ud83c\udf41 BUY",
-      "target_gain": "+67%",
-      "market": "canadian_stocks"
-    },
-    {
-      "symbol": "LLY",
-      "score": 95.54747513114503,
-      "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+61%",
-      "market": "us_stocks"
-    },
-    {
-      "symbol": "META1",
-      "score": 95.23365487216458,
-      "recommendation": "\ud83c\udf10 BUY",
-      "target_gain": "+1032%",
-      "market": "metaverse"
-    },
-    {
-      "symbol": "GAME1",
-      "score": 95.12190629647857,
-      "recommendation": "\ud83c\udfae BUY",
-      "target_gain": "+274%",
-      "market": "gamefi"
-    },
-    {
-      "symbol": "SLP",
-      "score": 95.02868633637061,
-      "recommendation": "\ud83c\udfae BUY",
-      "target_gain": "+329%",
-      "market": "gamefi"
-    },
-    {
-      "name": "NFT Collection 1",
-      "symbol": "NFT1",
-      "floor_price": 39.76578450640313,
-      "score": 94.94826752881116,
-      "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+405%",
-      "market": "nfts"
-    },
-    {
-      "symbol": "STOCK4",
-      "score": 94.83007968918926,
-      "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+153%",
-      "market": "us_stocks"
-    },
-    {
-      "symbol": "JPM",
-      "score": 94.74872263379831,
-      "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+57%",
+      "target_gain": "+157%",
       "market": "us_stocks"
     },
     {
       "symbol": "STARL",
-      "score": 94.64578520806784,
+      "score": 92.05439655492152,
       "recommendation": "\ud83c\udf10 BUY",
-      "target_gain": "+1663%",
+      "target_gain": "+1115%",
       "market": "metaverse"
     },
     {
-      "symbol": "NEO",
-      "score": 94.4889397432644,
+      "symbol": "GRT",
+      "score": 92.00837888633137,
       "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+671%",
+      "target_gain": "+82%",
       "market": "cryptocurrencies"
     },
     {
-      "name": "NFT Collection 25",
-      "symbol": "NFT25",
-      "floor_price": 11.312566381520062,
-      "score": 94.48587171570668,
+      "name": "NFT Collection 32",
+      "symbol": "NFT32",
+      "floor_price": 3.4328452424342832,
+      "score": 91.91475908217674,
       "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+306%",
+      "target_gain": "+95%",
       "market": "nfts"
     },
     {
-      "symbol": "BAL",
-      "score": 94.47783676846103,
+      "symbol": "ATOM",
+      "score": 91.90620954779865,
       "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+111%",
+      "target_gain": "+939%",
       "market": "cryptocurrencies"
     },
     {
-      "symbol": "MRK",
-      "score": 94.46933072031561,
+      "symbol": "PM",
+      "score": 91.75135135715222,
       "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+198%",
+      "target_gain": "+184%",
       "market": "us_stocks"
     },
     {
-      "name": "NFT Collection 13",
-      "symbol": "NFT13",
-      "floor_price": 21.066116533997604,
-      "score": 94.44955077620034,
-      "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+155%",
-      "market": "nfts"
+      "symbol": "DOME",
+      "score": 91.51320440712377,
+      "recommendation": "\ud83c\udf10 BUY",
+      "target_gain": "+453%",
+      "market": "metaverse"
     },
     {
-      "symbol": "NEAR",
-      "score": 94.38071003094602,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+617%",
-      "market": "cryptocurrencies"
+      "symbol": "XPEV",
+      "score": 91.31248452679068,
+      "recommendation": "\ud83d\ude80 BUY",
+      "target_gain": "+161%",
+      "market": "us_stocks"
     },
     {
-      "symbol": "HBAR",
-      "score": 94.2811607366113,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+494%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "DEFI6",
-      "score": 94.26439388044983,
-      "tvl": "$643M",
-      "apy": "260%",
+      "symbol": "ANCHOR",
+      "score": 91.2960540453478,
+      "tvl": "$34M",
+      "apy": "143%",
       "recommendation": "\ud83c\udfe6 INVEST",
       "market": "defi"
     },
     {
-      "symbol": "ZIL",
-      "score": 94.22110527129307,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+429%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "MANA",
-      "score": 94.01687542691646,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+80%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "FLUX",
-      "score": 93.96839226695005,
-      "recommendation": "\ud83c\udf10 BUY",
-      "target_gain": "+155%",
-      "market": "metaverse"
-    },
-    {
-      "symbol": "TSX13.TO",
-      "score": 93.9256110216794,
-      "recommendation": "\ud83c\udf41 BUY",
-      "target_gain": "+88%",
-      "market": "canadian_stocks"
-    },
-    {
-      "symbol": "MFC.TO",
-      "score": 93.81308117555271,
-      "recommendation": "\ud83c\udf41 BUY",
-      "target_gain": "+28%",
-      "market": "canadian_stocks"
-    },
-    {
-      "name": "Bored Ape Yacht Club",
-      "symbol": "BAYC",
-      "floor_price": 45.5,
-      "score": 93.63102180601399,
-      "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+169%",
-      "market": "nfts"
-    },
-    {
-      "name": "NFT Collection 42",
-      "symbol": "NFT42",
-      "floor_price": 34.25376435836693,
-      "score": 93.42137036821812,
-      "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+145%",
-      "market": "nfts"
-    },
-    {
-      "symbol": "PYR",
-      "score": 93.34924539871012,
+      "symbol": "REVO",
+      "score": 91.25075528932587,
       "recommendation": "\ud83c\udfae BUY",
-      "target_gain": "+695%",
+      "target_gain": "+573%",
       "market": "gamefi"
     },
     {
-      "symbol": "AAPL",
-      "score": 93.03884441249878,
+      "symbol": "PYPL",
+      "score": 91.23617205084342,
       "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+73%",
+      "target_gain": "+72%",
       "market": "us_stocks"
-    },
-    {
-      "symbol": "TLM",
-      "score": 92.97210860714613,
-      "recommendation": "\ud83c\udfae BUY",
-      "target_gain": "+328%",
-      "market": "gamefi"
-    },
-    {
-      "symbol": "META4",
-      "score": 92.93378245322435,
-      "recommendation": "\ud83c\udf10 BUY",
-      "target_gain": "+591%",
-      "market": "metaverse"
-    },
-    {
-      "symbol": "UMA",
-      "score": 92.91552457474768,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+181%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "PEP",
-      "score": 92.6059149627894,
-      "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+131%",
-      "market": "us_stocks"
-    },
-    {
-      "name": "NFT Collection 28",
-      "symbol": "NFT28",
-      "floor_price": 44.89083759634542,
-      "score": 92.490211827493,
-      "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+94%",
-      "market": "nfts"
-    },
-    {
-      "symbol": "CHZ",
-      "score": 92.37355183906467,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+257%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "name": "NFT Collection 20",
-      "symbol": "NFT20",
-      "floor_price": 40.70997829067395,
-      "score": 92.37215570460839,
-      "recommendation": "\ud83c\udfa8 BUY",
-      "target_gain": "+484%",
-      "market": "nfts"
-    },
-    {
-      "symbol": "META3",
-      "score": 92.36145894705487,
-      "recommendation": "\ud83c\udf10 BUY",
-      "target_gain": "+136%",
-      "market": "metaverse"
-    },
-    {
-      "symbol": "MLN",
-      "score": 92.2866438842508,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+279%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "COST",
-      "score": 92.16835610861781,
-      "recommendation": "\ud83d\ude80 BUY",
-      "target_gain": "+110%",
-      "market": "us_stocks"
-    },
-    {
-      "symbol": "SAND",
-      "score": 92.11694992628006,
-      "recommendation": "\ud83d\udc8e STRONG BUY",
-      "target_gain": "+713%",
-      "market": "cryptocurrencies"
-    },
-    {
-      "symbol": "ILV",
-      "score": 92.08247668857592,
-      "recommendation": "\ud83c\udf10 BUY",
-      "target_gain": "+1955%",
-      "market": "metaverse"
     }
   ]
 }

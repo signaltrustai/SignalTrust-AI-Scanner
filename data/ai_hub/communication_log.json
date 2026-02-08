@@ -56,6 +56,30 @@
       "total_gems": 100,
       "high_potential": 0
     },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T03:16:19.111204"
+  },
+  {
+    "timestamp": "2026-02-08T03:46:24.394248",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
+    "delivered": true,
+    "broadcast_time": "2026-02-08T03:46:24.394837"
+  },
+  {
+    "timestamp": "2026-02-08T04:16:30.354022",
+    "from": "GemFinder",
+    "to": "ALL",
+    "type": "gem_discovery",
+    "data": {
+      "total_gems": 100,
+      "high_potential": 0
+    },
     "delivered": false
   }
 ]

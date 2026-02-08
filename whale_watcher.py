@@ -225,12 +225,12 @@ class WhaleWatcher:
         return txs[:limit]
 
     def _fetch_etherscan_whales(self, limit: int) -> List[Dict]:
-        """Fetch large ETH transactions from Etherscan free API."""
+        """Fetch large ETH transactions from Etherscan API v2."""
         if not self._session or not self._etherscan_key:
             return []
         try:
             # Get recent blocks and find large ETH transfers
-            # Use a known whale address (Binance hot wallet) for demo
+            # Use a known whale address (Binance hot wallet)
             whale_addresses = [
                 '0x28C6c06298d514Db089934071355E5743bf21d60',  # Binance 14
                 '0x21a31Ee1afC51d94C2eFcCAa2092aD1028285549',  # Binance 15
@@ -238,8 +238,9 @@ class WhaleWatcher:
             txs = []
             for addr in whale_addresses[:1]:  # Limit API calls
                 resp = self._session.get(
-                    'https://api.etherscan.io/api',
+                    'https://api.etherscan.io/v2/api',
                     params={
+                        'chainid': 1,
                         'module': 'account',
                         'action': 'txlist',
                         'address': addr,
