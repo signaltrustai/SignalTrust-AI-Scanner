@@ -106,6 +106,11 @@ except Exception:
 # HELPER FUNCTIONS
 # -----------------------------
 
+@app.route("/service-worker.js")
+def serve_service_worker():
+    """Serve service worker from root URL (required by browsers)."""
+    return send_from_directory("static", "service-worker.js", mimetype="application/javascript")
+
 def login_required(f):
     """Decorator to require login for routes."""
     @wraps(f)
