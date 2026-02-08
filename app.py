@@ -109,8 +109,14 @@ except Exception:
 @app.route("/service-worker.js")
 def serve_service_worker():
     """Serve service worker from root URL (required by browsers)."""
-    static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
-    return send_from_directory(static_dir, "service-worker.js", mimetype="application/javascript")
+    sw_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "service-worker.js")
+    try:
+        with open(sw_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        return Response(content, mimetype="application/javascript",
+                        headers={"Service-Worker-Allowed": "/", "Cache-Control": "no-cache"})
+    except FileNotFoundError:
+        return Response("// service worker not found", status=404, mimetype="application/javascript")
 
 def login_required(f):
     """Decorator to require login for routes."""
