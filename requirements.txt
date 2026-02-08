@@ -32,6 +32,9 @@ python-dotenv>=1.0.0
 python-dateutil>=2.8.0
 schedule>=1.1.0
 
+# Production Server
+gunicorn>=21.2.0
+
 # ML & Meta-Model (Optional - for advanced features)
 # xgboost>=2.0.0
 # lightgbm>=4.1.0
