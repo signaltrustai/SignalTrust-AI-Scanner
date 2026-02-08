@@ -45,6 +45,18 @@ except Exception:
             def get_optimal_strategy(self, t="general"): return {"strategy": "consensus"}
         return _Stub()
 
+# Import AI Coder Bot safely
+try:
+    from ai_coder_bot import get_coder_bot
+except Exception:
+    def get_coder_bot():
+        class _Stub:
+            def chat(self, *a, **k): return {"success": False, "error": "Coder bot unavailable"}
+            def get_sessions(self, *a): return []
+            def clear_session(self, *a): return False
+            def get_status(self): return {"provider": "none", "active_sessions": 0, "ai_available": False}
+        return _Stub()
+
 # Load environment variables from .env (if present)
 load_dotenv()
 
@@ -289,6 +301,10 @@ def home():
 @app.route("/ai-chat")
 def ai_chat_page():
     return render_template("ai_chat.html")
+
+@app.route("/coder")
+def coder_page():
+    return render_template("ai_coder.html")
 
 @app.route("/scanner")
 def scanner_page():
@@ -1762,6 +1778,55 @@ def api_optimizer_strategy():
         task_type = data.get("task_type", "general")
         result = ai_optimizer.get_optimal_strategy(task_type)
         return jsonify({"success": True, "data": result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - AI CODER BOT
+# -----------------------------
+
+coder_bot = get_coder_bot()
+
+@app.route("/api/coder/status", methods=["GET"])
+def api_coder_status():
+    """Get coder bot status (provider, availability)."""
+    try:
+        return jsonify(coder_bot.get_status()), 200
+    except Exception as e:
+        return jsonify({"provider": "error", "ai_available": False, "error": str(e)}), 500
+
+@app.route("/api/coder/chat", methods=["POST"])
+def api_coder_chat():
+    """Send a message to the AI coder bot."""
+    try:
+        data = request.get_json()
+        message = data.get("message", "").strip()
+        session_id = data.get("session_id", "default")
+        if not message:
+            return jsonify({"success": False, "error": "Message required"}), 400
+
+        user_id = session.get("user_id", "anonymous")
+        result = coder_bot.chat(session_id, user_id, message)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/coder/sessions", methods=["GET"])
+def api_coder_sessions():
+    """Get active chat sessions for current user."""
+    try:
+        user_id = session.get("user_id", "anonymous")
+        sessions = coder_bot.get_sessions(user_id)
+        return jsonify({"success": True, "sessions": sessions}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/coder/session/<session_id>", methods=["DELETE"])
+def api_coder_delete_session(session_id):
+    """Delete a chat session."""
+    try:
+        coder_bot.clear_session(session_id)
+        return jsonify({"success": True}), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
