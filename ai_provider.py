@@ -28,12 +28,12 @@ class AIProvider(ABC):
 class OpenAIProvider(AIProvider):
     """OpenAI GPT provider"""
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o"):
         """Initialize OpenAI provider.
         
         Args:
             api_key: OpenAI API key
-            model: Model to use (gpt-4, gpt-3.5-turbo, etc.)
+            model: Model to use (gpt-4o, gpt-4o-mini, etc.)
         """
         self.api_key = api_key or os.environ.get('OPENAI_API_KEY', '')
         self.model = model
@@ -57,10 +57,20 @@ class OpenAIProvider(AIProvider):
             if not client:
                 return self._fallback_response(prompt)
             
-            messages = [{"role": "user", "content": prompt}]
+            system_msg = {
+                "role": "system",
+                "content": (
+                    "You are SignalTrust AI, an expert financial market analyst and trading assistant. "
+                    "You provide real-time market analysis, technical indicators, crypto and stock insights, "
+                    "whale movement analysis, and actionable trading recommendations. "
+                    "Be concise, accurate, and data-driven. Use markdown formatting for clarity. "
+                    "Always include risk warnings when giving financial advice."
+                )
+            }
+            messages = [system_msg, {"role": "user", "content": prompt}]
             
             if context and context.get('history'):
-                messages = context['history'] + messages
+                messages = [system_msg] + context['history'] + [{"role": "user", "content": prompt}]
             
             response = client.chat.completions.create(
                 model=self.model,

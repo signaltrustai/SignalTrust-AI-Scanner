@@ -57,25 +57,17 @@ class AIChatSystem:
     def check_access(self, user_id: str, user_email: str = None) -> bool:
         """Check if user has access to AI chat.
         
-        Currently restricted to owner only.
+        Now open to all users (free tier gets limited messages).
         
         Args:
             user_id: User ID to check
             user_email: User email to check (optional)
             
         Returns:
-            True if user has access, False otherwise
+            True if user has access
         """
-        # Check if user_id matches owner
-        if is_admin_user_id(user_id):
-            return True
-        
-        # Check if email matches admin email
-        if user_email and is_admin_email(user_email):
-            return True
-        
-        # Legacy check for backward compatibility
-        return user_id == self.OWNER_ID
+        # AI Chat is now available to all users
+        return True
     
     def get_conversation_history(self, user_id: str) -> List[Dict]:
         """Get conversation history for user.
@@ -334,12 +326,6 @@ class AIChatSystem:
             limit=5
         )
         
-        nft_result = self.whale_watcher.get_nft_whale_movements(
-            user_id='owner_admin_001',
-            user_plan='enterprise',
-            limit=3
-        )
-        
         stats_result = self.whale_watcher.get_whale_statistics(
             user_id='owner_admin_001',
             user_plan='enterprise'
@@ -351,12 +337,13 @@ class AIChatSystem:
         
         try:
             if stats_result.get('success'):
-                stats = stats_result.get('statistics', {})
+                stats = stats_result.get('stats', {})
                 response += f"""📈 **24h Whale Activity:**
 - Total Transactions: {stats.get('total_transactions_24h', 0)}
-- Total Volume: ${stats.get('total_volume_24h', 0):,.0f}
-- Buy Pressure: {stats.get('buy_percentage', 0):.1f}%
-- Sell Pressure: {stats.get('sell_percentage', 0):.1f}%
+- Total Volume: {stats.get('total_value_24h_usd', '$0')}
+- Avg Transaction: {stats.get('avg_transaction_size', '$0')}
+- Most Active Chain: {stats.get('most_active_chain', 'Unknown')}
+- Top Token: {stats.get('top_token', 'Unknown')}
 
 """
             
@@ -364,29 +351,30 @@ class AIChatSystem:
                 transactions = tx_result.get('transactions', [])
                 if transactions:
                     response += "🔥 **Recent Large Transactions:**\n"
-                    for tx in transactions[:3]:
+                    for tx in transactions[:5]:
                         if isinstance(tx, dict):
-                            amount = tx.get('amount_usd', 0)
-                            asset = tx.get('asset', 'Unknown')
-                            tx_type = tx.get('type', 'Unknown').upper()
+                            value = tx.get('value_usd', tx.get('amount_usd', 0))
+                            token = tx.get('token', tx.get('asset', 'Unknown'))
                             chain = tx.get('chain', 'Unknown')
-                            time_ago = tx.get('time_ago', 'Recently')
-                            response += f"\n• **${amount:,.0f}** {asset} - {tx_type} on {chain} ({time_ago})"
+                            tx_hash = tx.get('hash', '')[:10]
+                            if isinstance(value, (int, float)) and value > 0:
+                                response += f"\n• **${value:,.0f}** {token} on {chain}"
+                            else:
+                                response += f"\n• {token} on {chain}"
+                            if tx_hash:
+                                response += f" (tx: {tx_hash}...)"
             
-            if nft_result.get('success'):
-                nft_activity = nft_result.get('movements', [])
-                if nft_activity:
-                    response += "\n\n🎨 **NFT Whale Activity:**\n"
-                    for nft in nft_activity[:2]:
-                        if isinstance(nft, dict):
-                            collection = nft.get('collection', 'Unknown')
-                            price = nft.get('price_eth', 0)
-                            response += f"• {collection}: {price} ETH\n"
-            
-            if stats_result.get('success'):
-                stats = stats_result.get('statistics', {})
-                sentiment = stats.get('sentiment', 'Neutral')
-                response += f"\n🎯 **AI Analysis:** {sentiment} whale sentiment detected."
+            # Whale sentiment based on data
+            tx_count = stats_result.get('stats', {}).get('total_transactions_24h', 0) if stats_result.get('success') else 0
+            if tx_count > 50:
+                sentiment = "Very Active - High whale movement detected"
+            elif tx_count > 20:
+                sentiment = "Active - Moderate whale activity"
+            elif tx_count > 0:
+                sentiment = "Calm - Low whale activity"
+            else:
+                sentiment = "Quiet - Minimal whale movements"
+            response += f"\n\n🎯 **AI Analysis:** {sentiment}"
             
         except Exception as e:
             response += f"\nError analyzing whale data: {str(e)}"

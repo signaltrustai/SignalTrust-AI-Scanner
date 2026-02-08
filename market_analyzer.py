@@ -18,6 +18,12 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+# Import FinancialData.net provider
+try:
+    from financial_data_provider import financial_data as _fdn
+except ImportError:
+    _fdn = None
+
 
 class MarketAnalyzer:
     """Analyzer for technical analysis and pattern detection.
@@ -44,7 +50,7 @@ class MarketAnalyzer:
 
     def analyze_sentiment(self, symbol: str) -> Dict:
         """Alias for sentiment_analysis — called by app.py."""
-        return self.sentiment_analysis(symbol, )
+        return self.sentiment_analysis(symbol)
         
     def technical_analysis(self, symbol: str, timeframe: str = '1d') -> Dict:
         """Perform technical analysis on a symbol using real price data.
@@ -158,9 +164,10 @@ class MarketAnalyzer:
     # ── Real data fetchers ───────────────────────────────────────────
 
     def _fetch_real_historical(self, symbol: str, timeframe: str) -> List[Dict]:
-        """Fetch real historical price data from Yahoo Finance chart API."""
+        """Fetch real historical price data from Yahoo Finance chart API.
+        Falls back to FinancialData.net when Yahoo fails."""
         if not self._session:
-            return []
+            return self._fetch_fdn_historical(symbol, timeframe)
         try:
             sym = symbol.upper()
             crypto_map = {
@@ -207,6 +214,46 @@ class MarketAnalyzer:
             return hist
         except Exception as e:
             logger.debug(f"Historical fetch failed for {symbol}: {e}")
+            return self._fetch_fdn_historical(symbol, timeframe)
+
+    def _fetch_fdn_historical(self, symbol: str, timeframe: str = '1d') -> List[Dict]:
+        """Fetch historical OHLCV data from FinancialData.net as fallback."""
+        if not _fdn or not _fdn.api_key:
+            return []
+        try:
+            sym = symbol.upper()
+            # Determine market type
+            crypto_syms = {'BTC', 'ETH', 'BNB', 'SOL', 'XRP', 'ADA', 'DOGE',
+                           'DOT', 'AVAX', 'MATIC', 'LINK', 'UNI', 'ATOM', 'LTC'}
+            if sym in crypto_syms:
+                market_type = 'crypto'
+            elif sym.startswith('^'):
+                market_type = 'index'
+            else:
+                market_type = 'stock'
+
+            data = _fdn.get_historical_ohlcv(sym, market_type, limit=200)
+            if not data:
+                return []
+
+            hist = []
+            for row in data:
+                close = row.get('close')
+                if close is None:
+                    continue
+                dt = row.get('date') or row.get('time', '')
+                hist.append({
+                    'timestamp': dt,
+                    'open': round(float(row.get('open', close)), 2),
+                    'high': round(float(row.get('high', close)), 2),
+                    'low': round(float(row.get('low', close)), 2),
+                    'close': round(float(close), 2),
+                    'volume': int(float(row.get('volume', 0))),
+                })
+            # FinancialData.net returns newest first, keep that order
+            return hist
+        except Exception as e:
+            logger.debug(f"FinancialData.net historical failed for {symbol}: {e}")
             return []
 
     def _fetch_fear_greed(self) -> dict:

@@ -9,6 +9,9 @@ Data sources (no API key required):
   • Binance      — crypto tickers
   • Yahoo Finance chart API — stocks & indices
 
+Data sources (API key via .env):
+  • FinancialData.net — stocks, crypto, forex, indices, fundamentals
+
 Falls back gracefully to cached / estimated data when APIs are unreachable.
 """
 
@@ -23,6 +26,12 @@ except ImportError:
     requests = None
 
 logger = logging.getLogger(__name__)
+
+# Import FinancialData.net provider
+try:
+    from financial_data_provider import financial_data as _fdn
+except ImportError:
+    _fdn = None
 
 # ────────────────────────────────────────────────────────────────────
 #  Constants
@@ -288,19 +297,20 @@ class MarketScanner:
         return results
 
     def _fetch_yahoo_quote(self, symbol: str) -> Optional[Dict]:
-        """Fetch a single stock quote from Yahoo Finance chart API."""
+        """Fetch a single stock quote from Yahoo Finance chart API.
+        Falls back to FinancialData.net if Yahoo fails."""
         if not self._session:
-            return None
+            return self._fetch_fdn_stock_quote(symbol)
         try:
             url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
             resp = self._session.get(url, params={
                 'interval': '1d', 'range': '5d',
             }, timeout=8)
             if resp.status_code != 200:
-                return None
+                return self._fetch_fdn_stock_quote(symbol)
             data = resp.json().get('chart', {}).get('result', [])
             if not data:
-                return None
+                return self._fetch_fdn_stock_quote(symbol)
             meta = data[0].get('meta', {})
             quote = data[0].get('indicators', {}).get('quote', [{}])[0]
             closes = [c for c in (quote.get('close') or []) if c is not None]
@@ -325,6 +335,43 @@ class MarketScanner:
             }
         except Exception as e:
             logger.debug(f"Yahoo quote failed for {symbol}: {e}")
+            return self._fetch_fdn_stock_quote(symbol)
+
+    def _fetch_fdn_stock_quote(self, symbol: str) -> Optional[Dict]:
+        """Fetch stock quote from FinancialData.net as fallback."""
+        if not _fdn or not _fdn.api_key:
+            return None
+        try:
+            prices = _fdn.get_stock_prices(symbol)
+            if not prices or len(prices) < 1:
+                return None
+            latest = prices[0]
+            prev = prices[1] if len(prices) >= 2 else latest
+            close = latest.get('close', 0)
+            prev_close = prev.get('close', close)
+            change = round(close - prev_close, 2)
+            change_pct = round((change / prev_close * 100) if prev_close else 0, 2)
+
+            # Try to get company name (use long cache to avoid extra calls)
+            name = symbol
+            info = _fdn._get("/company-information", {"identifier": symbol}, cache_ttl=86400)
+            if info and len(info) > 0:
+                name = info[0].get('registrant_name', symbol)
+
+            return {
+                'symbol': symbol,
+                'name': name,
+                'price': round(close, 2),
+                'change': change,
+                'change_percent': change_pct,
+                'volume': latest.get('volume', 0),
+                'market_cap': 'N/A',
+                'market_type': 'stocks',
+                'data_source': 'financialdata.net',
+                'timestamp': datetime.now(timezone.utc).isoformat(),
+            }
+        except Exception as e:
+            logger.debug(f"FinancialData.net quote failed for {symbol}: {e}")
             return None
 
     # ── Indices ──────────────────────────────────────────────────────
@@ -362,10 +409,32 @@ class MarketScanner:
     # ── Forex (ECB daily rates as free option) ───────────────────────
 
     def _get_forex_pairs(self, count: int) -> List[Dict]:
-        """Get forex pair data. Uses ECB rates when available."""
-        # ECB XML is complex; for now use CoinPaprika USD rates as proxies
-        # or fall back to static-ish data with small random jitter
+        """Get forex pair data. Uses FinancialData.net when available,
+        falls back to ECB rates or deterministic jitter."""
         pairs = _FOREX_PAIRS[:count]
+
+        # Try FinancialData.net first for live forex
+        if _fdn and _fdn.api_key:
+            try:
+                fdn_symbols = ','.join(p.replace('/', '') for p in pairs)
+                quotes = _fdn.get_forex_quotes(fdn_symbols)
+                if quotes and len(quotes) > 0:
+                    results = []
+                    for q in quotes:
+                        sym = q.get('trading_symbol', '')
+                        # Convert EURUSD back to EUR/USD
+                        pair_fmt = f"{sym[:3]}/{sym[3:]}" if len(sym) == 6 else sym
+                        results.append({
+                            'pair': pair_fmt,
+                            'rate': round(q.get('price', 0), 4),
+                            'change_percent': round(q.get('percentage_change', 0), 3),
+                            'data_source': 'financialdata.net',
+                        })
+                    return results
+            except Exception as e:
+                logger.debug(f"FinancialData.net forex failed: {e}")
+
+        # Fallback: deterministic micro-spread
         base_rates = {
             'EUR/USD': 1.0850, 'GBP/USD': 1.2700, 'USD/JPY': 154.50,
             'USD/CHF': 0.8800, 'AUD/USD': 0.6500, 'USD/CAD': 1.3700,

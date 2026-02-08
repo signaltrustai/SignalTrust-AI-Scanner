@@ -274,7 +274,7 @@ class AIWorker:
 
     def _call_openai(self, task_type: str, prompt: str, data: dict) -> dict:
         api_key = self.config.get("api_key") or os.getenv("OPENAI_API_KEY", "")
-        model = self.config.get("model") or os.getenv("OPENAI_MODEL", "gpt-4")
+        model = self.config.get("model") or os.getenv("OPENAI_MODEL", "gpt-4o")
         if not api_key:
             return {"success": False, "error": "No OpenAI API key"}
 
@@ -544,7 +544,7 @@ class MultiAICoordinator:
         if openai_key and not openai_key.startswith("your_"):
             self._register("OpenAI-GPT4", "openai", {
                 "api_key": openai_key,
-                "model": os.getenv("OPENAI_MODEL", "gpt-4"),
+                "model": os.getenv("OPENAI_MODEL", "gpt-4o"),
             })
 
         # Anthropic

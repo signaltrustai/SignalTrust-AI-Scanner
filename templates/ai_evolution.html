@@ -276,24 +276,6 @@
             transform: scale(1.05);
         }
 
-        .nav-back {
-            background: white;
-            padding: 15px 25px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 20px;
-            text-decoration: none;
-            color: #667eea;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-        }
-
-        .nav-back:hover {
-            transform: translateX(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
         .toast {
             position: fixed;
             top: 20px;
@@ -367,10 +349,8 @@
     </style>
 </head>
 <body>
+    {% include 'partials/nav.html' %}
     <div class="container">
-        <a href="/dashboard" class="nav-back">
-            <i class="fas fa-arrow-left"></i> Retour au Dashboard
-        </a>
 
         <header>
             <h1>

@@ -182,15 +182,19 @@ class CryptoGemFinder:
     # ── Real data fetchers ───────────────────────────────────────────
 
     def _fetch_coingecko_trending(self) -> List[Dict]:
-        """Fetch trending coins from CoinGecko (free, no key)."""
+        """Fetch trending coins from CoinGecko."""
         if not self._session:
             return []
         cached = self._get_cached('cg_trending')
         if cached:
             return cached
         try:
+            import os
+            cg_key = os.environ.get('COINGECKO_API_KEY', '')
+            headers = {'x-cg-demo-key': cg_key} if cg_key else {}
             resp = self._session.get(
                 'https://api.coingecko.com/api/v3/search/trending',
+                headers=headers,
                 timeout=10,
             )
             if resp.status_code != 200:

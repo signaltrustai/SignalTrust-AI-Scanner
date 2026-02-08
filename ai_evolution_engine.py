@@ -17,7 +17,7 @@ import os
 import json
 import time
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from collections import defaultdict
 import threading
@@ -64,10 +64,17 @@ class KnowledgeBase:
             self.knowledge[category][key] = {
                 "value": value,
                 "metadata": metadata or {},
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "access_count": 0
             }
-            self._save()
+            self._dirty = True
+            # Batch saves - only flush every 10 additions
+            if not hasattr(self, '_add_count'):
+                self._add_count = 0
+            self._add_count += 1
+            if self._add_count >= 10:
+                self._save()
+                self._add_count = 0
     
     def get(self, category: str, key: str) -> Optional[Any]:
         """Récupérer une connaissance"""
@@ -75,8 +82,7 @@ class KnowledgeBase:
             if category in self.knowledge and key in self.knowledge[category]:
                 entry = self.knowledge[category][key]
                 entry["access_count"] += 1
-                entry["last_accessed"] = datetime.utcnow().isoformat()
-                self._save()
+                entry["last_accessed"] = datetime.now(timezone.utc).isoformat()
                 return entry["value"]
             return None
     
@@ -216,7 +222,7 @@ class AIAgent:
                 )
             
             # Marquer comme appris
-            self.last_learning = datetime.utcnow()
+            self.last_learning = datetime.now(timezone.utc)
             
             learning_time = time.time() - start_time
             logger.info(f"{self.name} learned from {len(data)} data points in {learning_time:.2f}s")
@@ -455,17 +461,39 @@ class AIEvolutionEngine:
             "success": True,
             "agents_trained": len(results),
             "results": results,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
     
+    def flush(self):
+        """Flush any pending knowledge base writes to disk."""
+        self.knowledge_base._save()
+    
     def _collect_learning_data(self, agent: AIAgent) -> Dict[str, Any]:
-        """Collecter les données d'apprentissage pour un agent"""
-        # TODO: Implémenter la collecte réelle de données
-        # Pour l'instant, retourner des données d'exemple
-        return {
-            f"pattern_{i}": f"value_{i}"
-            for i in range(10)
-        }
+        """Collecter les données d'apprentissage pour un agent depuis les systèmes réels."""
+        data: Dict[str, Any] = {}
+        try:
+            # Try to get real learning data from the AI learning system
+            from ai_learning_system import get_learning_system
+            learning = get_learning_system()
+            summary = learning.get_learning_summary()
+            if summary:
+                data["market_regime"] = summary.get("current_regime", "unknown")
+                data["total_predictions"] = summary.get("total_predictions", 0)
+                data["accuracy"] = summary.get("overall_accuracy", 0)
+                models = summary.get("model_performance", {})
+                for model_name, perf in list(models.items())[:5]:
+                    data[f"model_{model_name}"] = perf
+        except Exception:
+            pass
+
+        # Fallback: generate baseline patterns if no real data available
+        if not data:
+            data = {
+                f"pattern_{i}": f"baseline_{agent.specialization}_{i}"
+                for i in range(5)
+            }
+
+        return data
     
     def get_all_status(self) -> Dict[str, Any]:
         """État de tous les agents"""

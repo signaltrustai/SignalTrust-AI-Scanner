@@ -194,19 +194,7 @@ body {
 </head>
 <body>
 
-<!-- NAV -->
-<nav class="dash-nav">
-    <a href="/" class="brand">SIGNALTRUST AI</a>
-    <div class="nav-links">
-        <a href="/dashboard">Dashboard</a>
-        <a href="/ai-chat">AI Chat</a>
-        <a href="/scanner">Scanner</a>
-        <a href="/admin/comm-hub" class="active" style="color: var(--yellow);">🛰️ Comm Hub</a>
-    </div>
-    <div class="user-badge">
-        {{ user.full_name or user.email }} &middot; <span class="plan">ADMIN</span>
-    </div>
-</nav>
+{% include 'partials/nav.html' %}
 
 <div class="hub-container">
     <!-- HEADER -->

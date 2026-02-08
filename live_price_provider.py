@@ -15,11 +15,20 @@ class LivePriceProvider:
     
     def __init__(self):
         """Initialize live price provider"""
+        import os
         self.cache = {}
         self.cache_duration = 30  # Cache prices for 30 seconds
         
+        # CoinGecko API key (if available, use demo endpoint for better rate limits)
+        self.coingecko_api_key = os.environ.get('COINGECKO_API_KEY', '')
+        
         # API endpoints
-        self.coingecko_base = "https://api.coingecko.com/api/v3"
+        if self.coingecko_api_key:
+            self.coingecko_base = "https://api.coingecko.com/api/v3"
+            self.coingecko_headers = {'x-cg-demo-key': self.coingecko_api_key}
+        else:
+            self.coingecko_base = "https://api.coingecko.com/api/v3"
+            self.coingecko_headers = {}
         self.binance_base = "https://api.binance.com/api/v3"
         self.yahoo_base = "https://query1.finance.yahoo.com/v8/finance"
         
@@ -126,7 +135,7 @@ class LivePriceProvider:
                 "ids": coin_id,
                 "vs_currencies": "usd"
             }
-            response = requests.get(url, params=params, timeout=5)
+            response = requests.get(url, params=params, headers=self.coingecko_headers, timeout=5)
             
             if response.status_code == 200:
                 data = response.json()
