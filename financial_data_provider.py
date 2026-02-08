@@ -46,6 +46,8 @@ class FinancialDataProvider:
         # Simple in-memory cache: key → (timestamp, data)
         self._cache: Dict[str, tuple] = {}
         self._cache_ttl = 120  # seconds
+        self._cache_max_size = 500
+        self._timeout = int(os.environ.get("FDN_TIMEOUT", "15"))
 
     # ── helpers ──────────────────────────────────────────────────────
 
@@ -75,9 +77,14 @@ class FinancialDataProvider:
         query["key"] = self.api_key
 
         try:
-            resp = self._session.get(url, params=query, timeout=15)
+            resp = self._session.get(url, params=query, timeout=self._timeout)
             if resp.status_code == 200:
                 data = resp.json()
+                # Evict oldest entries if cache is full
+                if len(self._cache) >= self._cache_max_size:
+                    oldest = sorted(self._cache.items(), key=lambda x: x[1][0])[:50]
+                    for k, _ in oldest:
+                        del self._cache[k]
                 self._cache[cache_key] = (time.time(), data)
                 return data
             else:
@@ -553,8 +560,8 @@ class FinancialDataProvider:
         results = []
         query_upper = query.upper()
 
-        # Search stocks
-        stocks = self.get_stock_symbols()
+        # Search stocks (cache symbol lists for 1 hour since they rarely change)
+        stocks = self._get("/stock-symbols", {"offset": 0}, cache_ttl=3600)
         if stocks:
             for s in stocks:
                 sym = s.get("trading_symbol", "")
@@ -569,9 +576,9 @@ class FinancialDataProvider:
                 if len(results) >= 20:
                     break
 
-        # Search ETFs
+        # Search ETFs (cache symbol lists for 1 hour)
         if len(results) < 20:
-            etfs = self.get_etf_symbols()
+            etfs = self._get("/etf-symbols", {"offset": 0}, cache_ttl=3600)
             if etfs:
                 for e in etfs:
                     sym = e.get("trading_symbol", "")

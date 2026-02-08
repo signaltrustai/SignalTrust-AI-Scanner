@@ -174,6 +174,8 @@ class CacheManager:
             
             self.cache[key] = {
                 "response": response,
+                "method": method,
+                "url": url,
                 "expires_at": time.time() + ttl,
                 "cached_at": time.time()
             }

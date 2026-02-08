@@ -352,9 +352,9 @@ class MarketScanner:
             change = round(close - prev_close, 2)
             change_pct = round((change / prev_close * 100) if prev_close else 0, 2)
 
-            # Try to get company name
+            # Try to get company name (use long cache to avoid extra calls)
             name = symbol
-            info = _fdn.get_company_info(symbol)
+            info = _fdn._get("/company-information", {"identifier": symbol}, cache_ttl=86400)
             if info and len(info) > 0:
                 name = info[0].get('registrant_name', symbol)
 

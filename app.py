@@ -11,6 +11,10 @@ from functools import wraps
 import subprocess
 import sys
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Import local modules
 from user_auth import UserAuth
 from payment_processor import PaymentProcessor
@@ -375,42 +379,36 @@ def pricing_page():
 def login():
     if 'user_email' in session:
         return redirect(url_for('dashboard'))
-    return render_template("login.html")
+    return render_template("login.html", **_nav_context('login'))
 
 @app.route("/register")
 def register():
     if 'user_email' in session:
         return redirect(url_for('dashboard'))
-    return render_template("register.html")
+    return render_template("register.html", **_nav_context('register'))
 
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    user = get_current_user()
-    is_admin = user.get('user_id') == 'owner_admin_001' or \
-               user.get('email', '').lower() == 'signaltrustai@gmail.com'
-    return render_template("dashboard.html", user=user, is_admin=is_admin, active_page='dashboard')
+    return render_template("dashboard.html", **_nav_context('dashboard'))
 
 @app.route("/agents")
 @login_required
 def agents_page():
     """Multi-agent system dashboard page."""
-    user = get_current_user()
-    return render_template("agents.html", user=user)
+    return render_template("agents.html", **_nav_context('agents'))
 
 @app.route("/api-manager")
 @login_required
 def api_manager_page():
     """API processor management dashboard page."""
-    user = get_current_user()
-    return render_template("api_manager.html", user=user)
+    return render_template("api_manager.html", **_nav_context('api-manager'))
 
 @app.route("/ai-evolution")
 @login_required
 def ai_evolution_page():
     """AI Evolution Engine dashboard page."""
-    user = get_current_user()
-    return render_template("ai_evolution.html", user=user)
+    return render_template("ai_evolution.html", **_nav_context('ai-evolution'))
 
 
 @app.route("/api/worker/status")
@@ -536,8 +534,7 @@ def _require_admin(f):
 @app.route("/admin/comm-hub")
 @_require_admin
 def admin_comm_hub():
-    user = get_current_user()
-    return render_template("admin_comm_hub.html", user=user, is_admin=True)
+    return render_template("admin_comm_hub.html", **_nav_context('admin'))
 
 @app.route("/api/admin/comm-hub/status")
 @_require_admin
@@ -700,6 +697,8 @@ def api_login():
     """Login user."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         email = data.get("email")
         password = data.get("password")
         
@@ -811,6 +810,8 @@ def api_analyze_technical():
     """Technical analysis — uses multi-AI coordinator when available."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
         timeframe = data.get("timeframe", "1d")
         
@@ -850,6 +851,8 @@ def api_analyze_sentiment():
     """Sentiment analysis."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
         
         if not symbol:
@@ -867,6 +870,8 @@ def api_analyze_patterns():
     """Pattern detection."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
         
         if not symbol:
@@ -984,6 +989,8 @@ def api_predict_price():
     """AI price predictions."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
         days = data.get("days", 7)
         
@@ -1003,6 +1010,8 @@ def api_predict_signals():
     """AI trading signals."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
         
         if not symbol:
@@ -1020,6 +1029,8 @@ def api_predict_risk():
     """AI risk assessment."""
     try:
         data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
         
         if not symbol:
@@ -1428,7 +1439,7 @@ def api_agents_status():
         return jsonify({
             "success": True,
             "agents": status,
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1759,7 +1770,7 @@ def api_processor_status():
         return jsonify({
             "success": True,
             "stats": stats,
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1874,7 +1885,7 @@ def api_evolution_status():
         return jsonify({
             "success": True,
             "status": status,
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -2305,6 +2316,8 @@ def api_cloud_query_backups():
 def chat():
     """Route utilisée par l'interface AI Chat - utilise le AI local si pas d'agents externes"""
     data = request.get_json()
+    if not data or not data.get("message"):
+        return jsonify({"success": False, "error": "Message required"}), 400
     user_message = data.get("message", "")
 
     log_event("USER_MESSAGE", {"message": user_message})

@@ -50,7 +50,7 @@ class MarketAnalyzer:
 
     def analyze_sentiment(self, symbol: str) -> Dict:
         """Alias for sentiment_analysis — called by app.py."""
-        return self.sentiment_analysis(symbol, )
+        return self.sentiment_analysis(symbol)
         
     def technical_analysis(self, symbol: str, timeframe: str = '1d') -> Dict:
         """Perform technical analysis on a symbol using real price data.

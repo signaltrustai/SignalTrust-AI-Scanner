@@ -140,6 +140,8 @@ class AIOptimizer:
             if correct:
                 cal[bucket]["correct"] += 1
 
+            self.save_state()
+
     def record_strategy_result(
         self,
         task_type: str,
@@ -170,7 +172,7 @@ class AIOptimizer:
                 (entry["avg_latency"] * (n - 1) + latency_ms) / n, 1
             )
 
-    # ── Optimization runs ───────────────────────────────────────────
+            self.save_state()
 
     def optimize_worker_weights(self) -> Dict[str, float]:
         """Recalculate optimal weights for each AI worker based on accuracy.
