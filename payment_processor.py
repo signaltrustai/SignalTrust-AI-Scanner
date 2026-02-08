@@ -201,7 +201,17 @@ class PaymentProcessor:
         Returns:
             Plan details
         """
-        return self.PLANS.get(plan_id, {})
+        plan = self.PLANS.get(plan_id)
+        if not plan:
+            return {}
+
+        plan_copy = dict(plan)
+        limits = dict(plan.get('limits', {}))
+        if 'ai_predictions' not in limits and 'ai_predictions_per_day' in limits:
+            limits['ai_predictions'] = limits['ai_predictions_per_day']
+        plan_copy['limits'] = limits
+
+        return plan_copy
     
     def process_payment(self, user_id: str, email: str, plan_id: str, 
                        payment_method: Dict) -> Dict:

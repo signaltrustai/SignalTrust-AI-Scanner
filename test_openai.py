@@ -2,18 +2,21 @@
 Usage: python test_openai.py
 """
 import os
+
+import pytest
 from dotenv import load_dotenv
 from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv('OPENAI_API_KEY')
-MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
+API_KEY = os.getenv("OPENAI_API_KEY")
+MODEL = os.getenv("OPENAI_MODEL", "gpt-4")
 
 if not API_KEY:
-    print("ERROR: OPENAI_API_KEY not set in environment (.env)")
-    print("Please add your key to the .env file in the project root.")
-    raise SystemExit(1)
+    pytest.skip(
+        "OPENAI_API_KEY not set in environment (.env); skipping OpenAI integration test.",
+        allow_module_level=True,
+    )
 
 client = OpenAI(api_key=API_KEY)
 
@@ -32,7 +35,7 @@ try:
         content = resp.choices[0].message.content
     except Exception:
         try:
-            content = resp.choices[0].message['content']
+            content = resp.choices[0].message["content"]
         except Exception:
             content = str(resp)
     print("OpenAI response:\n", content)
@@ -41,6 +44,8 @@ except Exception as e:
     # Provide clearer guidance on API errors
     err_text = str(e)
     print("OpenAI client error:", err_text)
-    if 'invalid_api_key' in err_text or '401' in err_text:
-        print("→ 401 Invalid API key: check your .env value or regenerate the key at https://platform.openai.com/account/api-keys")
+    if "invalid_api_key" in err_text or "401" in err_text:
+        print(
+            "→ 401 Invalid API key: check your .env value or regenerate the key at https://platform.openai.com/account/api-keys"
+        )
     raise SystemExit(2)
