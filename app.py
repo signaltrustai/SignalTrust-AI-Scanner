@@ -668,6 +668,83 @@ def api_comm_hub_backup():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
+# -----------------------------
+# ADMIN PAYMENT INFORMATION
+# -----------------------------
+
+@app.route("/admin/payment-info")
+@_require_admin
+def admin_payment_info():
+    """Admin-only page to view/manage payment information."""
+    try:
+        from admin_payment_manager import get_payment_manager
+        payment_manager = get_payment_manager()
+        payment_info = payment_manager.get_payment_info()
+        user = get_current_user()
+        return render_template("admin_payment_info.html", 
+                             user=user, 
+                             is_admin=True,
+                             payment_info=payment_info)
+    except Exception as e:
+        logger.error(f"Error loading admin payment info: {e}")
+        return f"Error loading payment info: {str(e)}", 500
+
+@app.route("/api/admin/payment-info", methods=["GET"])
+@_require_admin
+def api_admin_payment_info():
+    """API to get payment information."""
+    try:
+        from admin_payment_manager import get_payment_manager
+        payment_manager = get_payment_manager()
+        payment_info = payment_manager.get_payment_info()
+        return jsonify({
+            "success": True,
+            "payment_info": payment_info
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/admin/payment-info/update", methods=["POST"])
+@_require_admin
+def api_admin_payment_update():
+    """API to update payment information."""
+    try:
+        from admin_payment_manager import get_payment_manager
+        payment_manager = get_payment_manager()
+        
+        data = request.get_json() or {}
+        update_type = data.get("type")
+        
+        success = False
+        if update_type == "crypto":
+            network = data.get("network")
+            address = data.get("address")
+            success = payment_manager.update_crypto_wallet(network, address)
+        elif update_type == "bank":
+            currency = data.get("currency")
+            bank_data = data.get("bank_data", {})
+            success = payment_manager.update_bank_account(currency, bank_data)
+        elif update_type == "paypal":
+            email = data.get("email")
+            paypal_me = data.get("paypal_me", "")
+            success = payment_manager.update_paypal(email, paypal_me)
+        elif update_type == "stripe":
+            links = data.get("links", {})
+            success = payment_manager.update_stripe_links(links)
+        elif update_type == "notes":
+            notes = data.get("notes", "")
+            success = payment_manager.update_notes(notes)
+        else:
+            return jsonify({"success": False, "error": "Invalid update type"}), 400
+        
+        if success:
+            return jsonify({"success": True, "message": "Payment information updated"})
+        else:
+            return jsonify({"success": False, "error": "Failed to update"}), 500
+            
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
 @app.route("/payment")
 def payment_page():
     return render_template("payment.html")

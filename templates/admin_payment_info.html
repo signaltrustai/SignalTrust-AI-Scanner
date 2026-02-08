@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Payment Information - SignalTrust AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        .admin-payment-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-header {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+            border: 2px solid #00ff88;
+        }
+
+        .admin-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .warning-badge {
+            background: #ff3333;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .payment-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .section-title {
+            color: #00ff88;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-icon {
+            font-size: 1.2em;
+        }
+
+        .payment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .payment-label {
+            color: #aaaaaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .payment-value {
+            color: #ffffff;
+            font-size: 1.1em;
+            font-family: monospace;
+            word-break: break-all;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #00cc6a;
+            transform: scale(1.05);
+        }
+
+        .edit-btn, .save-btn {
+            background: #00ff88;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+
+        .edit-btn:hover, .save-btn:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 5px;
+            color: #ffffff;
+            font-family: monospace;
+            font-size: 1em;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        textarea.input-field {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #888;
+            margin-top: 30px;
+            font-style: italic;
+        }
+
+        .qr-code {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .qr-code img {
+            max-width: 200px;
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-message.success {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+        }
+
+        .status-message.error {
+            background: rgba(255, 51, 51, 0.2);
+            border: 1px solid #ff3333;
+            color: #ff3333;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #00ff88;
+            text-decoration: none;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateX(-5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-payment-container">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link">← Back to Admin Dashboard</a>
+        
+        <div class="admin-header">
+            <h1>🔒 Admin Payment Information</h1>
+            <p>Secure payment details management - Admin access only</p>
+            <span class="warning-badge">⚠️ CONFIDENTIAL - DO NOT SHARE</span>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <!-- Cryptocurrency Wallets -->
+        <div class="payment-section">
+            <h2 class="section-title">
+                <span class="section-icon">🔐</span>
+                Cryptocurrency Wallets
+            </h2>
+            <div class="payment-grid">
+                {% for network, address in payment_info.crypto_wallets.items() %}
+                <div class="payment-item">
+                    <div class="payment-label">{{ network.upper() }}</div>
+                    <div class="payment-value" id="crypto-{{ network }}">
+                        {{ address or 'Not configured' }}
+                        {% if address %}
+                        <button class="copy-btn" onclick="copyToClipboard('crypto-{{ network }}')">Copy</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bank Accounts -->
+        <div class="payment-section">
+            <h2 class="section-title">
+                <span class="section-icon">🏦</span>
+                Bank Accounts
+            </h2>
+            {% for currency, details in payment_info.bank_accounts.items() %}
+            <div class="payment-item" style="margin-bottom: 20px;">
+                <h3 style="color: #00ff88; margin-bottom: 15px;">{{ currency.upper() }}</h3>
+                <div class="payment-grid">
+                    {% for key, value in details.items() %}
+                    <div>
+                        <div class="payment-label">{{ key.replace('_', ' ').title() }}</div>
+                        <div class="payment-value" id="bank-{{ currency }}-{{ key }}">
+                            {{ value or 'Not configured' }}
+                            {% if value %}
+                            <button class="copy-btn" onclick="copyToClipboard('bank-{{ currency }}-{{ key }}')">Copy</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- PayPal -->
+        <div class="payment-section">
+            <h2 class="section-title">
+                <span class="section-icon">💙</span>
+                PayPal
+            </h2>
+            <div class="payment-grid">
+                <div class="payment-item">
+                    <div class="payment-label">Email</div>
+                    <div class="payment-value" id="paypal-email">
+                        {{ payment_info.paypal.email or 'Not configured' }}
+                        {% if payment_info.paypal.email %}
+                        <button class="copy-btn" onclick="copyToClipboard('paypal-email')">Copy</button>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="payment-item">
+                    <div class="payment-label">PayPal.me Link</div>
+                    <div class="payment-value" id="paypal-me">
+                        {{ payment_info.paypal.paypal_me or 'Not configured' }}
+                        {% if payment_info.paypal.paypal_me %}
+                        <button class="copy-btn" onclick="copyToClipboard('paypal-me')">Copy</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stripe Links -->
+        <div class="payment-section">
+            <h2 class="section-title">
+                <span class="section-icon">💳</span>
+                Stripe Payment Links
+            </h2>
+            <div class="payment-grid">
+                {% for plan, link in payment_info.stripe.items() %}
+                <div class="payment-item">
+                    <div class="payment-label">{{ plan.replace('_', ' ').title() }}</div>
+                    <div class="payment-value" id="stripe-{{ plan }}">
+                        {{ link or 'Not configured' }}
+                        {% if link %}
+                        <button class="copy-btn" onclick="copyToClipboard('stripe-{{ plan }}')">Copy</button>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Other Payment Methods -->
+        {% if payment_info.other_methods %}
+        <div class="payment-section">
+            <h2 class="section-title">
+                <span class="section-icon">☕</span>
+                Other Payment Methods
+            </h2>
+            <div class="payment-grid">
+                {% for method, link in payment_info.other_methods.items() %}
+                {% if link %}
+                <div class="payment-item">
+                    <div class="payment-label">{{ method.title() }}</div>
+                    <div class="payment-value" id="other-{{ method }}">
+                        {{ link }}
+                        <button class="copy-btn" onclick="copyToClipboard('other-{{ method }}')">Copy</button>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Notes Section -->
+        <div class="payment-section">
+            <h2 class="section-title">
+                <span class="section-icon">📝</span>
+                Payment Notes & Instructions
+            </h2>
+            <textarea class="input-field" id="payment-notes" readonly>{{ payment_info.notes or 'No notes added yet.' }}</textarea>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="edit-btn" onclick="window.location.href='{{ url_for('admin_dashboard') }}'">
+                ← Back to Dashboard
+            </button>
+            <button class="edit-btn" onclick="editMode()">
+                ✏️ Edit Payment Info
+            </button>
+            <button class="edit-btn" onclick="refreshPaymentInfo()">
+                🔄 Refresh
+            </button>
+        </div>
+
+        <div class="last-updated">
+            Last updated: {{ payment_info.last_updated or 'Never' }}
+        </div>
+    </div>
+
+    <script>
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent.trim().replace('Copy', '').trim();
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showMessage('Copied to clipboard: ' + text.substring(0, 30) + '...', 'success');
+            }).catch(err => {
+                showMessage('Failed to copy: ' + err, 'error');
+            });
+        }
+
+        function showMessage(message, type) {
+            const msgDiv = document.getElementById('statusMessage');
+            msgDiv.className = 'status-message ' + type;
+            msgDiv.textContent = message;
+            msgDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function editMode() {
+            showMessage('Edit mode not yet implemented. Use .env file to update payment information.', 'error');
+            // TODO: Implement edit mode with form submission
+        }
+
+        function refreshPaymentInfo() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
