@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Payment Method - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .payment-selector {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+        }
+        
+        .selector-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .selector-header h1 {
+            color: #FFD700;
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .method-card {
+            background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #444;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .method-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(255, 215, 0, 0.2);
+        }
+        
+        .method-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #FFD700, #FFA500);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .method-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .method-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+        }
+        
+        .method-name {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 10px;
+        }
+        
+        .method-description {
+            color: #aaa;
+            font-size: 1em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .method-features {
+            text-align: left;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        .method-features li {
+            color: #ccc;
+            font-size: 0.9em;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .method-badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        
+        .recommended-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #FF5722, #FF9800);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            box-shadow: 0 3px 10px rgba(255, 87, 34, 0.3);
+        }
+        
+        .select-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .select-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        .price-summary {
+            background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
+            padding: 30px;
+            border-radius: 20px;
+            border: 2px solid #FFD700;
+            text-align: center;
+        }
+        
+        .price-amount {
+            font-size: 3.5em;
+            color: #FFD700;
+            font-weight: bold;
+        }
+        
+        .price-details {
+            color: #aaa;
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-selector">
+        <div class="selector-header">
+            <h1>💳 Choose Your Payment Method</h1>
+            <p style="color: #aaa; font-size: 1.2em;">Select the most convenient way to pay</p>
+        </div>
+
+        <!-- Price Summary -->
+        <div class="price-summary">
+            <div class="price-amount" id="totalPrice">$49.99</div>
+            <div class="price-details" id="planDetails">Pro Plan - Monthly</div>
+            <div style="margin-top: 20px; color: #4CAF50;">
+                ✅ 14-day money-back guarantee
+            </div>
+        </div>
+
+        <!-- Payment Methods Grid -->
+        <div class="methods-grid" style="margin-top: 40px;">
+            <!-- Card Payment -->
+            <div class="method-card" onclick="selectMethod('card')">
+                <div class="recommended-badge">⚡ Fastest</div>
+                <div class="method-icon">💳</div>
+                <div class="method-name">Credit/Debit Card</div>
+                <div class="method-description">
+                    Instant activation with any major credit or debit card
+                </div>
+                <ul class="method-features">
+                    <li>⚡ Instant activation</li>
+                    <li>🔒 100% secure (PCI-DSS)</li>
+                    <li>💳 Visa, Mastercard, Amex</li>
+                    <li>🌍 Worldwide acceptance</li>
+                </ul>
+                <div class="method-badge">Recommended</div>
+                <button class="select-btn">Choose Card Payment</button>
+            </div>
+
+            <!-- PayPal -->
+            <div class="method-card" onclick="selectMethod('paypal')">
+                <div class="method-icon">💙</div>
+                <div class="method-name">PayPal</div>
+                <div class="method-description">
+                    Pay with your PayPal balance or linked card
+                </div>
+                <ul class="method-features">
+                    <li>💙 PayPal buyer protection</li>
+                    <li>⚡ Instant processing</li>
+                    <li>🔐 No card details shared</li>
+                    <li>💰 Pay from PayPal balance</li>
+                </ul>
+                <div class="method-badge">Popular</div>
+                <button class="select-btn">Choose PayPal</button>
+            </div>
+
+            <!-- Crypto -->
+            <div class="method-card" onclick="selectMethod('crypto')">
+                <div class="method-icon">🔐</div>
+                <div class="method-name">Cryptocurrency</div>
+                <div class="method-description">
+                    Pay with Bitcoin, Ethereum, or other cryptos
+                </div>
+                <ul class="method-features">
+                    <li>₿ BTC, ETH, MATIC, BNB</li>
+                    <li>🔐 Decentralized & private</li>
+                    <li>💰 Lower fees on Polygon</li>
+                    <li>⚡ Fast confirmations</li>
+                </ul>
+                <div class="method-badge">Crypto-Friendly</div>
+                <button class="select-btn">Choose Crypto</button>
+            </div>
+
+            <!-- Bank Transfer -->
+            <div class="method-card" onclick="selectMethod('bank')">
+                <div class="method-icon">🏦</div>
+                <div class="method-name">Bank Transfer</div>
+                <div class="method-description">
+                    Wire transfer in USD, EUR, GBP, or CAD
+                </div>
+                <ul class="method-features">
+                    <li>💵 USD, EUR, GBP, CAD</li>
+                    <li>🏢 Business-friendly</li>
+                    <li>📊 Invoice available</li>
+                    <li>⏱️ 2-3 business days</li>
+                </ul>
+                <div class="method-badge">For Enterprise</div>
+                <button class="select-btn">Choose Bank Transfer</button>
+            </div>
+
+            <!-- Alternative Methods -->
+            <div class="method-card" onclick="selectMethod('alternative')">
+                <div class="method-icon">☕</div>
+                <div class="method-name">Alternative Methods</div>
+                <div class="method-description">
+                    Support us via Buy Me a Coffee or Ko-fi
+                </div>
+                <ul class="method-features">
+                    <li>☕ Buy Me a Coffee</li>
+                    <li>❤️ Ko-fi</li>
+                    <li>🎁 One-time support</li>
+                    <li>⚡ Quick checkout</li>
+                </ul>
+                <button class="select-btn">Choose Alternative</button>
+            </div>
+        </div>
+
+        <!-- Trust Badges -->
+        <div style="text-align: center; margin-top: 40px; padding: 30px; background: #2a2a2a; border-radius: 15px;">
+            <h3 style="color: #FFD700; margin-bottom: 20px;">🔒 Secure & Trusted Payment</h3>
+            <div style="display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; color: #aaa;">
+                <div>🛡️ SSL Encrypted</div>
+                <div>✅ PCI-DSS Compliant</div>
+                <div>💯 Money-Back Guarantee</div>
+                <div>⭐ Trusted by 10,000+ users</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let planData = {};
+
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || 'pro';
+            const cycle = urlParams.get('cycle') || 'monthly';
+            
+            // Update price display
+            const prices = {
+                'free': 0,
+                'starter': cycle === 'yearly' ? 199.99 : 19.99,
+                'pro': cycle === 'yearly' ? 499.99 : 49.99,
+                'enterprise': cycle === 'yearly' ? 1999.99 : 199.99
+            };
+            
+            const price = prices[plan] || 49.99;
+            document.getElementById('totalPrice').textContent = `$${price}`;
+            document.getElementById('planDetails').textContent = 
+                `${plan.toUpperCase()} Plan - ${cycle === 'yearly' ? 'Yearly' : 'Monthly'}`;
+            
+            planData = { plan, cycle, price };
+        }
+
+        function selectMethod(method) {
+            const params = new URLSearchParams({
+                plan: planData.plan,
+                cycle: planData.cycle
+            });
+            
+            const routes = {
+                'card': '/payment/card-link',
+                'paypal': '/payment/paypal',
+                'crypto': '/payment/crypto',
+                'bank': '/payment/bank',
+                'alternative': '/payment/alternative'
+            };
+            
+            window.location.href = `${routes[method]}?${params.toString()}`;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

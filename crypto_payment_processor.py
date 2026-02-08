@@ -56,11 +56,18 @@ class CryptoPaymentProcessor:
     
     def __init__(self):
         """Initialize crypto payment processor"""
-        # Your MetaMask wallet address for receiving payments
-        self.wallet_address = os.getenv(
-            'METAMASK_WALLET_ADDRESS',
-            '0x0000000000000000000000000000000000000000'  # Replace with your address
-        )
+        # Wallet addresses for receiving payments (multi-chain support)
+        self.wallet_addresses = {
+            'ethereum': os.getenv('ETHEREUM_WALLET_ADDRESS', '0xFDAf80b517993A3420E96Fb11D01e959EE35A419'),
+            'polygon': os.getenv('POLYGON_WALLET_ADDRESS', '0xFDAf80b517993A3420E96Fb11D01e959EE35A419'),
+            'binance': os.getenv('BINANCE_WALLET_ADDRESS', '0xFDAf80b517993A3420E96Fb11D01e959EE35A419'),
+            'arbitrum': os.getenv('ARBITRUM_WALLET_ADDRESS', '0xFDAf80b517993A3420E96Fb11D01e959EE35A419'),
+            'bitcoin': os.getenv('BITCOIN_WALLET_ADDRESS', 'bc1qz4kq6hu05j6rdnzv2xe325wf0404smhsaxas86'),
+            'solana': os.getenv('SOLANA_WALLET_ADDRESS', 'BATM5MQZxeNaJGPGdUsRGD5mputbCkHheckcm1y8Vt6r')
+        }
+        
+        # Default wallet address for EVM chains (Ethereum, Polygon, BSC, Arbitrum)
+        self.wallet_address = self.wallet_addresses['polygon']  # Default to Polygon
         
         # Preferred network for payments
         self.preferred_network = os.getenv('CRYPTO_NETWORK', 'polygon')
@@ -68,11 +75,22 @@ class CryptoPaymentProcessor:
         # Minimum confirmations before payment is considered valid
         self.min_confirmations = int(os.getenv('CRYPTO_MIN_CONFIRMATIONS', '3'))
         
-        logger.info(f"Crypto payment processor initialized with wallet: {self.wallet_address[:10]}...")
+        logger.info(f"Crypto payment processor initialized")
+        logger.info(f"EVM Wallet (ETH/Polygon/BSC/Arbitrum): {self.wallet_addresses['ethereum'][:10]}...")
+        logger.info(f"Bitcoin Wallet: {self.wallet_addresses['bitcoin'][:10]}...")
+        logger.info(f"Solana Wallet: {self.wallet_addresses['solana'][:10]}...")
     
-    def get_payment_address(self) -> str:
-        """Get the wallet address for receiving payments"""
-        return self.wallet_address
+    def get_payment_address(self, network: str = 'polygon') -> str:
+        """Get the wallet address for receiving payments on specific network"""
+        if network in ['ethereum', 'polygon', 'binance', 'arbitrum']:
+            # EVM chains use same address
+            return self.wallet_addresses.get(network, self.wallet_address)
+        elif network == 'bitcoin':
+            return self.wallet_addresses['bitcoin']
+        elif network == 'solana':
+            return self.wallet_addresses['solana']
+        else:
+            return self.wallet_address
     
     def get_supported_networks(self) -> Dict[str, Any]:
         """Get list of supported blockchain networks"""
@@ -125,7 +143,7 @@ class CryptoPaymentProcessor:
             'currency': network_info['currency'],
             'network': network_info['name'],
             'chain_id': network_info['chain_id'],
-            'recipient_address': self.wallet_address,
+            'recipient_address': self.get_payment_address(network),
             'min_confirmations': self.min_confirmations
         }
     
@@ -161,10 +179,10 @@ class CryptoPaymentProcessor:
             'currency': price_info['currency'],
             'network': network,
             'chain_id': price_info['chain_id'],
-            'recipient_address': self.wallet_address,
+            'recipient_address': self.get_payment_address(network),
             'created_at': datetime.now().isoformat(),
             'status': 'pending',
-            'explorer_url': f"{self.NETWORKS[network]['explorer']}/address/{self.wallet_address}"
+            'explorer_url': f"{self.NETWORKS[network]['explorer']}/address/{self.get_payment_address(network)}"
         }
         
         # Store payment request (implement your storage logic)
@@ -255,13 +273,13 @@ class CryptoPaymentProcessor:
                 'step1': f"Connect your MetaMask wallet",
                 'step2': f"Switch to {network_info['name']} network",
                 'step3': f"Send exactly {payment_request['amount']} {payment_request['currency']}",
-                'step4': f"To address: {self.wallet_address}",
+                'step4': f"To address: {self.get_payment_address(payment_request['network'])}",
                 'step5': "Copy the transaction hash after sending",
                 'step6': "Submit the transaction hash for verification"
             },
             'payment_details': payment_request,
-            'explorer_url': f"{network_info['explorer']}/address/{self.wallet_address}",
-            'qr_code_data': f"{self.wallet_address}?amount={payment_request['amount']}"
+            'explorer_url': f"{network_info['explorer']}/address/{self.get_payment_address(payment_request['network'])}",
+            'qr_code_data': f"{self.get_payment_address(payment_request['network'])}?amount={payment_request['amount']}"
         }
 
 
