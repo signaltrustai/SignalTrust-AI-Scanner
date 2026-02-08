@@ -2,15 +2,49 @@
 
 The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
 
+## 🧠 NEW: AI Evolution System ✨✨✨
+
+SignalTrust intègre maintenant un **système d'IA évolutif** avec **10 agents IA spécialisés** qui:
+- 🎓 **Apprennent quotidiennement** à partir de nouvelles données
+- 🚀 **Évoluent continuellement** pour devenir plus puissants
+- 🤝 **Partagent leurs connaissances** via une base commune
+- 🎯 **Ont chacun un rôle spécifique** bien défini
+
+### Les 10 Agents IA
+1. **💹 MarketIntelligence** - Analyse des marchés et prédictions
+2. **👤 UserExperience** - Personnalisation de l'expérience
+3. **🛡️ RiskManager** - Gestion des risques
+4. **📈 TradingOptimizer** - Optimisation des stratégies
+5. **📝 ContentGenerator** - Génération de contenu
+6. **🔐 SecurityGuard** - Détection de fraudes
+7. **💬 SupportAssistant** - Support automatisé 24/7
+8. **🔍 PatternRecognizer** - Reconnaissance de patterns
+9. **😊 SentimentAnalyzer** - Analyse de sentiment
+10. **💼 PortfolioManager** - Gestion de portefeuille
+
+**Accéder au système:**
+```
+http://localhost:5000/ai-evolution
+```
+
+📚 **Documentation complète**: [AI_EVOLUTION_GUIDE.md](AI_EVOLUTION_GUIDE.md)
+
 ## 🤖 NEW: Multi-Agent System EU ✨
 
-SignalTrust now includes a powerful **multi-agent architecture** with 6 specialized agents working together for comprehensive market analysis:
+SignalTrust now includes a powerful **multi-agent architecture** with **9 specialized agents** working together for comprehensive market analysis:
 
-- **🎯 Coordinator**: Orchestrates all agents using CrewAI framework
-- **💰 Crypto-Analyst**: FinGPT-based cryptocurrency market analysis
-- **📈 Stock-Analyst**: Stock-GPT-based stock market analysis  
-- **🐋 Whale-Watcher**: Monitors large blockchain transactions
-- **📰 News-Agent**: Aggregates and analyzes market news
+### Core Agents
+- **🎯 Coordinator** (Port 8000): Orchestrates all agents using CrewAI framework
+- **💰 Crypto Agent** (Port 8001): FinGPT-based cryptocurrency market analysis
+- **📈 Stock Agent** (Port 8002): Stock-GPT-based stock market analysis  
+- **🐋 Whale Agent** (Port 8003): Monitors large blockchain transactions
+- **📰 News Agent** (Port 8004): Aggregates and analyzes market news
+
+### Advanced Agents ✨ NEW
+- **💬 Social Sentiment** (Port 8005): Real-time sentiment from Twitter, Reddit, Discord
+- **⛓️ On-Chain Data** (Port 8006): Blockchain metrics and whale activity
+- **🌍 Macro Economics** (Port 8007): GDP, inflation, Fed events analysis
+- **📊 Portfolio Optimizer** (Port 8008): Risk management and allocation optimization
 - **🔍 Supervisor**: Auto-GPT-based task orchestration and monitoring
 
 **Quick Start with Multi-Agent System:**
@@ -19,7 +53,14 @@ SignalTrust now includes a powerful **multi-agent architecture** with 6 speciali
 ./test_agents.sh    # Test all agents
 ```
 
-📚 **Full Documentation**: See [MULTI_AGENT_SYSTEM.md](MULTI_AGENT_SYSTEM.md) for complete guide.
+**Access Agent Dashboard:**
+- Web Interface: `http://localhost:5000/agents`
+- API Status: `http://localhost:5000/api/agents/status`
+
+📚 **Full Documentation**: 
+- [MULTI_AGENT_SYSTEM.md](MULTI_AGENT_SYSTEM.md) - Complete system guide
+- [AGENT_INTEGRATION_GUIDE.md](AGENT_INTEGRATION_GUIDE.md) - Integration & API reference
+- [agents/README.md](agents/README.md) - Individual agent documentation
 
 ## 🚀 Features
 
