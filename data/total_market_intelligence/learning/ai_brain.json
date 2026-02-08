@@ -2,34 +2,34 @@
   "version": "1.0",
   "creation_date": "2026-02-07T14:54:07.661035",
   "evolution_level": 1,
-  "total_learning_sessions": 1,
+  "total_learning_sessions": 2,
   "knowledge_base": {
     "market_patterns": {},
     "price_correlations": {
-      "correlations_found": 14,
-      "last_update": "2026-02-07T14:54:07.661411"
+      "correlations_found": 18,
+      "last_update": "2026-02-08T08:20:53.239734"
     },
     "sentiment_analysis": {},
     "whale_behaviors": {
-      "patterns_count": 1,
-      "last_update": "2026-02-07T14:54:07.661399"
+      "patterns_count": 3,
+      "last_update": "2026-02-08T08:20:53.239527"
     },
     "news_impact": {
-      "patterns_count": 1,
-      "last_update": "2026-02-07T14:54:07.661404"
+      "patterns_count": 3,
+      "last_update": "2026-02-08T08:20:53.239626"
     }
   },
   "prediction_accuracy": {
-    "crypto": 0.7409603724415633,
-    "stocks": 0.6933718985264885,
-    "nfts": 0.6135335862395875,
-    "overall": 0.6826219524025464
+    "crypto": 0.7769682623624405,
+    "stocks": 0.703380523403894,
+    "nfts": 0.6534784489884337,
+    "overall": 0.7112757449182561
   },
   "intelligence_metrics": {
-    "pattern_recognition": 72.63081487323213,
-    "prediction_power": 66.47753447793363,
-    "learning_speed": 76.9874426433586,
-    "adaptation_rate": 72.54214131736094,
-    "overall_iq": 72.15948332797133
+    "pattern_recognition": 75.20309861865098,
+    "prediction_power": 68.65019977777426,
+    "learning_speed": 79.90339084167363,
+    "adaptation_rate": 75.08986004703098,
+    "overall_iq": 74.71163732128247
   }
 }

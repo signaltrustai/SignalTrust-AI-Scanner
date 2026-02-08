@@ -23,6 +23,10 @@ from notification_center import NotificationCenter
 from realtime_market_data import RealTimeMarketData
 from crypto_gem_finder import CryptoGemFinder
 from universal_market_analyzer import UniversalMarketAnalyzer
+try:
+    from financial_data_provider import financial_data as fdn_provider
+except ImportError:
+    fdn_provider = None
 from total_market_data_collector import TotalMarketDataCollector
 from ai_evolution_system import AIEvolutionSystem
 from ai_communication_hub import ai_hub
@@ -285,8 +289,8 @@ def create_chatkit_session():
     if not openai_client:
         return jsonify({"error": "OpenAI client not configured on server"}), 500
     try:
-        chatkit_session = openai_client.chatkit.sessions.create({})
-        return jsonify({"client_secret": getattr(chatkit_session, 'client_secret', None)}), 200
+        # Use OpenAI chat completions API (ChatKit SDK not available)
+        return jsonify({"success": True, "provider": "openai", "status": "ready"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -294,33 +298,42 @@ def create_chatkit_session():
 # ROUTES FLASK - PAGE ROUTES
 # -----------------------------
 
+def _nav_context(active_page):
+    """Build navigation context for templates."""
+    user = get_current_user()
+    is_admin = False
+    if user:
+        is_admin = user.get('user_id') == 'owner_admin_001' or \
+                   user.get('email', '').lower() == 'signaltrustai@gmail.com'
+    return {'active_page': active_page, 'is_admin': is_admin, 'user': user}
+
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", **_nav_context('home'))
 
 @app.route("/ai-chat")
 def ai_chat_page():
-    return render_template("ai_chat.html")
+    return render_template("ai_chat.html", **_nav_context('ai-chat'))
 
 @app.route("/coder")
 def coder_page():
-    return render_template("ai_coder.html")
+    return render_template("ai_coder.html", **_nav_context('coder'))
 
 @app.route("/scanner")
 def scanner_page():
-    return render_template("scanner.html")
+    return render_template("scanner.html", **_nav_context('scanner'))
 
 @app.route("/analyzer")
 def analyzer_page():
-    return render_template("analyzer.html")
+    return render_template("analyzer.html", **_nav_context('analyzer'))
 
 @app.route("/predictions")
 def predictions_page():
-    return render_template("predictions.html")
+    return render_template("predictions.html", **_nav_context('predictions'))
 
 @app.route("/pricing")
 def pricing_page():
-    return render_template("pricing.html")
+    return render_template("pricing.html", **_nav_context('pricing'))
 
 @app.route("/login")
 def login():
@@ -340,7 +353,7 @@ def dashboard():
     user = get_current_user()
     is_admin = user.get('user_id') == 'owner_admin_001' or \
                user.get('email', '').lower() == 'signaltrustai@gmail.com'
-    return render_template("dashboard.html", user=user, is_admin=is_admin)
+    return render_template("dashboard.html", user=user, is_admin=is_admin, active_page='dashboard')
 
 
 @app.route("/api/worker/status")
@@ -365,7 +378,9 @@ def api_worker_status():
 @login_required
 def settings():
     user = get_current_user()
-    return render_template("settings.html", user=user)
+    is_admin = user.get('user_id') == 'owner_admin_001' or \
+               user.get('email', '').lower() == 'signaltrustai@gmail.com'
+    return render_template("settings.html", user=user, is_admin=is_admin, active_page='settings')
 
 # ---------------------------------------------------------------------------
 #  USER PROFILE
@@ -383,7 +398,7 @@ def profile_page():
     user = get_current_user()
     is_admin = user.get('user_id') == 'owner_admin_001' or \
                user.get('email', '').lower() == 'signaltrustai@gmail.com'
-    return render_template("profile.html", user=user, is_admin=is_admin)
+    return render_template("profile.html", user=user, is_admin=is_admin, active_page='profile')
 
 @app.route("/api/profile", methods=["GET"])
 @login_required
@@ -573,26 +588,28 @@ def api_comm_hub_backup():
 
 @app.route("/payment")
 def payment_page():
-    return render_template("payment.html")
+    return render_template("payment.html", **_nav_context('payment'))
 
 @app.route("/whale-watcher")
 def whale_watcher_page():
-    return render_template("whale_watcher.html")
+    return render_template("whale_watcher.html", **_nav_context('whale-watcher'))
 
 @app.route("/ai-intelligence")
 def ai_intelligence_page():
-    return render_template("ai_intelligence.html")
+    return render_template("ai_intelligence.html", **_nav_context('ai-intelligence'))
 
 @app.route("/tradingview")
 def tradingview_page():
     """TradingView charts page with SignalAI strategy"""
-    return render_template("tradingview.html")
+    return render_template("tradingview.html", **_nav_context('tradingview'))
 
 @app.route("/notifications")
 @login_required
 def notifications_page():
     user = get_current_user()
-    return render_template("notifications.html", user=user)
+    is_admin = user.get('user_id') == 'owner_admin_001' or \
+               user.get('email', '').lower() == 'signaltrustai@gmail.com'
+    return render_template("notifications.html", user=user, is_admin=is_admin, active_page='notifications')
 
 # -----------------------------
 # API ROUTES - AUTHENTICATION
@@ -808,6 +825,102 @@ def api_analyze_patterns():
 # -----------------------------
 # API ROUTES - AI PREDICTIONS
 # -----------------------------
+
+# -----------------------------
+# API ROUTES - FINANCIAL DATA (financialdata.net)
+# -----------------------------
+
+@app.route("/api/financial/stock", methods=["POST"])
+def api_financial_stock_overview():
+    """Get comprehensive stock overview from FinancialData.net."""
+    try:
+        if not fdn_provider or not fdn_provider.api_key:
+            return jsonify({"success": False, "error": "FinancialData.net API not configured"}), 503
+        data = request.get_json()
+        symbol = (data or {}).get("symbol", "")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        result = fdn_provider.get_stock_overview(symbol.upper())
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/financial/crypto", methods=["POST"])
+def api_financial_crypto_overview():
+    """Get comprehensive crypto overview from FinancialData.net."""
+    try:
+        if not fdn_provider or not fdn_provider.api_key:
+            return jsonify({"success": False, "error": "FinancialData.net API not configured"}), 503
+        data = request.get_json()
+        symbol = (data or {}).get("symbol", "")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        result = fdn_provider.get_crypto_overview(symbol.upper())
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/financial/fundamentals", methods=["POST"])
+def api_financial_fundamentals():
+    """Get fundamental analysis: financials, ratios, earnings."""
+    try:
+        if not fdn_provider or not fdn_provider.api_key:
+            return jsonify({"success": False, "error": "FinancialData.net API not configured"}), 503
+        data = request.get_json()
+        symbol = (data or {}).get("symbol", "")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        result = fdn_provider.get_fundamental_analysis(symbol.upper())
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/financial/prices", methods=["POST"])
+def api_financial_prices():
+    """Get historical prices for any asset type."""
+    try:
+        if not fdn_provider or not fdn_provider.api_key:
+            return jsonify({"success": False, "error": "FinancialData.net API not configured"}), 503
+        data = request.get_json()
+        symbol = (data or {}).get("symbol", "")
+        market_type = (data or {}).get("market_type", "stock")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+        prices = fdn_provider.get_historical_ohlcv(symbol.upper(), market_type)
+        return jsonify({"success": True, "symbol": symbol.upper(),
+                        "market_type": market_type, "count": len(prices),
+                        "data": prices, "source": "financialdata.net"}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/financial/search", methods=["POST"])
+def api_financial_search():
+    """Search for symbols across stocks, ETFs, crypto."""
+    try:
+        if not fdn_provider or not fdn_provider.api_key:
+            return jsonify({"success": False, "error": "FinancialData.net API not configured"}), 503
+        data = request.get_json()
+        query = (data or {}).get("query", "")
+        if not query:
+            return jsonify({"success": False, "error": "Query required"}), 400
+        results = fdn_provider.search_symbols(query)
+        return jsonify({"success": True, "results": results}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/financial/status", methods=["GET"])
+def api_financial_status():
+    """Get FinancialData.net API status."""
+    if fdn_provider:
+        return jsonify({"success": True, **fdn_provider.get_status()}), 200
+    return jsonify({"success": False, "error": "Provider not loaded"}), 503
+
+
 
 @app.route("/api/predict/price", methods=["POST"])
 def api_predict_price():
@@ -1153,10 +1266,11 @@ def api_ai_predict_enhanced(asset):
 def api_coordinator_status():
     """Get multi-AI coordinator status and worker info."""
     try:
+        stats = ai_coordinator.get_stats()
         return jsonify({
             "success": True,
-            "workers": ai_coordinator.get_workers_status(),
-            "stats": ai_coordinator.get_stats(),
+            "workers": stats.get("workers", []),
+            "stats": stats,
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
@@ -1267,11 +1381,11 @@ def api_ai_chat_message():
     try:
         data = request.get_json()
         message = data.get('message', '')
-        ai_mode = data.get('mode', 'auto')
+        ai_mode = data.get('ai_mode', data.get('mode', 'auto'))
         
-        # Get user info from session
+        # Get user info from session (fallback to body user_id)
         user = get_current_user()
-        user_id = user.get('id', 'anonymous') if user else 'anonymous'
+        user_id = user.get('id', data.get('user_id', 'anonymous')) if user else data.get('user_id', 'anonymous')
         user_email = user.get('email') if user else None
         
         # Process chat message
@@ -1555,16 +1669,29 @@ def api_cloud_query_backups():
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    """Route utilisée par ton interface AI Chat"""
+    """Route utilisée par l'interface AI Chat - utilise le AI local si pas d'agents externes"""
     data = request.get_json()
     user_message = data.get("message", "")
 
     log_event("USER_MESSAGE", {"message": user_message})
 
+    # Try local AI first (more reliable than external agent API)
+    try:
+        user_id = session.get("user_id", "anonymous")
+        response = ai_chat.chat(
+            user_id=user_id,
+            message=user_message,
+            ai_mode="auto"
+        )
+        if response.get("success"):
+            log_event("AI_CHAT_RESPONSE", {"ai_type": response.get("ai_type")})
+            return jsonify({"reply": response.get("response", ""), "success": True})
+    except Exception as e:
+        log_event("AI_CHAT_FALLBACK", {"error": str(e)})
+
+    # Fallback to agent router
     agent_response = agent_router(user_message)
-
     log_event("AGENT_RESPONSE", {"response": agent_response})
-
     return jsonify({"reply": agent_response})
 
 # -----------------------------

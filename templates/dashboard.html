@@ -312,29 +312,7 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="dash-nav">
-        <a href="/" class="brand">SIGNALTRUST AI</a>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/ai-chat">AI Chat</a>
-            <a href="/scanner">Scanner</a>
-            <a href="/tradingview">TradingLive</a>
-            <a href="/analyzer">Analyzer</a>
-            <a href="/predictions">Predictions</a>
-            <a href="/coder">🤖 AI Coder</a>
-            <a href="/dashboard" class="active">Dashboard</a>
-            <a href="/profile">Profile</a>
-            {% if is_admin %}
-            <a href="/admin/comm-hub" style="color: var(--yellow);">🛰️ Comm Hub</a>
-            {% endif %}
-        </div>
-        <div class="user-badge">
-            {{ user.full_name or user.email or 'User' }}
-            &middot;
-            <span class="plan">{{ user.plan or 'free' }}</span>
-        </div>
-    </nav>
+    {% include 'partials/nav.html' %}
 
     <div class="dash-container">
         <!-- Header -->

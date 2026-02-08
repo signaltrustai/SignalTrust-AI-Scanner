@@ -24,7 +24,7 @@ class ASI1AIIntegration:
             api_key: OpenAI API key (defaults to environment variable)
         """
         self.api_key = api_key or os.environ.get('OPENAI_API_KEY', '')
-        self.model = os.environ.get('OPENAI_MODEL', 'gpt-4')
+        self.model = os.environ.get('OPENAI_MODEL', 'gpt-4o')
         self._client = None
         self.session_id = self._generate_session_id()
         

@@ -115,7 +115,7 @@ class AICoderBot:
             try:
                 import openai
                 self._ai_engine = openai.OpenAI(api_key=openai_key)
-                self._provider_name = os.environ.get("OPENAI_MODEL", "gpt-4")
+                self._provider_name = os.environ.get("OPENAI_MODEL", "gpt-4o")
                 logger.info("CoderBot: OpenAI provider ready")
                 return
             except Exception as e:
