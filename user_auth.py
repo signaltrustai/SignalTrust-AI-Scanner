@@ -272,6 +272,28 @@ class UserAuth:
         
         return {'success': True, 'message': 'Plan updated successfully'}
     
+    def update_user_profile(self, email: str, profile_data: Dict) -> Dict:
+        """Update user profile information.
+
+        Args:
+            email: User email
+            profile_data: Dict with optional keys: full_name, phone, bio, location, profile_picture
+
+        Returns:
+            Update result
+        """
+        if email not in self.users:
+            return {'success': False, 'error': 'User not found'}
+
+        allowed = ('full_name', 'phone', 'bio', 'location', 'profile_picture')
+        for key in allowed:
+            if key in profile_data:
+                self.users[email][key] = str(profile_data[key])[:500]  # cap length
+
+        self.users[email]['profile_updated_at'] = datetime.now().isoformat()
+        self._save_users()
+        return {'success': True, 'message': 'Profile updated successfully'}
+
     def get_user_by_email(self, email: str) -> Optional[Dict]:
         """Get user by email.
         
@@ -292,5 +314,10 @@ class UserAuth:
             'plan': user['plan'],
             'created_at': user['created_at'],
             'payment_status': user.get('payment_status', 'active'),
-            'is_active': user.get('is_active', True)
+            'is_active': user.get('is_active', True),
+            'phone': user.get('phone', ''),
+            'bio': user.get('bio', ''),
+            'location': user.get('location', ''),
+            'profile_picture': user.get('profile_picture', ''),
+            'profile_updated_at': user.get('profile_updated_at', ''),
         }

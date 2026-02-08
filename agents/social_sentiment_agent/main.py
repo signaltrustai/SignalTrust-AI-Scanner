@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 # Configure logging
@@ -94,7 +94,7 @@ class SocialSentimentAgent:
         
         return SentimentResponse(
             symbol=symbol,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             overall_sentiment=round(overall_sentiment, 3),
             sentiment_class=self._classify_sentiment(overall_sentiment),
             volume_score=round(volume_score, 3),
@@ -248,7 +248,7 @@ async def health_check():
     return {
         "status": "healthy",
         "agent": "social_sentiment",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/analyze", response_model=SentimentResponse)
@@ -285,7 +285,7 @@ async def get_trending_symbols():
             {"symbol": "ETH", "score": 0.88, "mentions": 8500},
             {"symbol": "AAPL", "score": 0.75, "mentions": 3200}
         ],
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 if __name__ == "__main__":

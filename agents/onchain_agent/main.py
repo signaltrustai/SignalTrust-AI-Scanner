@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -82,7 +82,7 @@ class OnChainAgent:
         return OnChainResponse(
             symbol=symbol,
             network=network,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             active_addresses=active_addresses,
             whale_activity=whale_activity,
             token_metrics=token_metrics,
@@ -223,7 +223,7 @@ async def health_check():
     return {
         "status": "healthy",
         "agent": "onchain_data",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/analyze", response_model=OnChainResponse)
@@ -257,14 +257,14 @@ async def get_whale_alerts():
     return {
         "alerts": [
             {
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "amount_usd": 25000000,
                 "from": "unknown",
                 "to": "Binance",
                 "type": "exchange_inflow"
             },
             {
-                "timestamp": (datetime.utcnow() - timedelta(hours=2)).isoformat(),
+                "timestamp": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat(),
                 "amount_usd": 18000000,
                 "from": "Coinbase",
                 "to": "unknown",

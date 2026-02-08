@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -82,7 +82,7 @@ class MacroEconomicsAgent:
         
         return MacroResponse(
             region=region,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             current_indicators=current,
             upcoming_events=events,
             economic_calendar=calendar,
@@ -111,7 +111,7 @@ class MacroEconomicsAgent:
     
     async def _get_upcoming_events(self, region: str, timeframe: str) -> List[Dict]:
         """Get upcoming macro events"""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         return [
             {
                 "date": (now + timedelta(days=2)).isoformat(),
@@ -259,7 +259,7 @@ async def health_check():
     return {
         "status": "healthy",
         "agent": "macro_economics",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/analyze", response_model=MacroResponse)
@@ -293,7 +293,7 @@ async def get_current_indicators():
     indicators = await agent._get_current_indicators("US")
     return {
         "indicators": indicators,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.get("/calendar")
@@ -302,7 +302,7 @@ async def get_economic_calendar():
     events = await agent._get_upcoming_events("US", "30d")
     return {
         "events": events,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 if __name__ == "__main__":

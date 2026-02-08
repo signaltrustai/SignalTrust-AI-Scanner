@@ -11,7 +11,7 @@ This module implements the hybrid approach:
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import logging
 
@@ -369,7 +369,7 @@ class HybridSignalGenerator:
         
         return {
             "ticker": ticker,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "final_score": round(final_score, 3),
             "ml_probability": round(ml_prob, 3),
             "llm_confidence": round(llm_confidence, 3),

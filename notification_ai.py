@@ -45,7 +45,8 @@ class NotificationAI:
             try:
                 with open(self.config_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                print(f"⚠️ NotificationAI: failed to load config file: {e}")
                 pass
         
         # Default configuration
@@ -75,7 +76,8 @@ class NotificationAI:
             try:
                 with open(self.preferences_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                print(f"⚠️ NotificationAI: failed to load preferences: {e}")
                 pass
         
         # Default preferences - TOUT configurable!
@@ -200,7 +202,8 @@ class NotificationAI:
             try:
                 with open(self.learning_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                print(f"⚠️ NotificationAI: failed to load learning data: {e}")
                 pass
         
         return {

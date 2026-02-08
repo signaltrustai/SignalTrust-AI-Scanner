@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for, Response, send_from_directory
 from flask_cors import CORS
 import os
+from dotenv import load_dotenv
 import requests
 import datetime
 import json
@@ -9,6 +10,7 @@ import time
 from functools import wraps
 import subprocess
 import sys
+import uuid
 # Import local modules
 from user_auth import UserAuth
 from payment_processor import PaymentProcessor
@@ -29,6 +31,11 @@ from ai_chat_system import AIChatSystem
 from cloud_storage_manager import cloud_storage
 from tradingview_manager import tradingview_manager
 from signalai_strategy import signalai_strategy
+from multi_ai_coordinator import get_coordinator
+from ai_learning_system import get_learning_system
+
+# Load environment variables from .env (if present)
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", os.urandom(24).hex())
@@ -68,11 +75,20 @@ gem_finder = CryptoGemFinder()
 universal_analyzer = UniversalMarketAnalyzer()
 total_collector = TotalMarketDataCollector()
 ai_evolution = AIEvolutionSystem()
+ai_coordinator = get_coordinator()
+ai_learning = get_learning_system()
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
 asi1_integration = ASI1AIIntegration()
 ai_chat = AIChatSystem(asi1_integration, ai_intelligence, whale_watcher)
+
+# Initialize OpenAI client (for ChatKit sessions)
+try:
+    from openai import OpenAI
+    openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', ''))
+except Exception:
+    openai_client = None
 
 # -----------------------------
 # HELPER FUNCTIONS
@@ -105,7 +121,8 @@ def save_learning_data(data_type: str, data: dict):
             try:
                 with open(LEARNING_DATA_FILE, 'r') as f:
                     learning_data = json.load(f)
-            except:
+            except Exception as e:
+                log_event("LEARNING_DATA_LOAD_ERROR", {"error": str(e)})
                 learning_data = []
         
         # Add new entry
@@ -139,6 +156,11 @@ def log_event(event_type: str, payload: dict):
 
 def call_agent(agent_key: str, message: str):
     """Appelle un agent SignalTrust via son alias logique."""
+    # If no AGENT_API_KEY provided, return a mocked response for local testing
+    if not AGENT_API_KEY:
+        log_event("AGENT_MOCK", {"agent": agent_key, "message": message})
+        return {"success": True, "agent": agent_key, "reply": f"(mock) received: {message}"}
+
     agent_id = AGENT_IDS.get(agent_key)
     if not agent_id:
         return {"error": f"Unknown agent key: {agent_key}"}
@@ -208,6 +230,30 @@ def agent_router(message: str):
     log_event("SUPERVISOR_FALLBACK", {"message": message})
     return call_agent("SUPERVISOR", message)
 
+
+# -----------------------------
+# ChatKit session endpoint (OpenAI)
+# -----------------------------
+@app.route("/api/chatkit/session", methods=["POST"])
+def create_chatkit_session():
+    """Create a ChatKit session via OpenAI and return a client_secret to the frontend.
+
+    The server must NOT expose its API key. The returned `client_secret` is safe
+    for the client to use with @openai/chatkit-react.
+    """
+    # Allow bypassing authentication for quick local testing when ALLOW_UNAUTH_TESTING=true
+    allow_unauth = os.getenv('ALLOW_UNAUTH_TESTING', 'false').lower() in ('1', 'true')
+    if not allow_unauth and 'user_email' not in session:
+        return redirect(url_for('login'))
+
+    if not openai_client:
+        return jsonify({"error": "OpenAI client not configured on server"}), 500
+    try:
+        chatkit_session = openai_client.chatkit.sessions.create({})
+        return jsonify({"client_secret": getattr(chatkit_session, 'client_secret', None)}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # -----------------------------
 # ROUTES FLASK - PAGE ROUTES
 # -----------------------------
@@ -252,13 +298,238 @@ def register():
 @login_required
 def dashboard():
     user = get_current_user()
-    return render_template("dashboard.html", user=user)
+    is_admin = user.get('user_id') == 'owner_admin_001' or \
+               user.get('email', '').lower() == 'signaltrustai@gmail.com'
+    return render_template("dashboard.html", user=user, is_admin=is_admin)
+
+
+@app.route("/api/worker/status")
+def api_worker_status():
+    """Get background worker status."""
+    try:
+        status = background_worker.get_worker_status()
+        coordinator_stats = ai_coordinator.get_stats()
+        learning_summary = ai_learning.get_learning_summary()
+        hub_status = ai_hub.get_status()
+        return jsonify({
+            "success": True,
+            "worker": status,
+            "coordinator": coordinator_stats,
+            "learning": learning_summary,
+            "hub": hub_status,
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/settings")
 @login_required
 def settings():
     user = get_current_user()
     return render_template("settings.html", user=user)
+
+# ---------------------------------------------------------------------------
+#  USER PROFILE
+# ---------------------------------------------------------------------------
+
+UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "static", "uploads", "avatars")
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp"}
+
+def _allowed_file(filename: str) -> bool:
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route("/profile")
+@login_required
+def profile_page():
+    user = get_current_user()
+    is_admin = user.get('user_id') == 'owner_admin_001' or \
+               user.get('email', '').lower() == 'signaltrustai@gmail.com'
+    return render_template("profile.html", user=user, is_admin=is_admin)
+
+@app.route("/api/profile", methods=["GET"])
+@login_required
+def api_get_profile():
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    return jsonify({"success": True, "user": user})
+
+@app.route("/api/profile", methods=["POST"])
+@login_required
+def api_update_profile():
+    """Update user profile info (full_name, phone, bio, location)."""
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+    data = request.get_json() or {}
+    result = user_auth.update_user_profile(user["email"], data)
+    return jsonify(result)
+
+@app.route("/api/profile/avatar", methods=["POST"])
+@login_required
+def api_upload_avatar():
+    """Upload profile picture."""
+    user = get_current_user()
+    if not user:
+        return jsonify({"success": False, "error": "User not found"}), 404
+
+    if "avatar" not in request.files:
+        return jsonify({"success": False, "error": "No file uploaded"}), 400
+
+    file = request.files["avatar"]
+    if file.filename == "" or not _allowed_file(file.filename):
+        return jsonify({"success": False, "error": "Invalid file type. Use PNG, JPG, GIF, or WEBP"}), 400
+
+    os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+    ext = file.filename.rsplit(".", 1)[1].lower()
+    filename = f"{user['user_id']}_{uuid.uuid4().hex[:8]}.{ext}"
+    filepath = os.path.join(UPLOAD_DIR, filename)
+
+    # Remove old avatar if exists
+    old_pic = user.get("profile_picture", "")
+    if old_pic:
+        old_path = os.path.join(os.path.dirname(__file__), "static", old_pic.lstrip("/static/").lstrip("/"))
+        if os.path.exists(old_path) and "uploads/avatars" in old_path:
+            try:
+                os.remove(old_path)
+            except Exception:
+                pass
+
+    file.save(filepath)
+    avatar_url = f"/static/uploads/avatars/{filename}"
+    user_auth.update_user_profile(user["email"], {"profile_picture": avatar_url})
+
+    return jsonify({"success": True, "avatar_url": avatar_url})
+
+# ---------------------------------------------------------------------------
+#  ADMIN COMMUNICATION HUB (admin only)
+# ---------------------------------------------------------------------------
+
+def _require_admin(f):
+    """Decorator to require admin access."""
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user_email' not in session:
+            return redirect(url_for('login'))
+        user = get_current_user()
+        if not user:
+            return redirect(url_for('login'))
+        is_admin = user.get('user_id') == 'owner_admin_001' or \
+                   user.get('email', '').lower() == 'signaltrustai@gmail.com'
+        if not is_admin:
+            return jsonify({"error": "Admin access required"}), 403
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route("/admin/comm-hub")
+@_require_admin
+def admin_comm_hub():
+    user = get_current_user()
+    return render_template("admin_comm_hub.html", user=user, is_admin=True)
+
+@app.route("/api/admin/comm-hub/status")
+@_require_admin
+def api_comm_hub_status():
+    """Get full communication hub status + messages + knowledge."""
+    try:
+        status = ai_hub.get_status()
+        knowledge = ai_hub.get_all_knowledge()
+        collective = ai_hub.get_collective_intelligence()
+
+        # Get recent messages from each agent
+        agents = ["STOCK", "CRYPTO", "WHALE", "SITE", "SUPERVISOR", "DESIRE",
+                  "coordinator", "learning_system", "predictor"]
+        all_messages = []
+        for agent in agents:
+            msgs = ai_hub.get_messages(agent, limit=20)
+            all_messages.extend(msgs)
+        all_messages.sort(key=lambda m: m.get("timestamp", ""), reverse=True)
+
+        # Recent insights per type
+        insight_types = ["market_insights", "patterns", "predictions",
+                         "whale_intelligence", "gem_discoveries", "news_sentiment"]
+        insights = {}
+        for itype in insight_types:
+            insights[itype] = ai_hub.get_recent_insights(itype, limit=10)
+
+        # Coordinator stats
+        coordinator_stats = ai_coordinator.get_stats()
+
+        return jsonify({
+            "success": True,
+            "status": status,
+            "knowledge_types": list(knowledge.keys()),
+            "knowledge_summary": {k: len(v) if isinstance(v, list) else 1
+                                  for k, v in knowledge.items()},
+            "collective": collective,
+            "messages": all_messages[:100],
+            "insights": insights,
+            "coordinator": coordinator_stats,
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/admin/comm-hub/send", methods=["POST"])
+@_require_admin
+def api_comm_hub_send():
+    """Admin sends a message/directive to an AI agent."""
+    data = request.get_json() or {}
+    to_ai = data.get("to_ai", "ALL")
+    msg_type = data.get("msg_type", "admin_directive")
+    content = data.get("content", "")
+    priority = int(data.get("priority", 1))
+
+    if not content:
+        return jsonify({"success": False, "error": "Content is required"}), 400
+
+    try:
+        msg_id = ai_hub.send_message(
+            from_ai="ADMIN",
+            to_ai=to_ai,
+            message_type=msg_type,
+            data={"content": content, "from": "admin_dashboard", "type": msg_type},
+            priority=priority,
+        )
+        return jsonify({"success": True, "msg_id": msg_id})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/admin/comm-hub/share-data", methods=["POST"])
+@_require_admin
+def api_comm_hub_share_data():
+    """Admin shares data/instruction into the knowledge base."""
+    data = request.get_json() or {}
+    data_type = data.get("data_type", "market_insights")
+    content = data.get("content", {})
+
+    if not content:
+        return jsonify({"success": False, "error": "Content is required"}), 400
+
+    try:
+        ai_hub.share_data("ADMIN", data_type, content)
+        return jsonify({"success": True, "message": f"Data shared as {data_type}"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/admin/comm-hub/evolve", methods=["POST"])
+@_require_admin
+def api_comm_hub_evolve():
+    """Trigger collective evolution."""
+    try:
+        result = ai_hub.evolve_collectively()
+        return jsonify({"success": True, "evolution": result})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/admin/comm-hub/backup", methods=["POST"])
+@_require_admin
+def api_comm_hub_backup():
+    """Create a backup of all hub data."""
+    try:
+        backup_path = ai_hub.create_backup()
+        return jsonify({"success": True, "backup_path": backup_path})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
 
 @app.route("/payment")
 def payment_page():
@@ -402,7 +673,7 @@ def api_markets_trending():
 
 @app.route("/api/analyze/technical", methods=["POST"])
 def api_analyze_technical():
-    """Technical analysis."""
+    """Technical analysis — uses multi-AI coordinator when available."""
     try:
         data = request.get_json()
         symbol = data.get("symbol")
@@ -413,6 +684,20 @@ def api_analyze_technical():
         
         analysis = market_analyzer.analyze_technical(symbol, timeframe)
         save_learning_data("technical_analysis", {"symbol": symbol, "analysis": analysis})
+
+        # Record prediction in learning system
+        direction = "BULLISH" if analysis.get("recommendation") == "BUY" else (
+            "BEARISH" if analysis.get("recommendation") == "SELL" else "NEUTRAL"
+        )
+        confidence = (analysis.get("confidence", 50) or 50) / 100.0
+        ai_learning.record_prediction(
+            symbol=symbol,
+            ai_worker="market_analyzer",
+            strategy="technical",
+            predicted_direction=direction,
+            confidence=confidence,
+            market_data_snapshot=analysis.get("indicators"),
+        )
         
         return jsonify({"success": True, "data": analysis}), 200
     except Exception as e:
@@ -793,6 +1078,104 @@ def api_ai_predict_enhanced(asset):
         return jsonify({"success": False, "error": str(e)}), 500
 
 # -----------------------------
+# API ROUTES - MULTI-AI COORDINATOR
+# -----------------------------
+
+@app.route("/api/ai/coordinator/status", methods=["GET"])
+def api_coordinator_status():
+    """Get multi-AI coordinator status and worker info."""
+    try:
+        return jsonify({
+            "success": True,
+            "workers": ai_coordinator.get_workers_status(),
+            "stats": ai_coordinator.get_stats(),
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/coordinator/analyze", methods=["POST"])
+def api_coordinator_analyze():
+    """Run coordinated multi-AI analysis on a symbol."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        strategy = data.get("strategy")  # None → auto
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+
+        result = ai_coordinator.quick_analysis(symbol, data)
+        save_learning_data("coordinator_analysis", {"symbol": symbol, "result": result})
+
+        # Record in learning system
+        direction = result.get("analysis", {}).get("direction", "NEUTRAL")
+        confidence = result.get("analysis", {}).get("confidence", 0.5)
+        ai_learning.record_prediction(
+            symbol=symbol,
+            ai_worker=result.get("worker_used", "coordinator"),
+            strategy=result.get("strategy_used", "auto"),
+            predicted_direction=direction,
+            confidence=confidence,
+            market_data_snapshot=data,
+        )
+
+        return jsonify({"success": True, "data": result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/coordinator/deep", methods=["POST"])
+def api_coordinator_deep():
+    """Run deep multi-AI analysis (slower, more accurate)."""
+    try:
+        data = request.get_json()
+        symbol = data.get("symbol")
+        if not symbol:
+            return jsonify({"success": False, "error": "Symbol required"}), 400
+
+        result = ai_coordinator.deep_analysis(symbol, data)
+        save_learning_data("deep_analysis", {"symbol": symbol, "result": result})
+        return jsonify({"success": True, "data": result}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - AI LEARNING SYSTEM
+# -----------------------------
+
+@app.route("/api/ai/learning/summary", methods=["GET"])
+def api_learning_summary():
+    """Get AI learning system summary."""
+    try:
+        return jsonify({"success": True, "data": ai_learning.get_learning_summary()}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/learning/model-accuracy", methods=["GET"])
+def api_model_accuracy():
+    """Get per-model accuracy stats."""
+    try:
+        worker = request.args.get("worker")
+        return jsonify({"success": True, "data": ai_learning.get_model_accuracy(worker)}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/learning/symbol/<symbol>", methods=["GET"])
+def api_symbol_insights(symbol):
+    """Get learning insights for a specific symbol."""
+    try:
+        return jsonify({"success": True, "data": ai_learning.get_symbol_insights(symbol)}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route("/api/ai/learning/evolve", methods=["POST"])
+def api_learning_evolve():
+    """Trigger daily learning evolution cycle."""
+    try:
+        report = ai_learning.daily_evolution(coordinator=ai_coordinator)
+        return jsonify({"success": True, "data": report}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
 # API ROUTES - AI CHAT SYSTEM
 # -----------------------------
 
@@ -1156,7 +1539,7 @@ def api_signalai_generate():
                 return jsonify({"success": False, "error": "Login required"}), 401
             
             # Check if user is admin
-            is_admin = user.get('user_id') == 'admin_user_001'
+            is_admin = user.get('user_id') == 'owner_admin_001' or user.get('email', '').lower() == 'signaltrustai@gmail.com'
             
             access = payment_processor.check_signalai_access(
                 user.get('user_id', ''),
@@ -1194,7 +1577,7 @@ def api_signalai_check_access():
             return jsonify({"has_access": False, "reason": "Not logged in"}), 200
         
         # Check if user is admin
-        is_admin = user.get('user_id') == 'admin_user_001'
+        is_admin = user.get('user_id') == 'owner_admin_001' or user.get('email', '').lower() == 'signaltrustai@gmail.com'
         
         access = payment_processor.check_signalai_access(
             user.get('user_id', ''),
@@ -1293,425 +1676,446 @@ def api_signalai_performance():
         return jsonify({"success": False, "error": str(e)}), 500
 
 # -----------------------------
-# BACKGROUND WORKERS - 24/7 AI AGENTS
+# BACKGROUND WORKERS - 24/7 AI AGENTS (Optimized v2)
 # -----------------------------
 
 class BackgroundAIWorker:
-    """24/7 Background AI worker for continuous learning and data collection."""
-    
+    """
+    24/7 Background AI worker with:
+    - Exponential backoff on errors (max 10 min)
+    - Per-task error isolation (one task failing doesn't stop others)
+    - Health monitoring with auto-restart
+    - Optimized cycle intervals
+    - Data persistence saving on shutdown
+    """
+
+    CYCLE_INTERVAL = 300  # 5 minutes base cycle
+
     def __init__(self):
         self.running = False
         self.thread = None
-    
+        self.cycle_count = 0
+        self.consecutive_errors = 0
+        self.max_backoff = 600  # 10 minutes max
+        self.start_time = None
+        self.last_successful_cycle = None
+        self.task_stats = {}  # task_name -> {success, fail, last_run}
+
     def start(self):
-        """Start the background worker."""
+        """Start the background worker with auto-restart capability."""
         if not self.running:
             self.running = True
+            self.start_time = time.time()
             self.thread = threading.Thread(target=self._worker_loop, daemon=True)
             self.thread.start()
-            log_event("BACKGROUND_WORKER_STARTED", {"time": datetime.datetime.utcnow().isoformat()})
-    
+            log_event("BACKGROUND_WORKER_STARTED", {
+                "time": datetime.datetime.now(datetime.timezone.utc).isoformat()
+            })
+
     def stop(self):
-        """Stop the background worker."""
+        """Stop the background worker and save all data."""
         self.running = False
         if self.thread:
-            self.thread.join(timeout=5)
-        log_event("BACKGROUND_WORKER_STOPPED", {"time": datetime.datetime.utcnow().isoformat()})
-    
+            self.thread.join(timeout=10)
+        # Save all learning data on shutdown
+        try:
+            ai_learning.save_all()
+            ai_hub.save_all()
+        except Exception:
+            pass
+        log_event("BACKGROUND_WORKER_STOPPED", {
+            "time": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "total_cycles": self.cycle_count,
+            "uptime_hours": round((time.time() - (self.start_time or time.time())) / 3600, 1)
+        })
+
+    def get_worker_status(self) -> dict:
+        """Get detailed worker status for dashboard."""
+        uptime = time.time() - (self.start_time or time.time())
+        return {
+            "running": self.running,
+            "cycle_count": self.cycle_count,
+            "uptime_hours": round(uptime / 3600, 1),
+            "consecutive_errors": self.consecutive_errors,
+            "last_successful_cycle": self.last_successful_cycle,
+            "task_stats": self.task_stats,
+        }
+
+    def _run_task(self, name: str, fn, *args):
+        """Run a single task with error isolation and stats tracking."""
+        t0 = time.time()
+        try:
+            fn(*args)
+            elapsed = round(time.time() - t0, 1)
+            self.task_stats.setdefault(name, {"success": 0, "fail": 0, "last_run": None, "avg_time": 0})
+            stats = self.task_stats[name]
+            stats["success"] += 1
+            stats["last_run"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            # Running average
+            total = stats["success"] + stats["fail"]
+            stats["avg_time"] = round((stats["avg_time"] * (total - 1) + elapsed) / total, 1)
+        except Exception as e:
+            self.task_stats.setdefault(name, {"success": 0, "fail": 0, "last_run": None, "avg_time": 0})
+            self.task_stats[name]["fail"] += 1
+            log_event(f"TASK_ERROR_{name.upper()}", {"error": str(e)})
+
     def _worker_loop(self):
-        """Main worker loop - runs 24/7 with full optimization."""
-        cycle_count = 0
-        
+        """Main worker loop — runs 24/7 with exponential backoff on errors."""
         while self.running:
             try:
-                cycle_count += 1
+                self.cycle_count += 1
                 cycle_start = time.time()
-                log_event("WORKER_CYCLE_START", {"cycle": cycle_count})
-                
-                # 1. Collect market data every 5 minutes
-                if cycle_count % 1 == 0:
-                    self._collect_market_data()
-                
-                # 2. Run AI analysis every 15 minutes
-                if cycle_count % 3 == 0:
-                    self._run_ai_analysis()
-                
-                # 3. Check for whale activity every 10 minutes
-                if cycle_count % 2 == 0:
-                    self._check_whale_activity()
-                
-                # 4. Generate predictions every hour
-                if cycle_count % 12 == 0:
-                    self._generate_predictions()
-                
-                # 5. Discover hidden gems every 30 minutes
-                if cycle_count % 6 == 0:
-                    self._discover_hidden_gems()
-                
-                # 6. Analyze ALL markets every 2 hours
-                if cycle_count % 24 == 0:
-                    self._analyze_all_markets()
-                
-                # 7. COLLECT EVERYTHING every 4 hours
-                if cycle_count % 48 == 0:
-                    self._collect_total_data()
-                
-                # 8. AI EVOLUTION every 6 hours
-                if cycle_count % 72 == 0:
-                    self._evolve_ai()
-                
-                # 9. Learn from collected data every 6 hours
-                if cycle_count % 72 == 0:
-                    self._learn_from_data()
-                
-                # 10. Health check and cleanup every 24 hours
-                if cycle_count % 288 == 0:
-                    self._health_check(cycle_count)
-                
-                # Calculate cycle time
+
+                # ── Every cycle (5 min): market data ──
+                self._run_task("market_data", self._collect_market_data)
+
+                # ── Every 10 min: whale activity ──
+                if self.cycle_count % 2 == 0:
+                    self._run_task("whale_check", self._check_whale_activity)
+
+                # ── Every 15 min: AI analysis ──
+                if self.cycle_count % 3 == 0:
+                    self._run_task("ai_analysis", self._run_ai_analysis)
+
+                # ── Every 30 min: gem discovery ──
+                if self.cycle_count % 6 == 0:
+                    self._run_task("gem_discovery", self._discover_hidden_gems)
+
+                # ── Every hour: predictions ──
+                if self.cycle_count % 12 == 0:
+                    self._run_task("predictions", self._generate_predictions)
+
+                # ── Every 2 hours: universal analysis ──
+                if self.cycle_count % 24 == 0:
+                    self._run_task("universal_analysis", self._analyze_all_markets)
+
+                # ── Every 4 hours: total data collection ──
+                if self.cycle_count % 48 == 0:
+                    self._run_task("total_collection", self._collect_total_data)
+
+                # ── Every 6 hours: AI evolution + learning ──
+                if self.cycle_count % 72 == 0:
+                    self._run_task("ai_evolution", self._evolve_ai)
+                    self._run_task("ai_learning", self._learn_from_data)
+
+                # ── Every 12 hours: save all persistent data ──
+                if self.cycle_count % 144 == 0:
+                    self._run_task("data_save", self._save_all_data)
+
+                # ── Every 24 hours: health check + cleanup ──
+                if self.cycle_count % 288 == 0:
+                    self._run_task("health_check", self._health_check, self.cycle_count)
+
+                # Success — reset backoff
+                self.consecutive_errors = 0
+                self.last_successful_cycle = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
                 cycle_time = time.time() - cycle_start
                 log_event("WORKER_CYCLE_COMPLETE", {
-                    "cycle": cycle_count,
-                    "duration_seconds": cycle_time
+                    "cycle": self.cycle_count,
+                    "duration_seconds": round(cycle_time, 1)
                 })
-                
-                # Sleep for 5 minutes between cycles
-                time.sleep(300)
-                
+
+                time.sleep(self.CYCLE_INTERVAL)
+
             except Exception as e:
-                log_event("WORKER_ERROR", {"error": str(e), "cycle": cycle_count})
-                time.sleep(60)  # Wait 1 minute on error
-    
+                self.consecutive_errors += 1
+                backoff = min(self.max_backoff, 60 * (2 ** min(self.consecutive_errors - 1, 4)))
+                log_event("WORKER_ERROR", {
+                    "error": str(e),
+                    "cycle": self.cycle_count,
+                    "consecutive_errors": self.consecutive_errors,
+                    "backoff_seconds": backoff
+                })
+                time.sleep(backoff)
+
     def _collect_market_data(self):
         """Collect and save real-time market data."""
-        try:
-            # Get market summary
-            summary = realtime_data.get_market_summary()
-            save_learning_data("auto_market_data", summary)
-            
-            # Scan trending markets
-            trending = market_scanner.get_trending_assets("crypto")
-            save_learning_data("auto_trending", trending)
-            
-            # Share data with AI Hub
-            ai_hub.share_data("MarketScanner", "market_insights", {
-                "summary": summary,
-                "trending": trending,
-                "timestamp": datetime.datetime.now().isoformat()
-            })
-            
-            log_event("AUTO_DATA_COLLECTION", {
-                "summary": bool(summary),
-                "trending": len(trending)
-            })
-        except Exception as e:
-            log_event("DATA_COLLECTION_ERROR", {"error": str(e)})
-    
+        summary = realtime_data.get_market_summary()
+        save_learning_data("auto_market_data", summary)
+
+        trending = market_scanner.get_trending_assets("crypto")
+        save_learning_data("auto_trending", trending)
+
+        ai_hub.share_data("MarketScanner", "market_insights", {
+            "summary": summary,
+            "trending": trending,
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+        })
+
+        log_event("AUTO_DATA_COLLECTION", {
+            "summary": bool(summary),
+            "trending": len(trending)
+        })
+
     def _run_ai_analysis(self):
         """Run AI analysis on top assets."""
-        try:
-            # Get all crypto assets (no limit)
-            top_assets = realtime_data.get_all_crypto(limit=None)
-            
-            analyses = []
-            for asset in top_assets[:50]:  # Analyze top 50 instead of 10
-                try:
-                    analysis = market_analyzer.analyze_technical(asset["symbol"])
-                    analyses.append({
-                        "symbol": asset["symbol"],
-                        "analysis": analysis
-                    })
-                except:
-                    continue
-            
-            save_learning_data("auto_ai_analysis", analyses)
-            
-            # Share patterns with AI Hub
-            ai_hub.share_data("Analyzer", "patterns", analyses)
-            
-            log_event("AUTO_AI_ANALYSIS", {"analyzed": len(analyses)})
-        except Exception as e:
-            log_event("AI_ANALYSIS_ERROR", {"error": str(e)})
-    
+        top_assets = realtime_data.get_all_crypto(limit=None)
+
+        analyses = []
+        for asset in top_assets[:50]:
+            try:
+                analysis = market_analyzer.analyze_technical(asset["symbol"])
+                analyses.append({"symbol": asset["symbol"], "analysis": analysis})
+            except Exception:
+                continue
+
+        save_learning_data("auto_ai_analysis", analyses)
+        ai_hub.share_data("Analyzer", "patterns", analyses)
+        log_event("AUTO_AI_ANALYSIS", {"analyzed": len(analyses)})
+
     def _check_whale_activity(self):
         """Check for whale transactions and alert."""
-        try:
-            transactions = whale_watcher.get_recent_transactions(limit=100)  # Increased from 20 to 100
-            
-            # Save whale data for learning
-            save_learning_data("auto_whale_data", transactions)
-            
-            # Share whale intelligence with AI Hub
-            significant = [t for t in transactions if t.get("value_usd", 0) > 1000000]
-            ai_hub.share_data("WhaleWatcher", "whale_intelligence", {
-                "total_transactions": len(transactions),
-                "significant_count": len(significant),
+        transactions = whale_watcher.get_recent_transactions(limit=100)
+        save_learning_data("auto_whale_data", transactions)
+
+        significant = [t for t in transactions if t.get("value_usd", 0) > 1000000]
+        ai_hub.share_data("WhaleWatcher", "whale_intelligence", {
+            "total_transactions": len(transactions),
+            "significant_count": len(significant),
+            "total_value": sum(t.get("value_usd", 0) for t in significant)
+        })
+
+        if significant:
+            log_event("AUTO_WHALE_ALERT", {
+                "count": len(significant),
                 "total_value": sum(t.get("value_usd", 0) for t in significant)
             })
-            
-            # Check for significant transactions
-            if significant:
-                log_event("AUTO_WHALE_ALERT", {
-                    "count": len(significant),
-                    "total_value": sum(t.get("value_usd", 0) for t in significant)
-                })
-                
-                # Send notifications for major whale movements
-                for tx in significant[:10]:  # Top 10 instead of 5
-                    notification_center.send_whale_alert(
-                        "all_pro_users",
-                        tx.get("symbol"),
-                        tx.get("value_usd"),
-                        tx.get("type")
-                    )
-        except Exception as e:
-            log_event("WHALE_CHECK_ERROR", {"error": str(e)})
-    
+            for tx in significant[:10]:
+                notification_center.send_whale_alert(
+                    "all_pro_users",
+                    tx.get("symbol"),
+                    tx.get("value_usd"),
+                    tx.get("type")
+                )
+
     def _generate_predictions(self):
         """Generate AI predictions for popular assets."""
-        try:
-            # Get all assets (no limit)
-            top_assets = realtime_data.get_all_crypto(limit=None)
-            
-            predictions = []
-            for asset in top_assets[:30]:  # Top 30 instead of 10
-                try:
-                    prediction = ai_predictor.predict_price(asset["symbol"], days=7)
-                    predictions.append({
-                        "symbol": asset["symbol"],
-                        "prediction": prediction
-                    })
-                except:
-                    continue
-            
-            save_learning_data("auto_predictions", predictions)
-            
-            # Share predictions with AI Hub
-            ai_hub.share_data("Predictor", "predictions", predictions)
-            
-            log_event("AUTO_PREDICTIONS", {"generated": len(predictions)})
-        except Exception as e:
-            log_event("PREDICTION_ERROR", {"error": str(e)})
-    
+        top_assets = realtime_data.get_all_crypto(limit=None)
+
+        predictions = []
+        for asset in top_assets[:30]:
+            try:
+                prediction = ai_predictor.predict_price(asset["symbol"], days=7)
+                predictions.append({"symbol": asset["symbol"], "prediction": prediction})
+            except Exception:
+                continue
+
+        save_learning_data("auto_predictions", predictions)
+        ai_hub.share_data("Predictor", "predictions", predictions)
+        log_event("AUTO_PREDICTIONS", {"generated": len(predictions)})
+
     def _discover_hidden_gems(self):
-        """Discover hidden gem cryptocurrencies every 30 minutes."""
-        try:
-            gems = gem_finder.discover_new_gems(limit=100)
-            
-            # Filter top gems
-            top_gems = [g for g in gems if g.get('gem_score', 0) > 85]
-            
-            save_learning_data("auto_gem_discovery", {
-                "total_discovered": len(gems),
-                "top_gems": len(top_gems),
-                "gems": top_gems[:10]
-            })
-            
-            # Share gems with AI Hub
-            ai_hub.share_data("GemFinder", "gem_discoveries", top_gems)
-            
-            # Broadcast discovery to all AIs
-            ai_hub.send_message("GemFinder", "ALL", "gem_discovery", {
-                "total_gems": len(gems),
-                "high_potential": len(top_gems)
-            })
-            
-            log_event("AUTO_GEM_DISCOVERY", {
-                "discovered": len(gems),
-                "high_potential": len(top_gems)
-            })
-            
-            # Send alerts for exceptional gems
-            alerts = gem_finder.get_gem_alerts()
-            if alerts:
-                for alert in alerts[:5]:
-                    notification_center.send_notification(
-                        "all_users",
-                        "gem_alert",
-                        f"💎 New Gem Alert: {alert['symbol']} - {alert['message']}"
-                    )
-        except Exception as e:
-            log_event("GEM_DISCOVERY_ERROR", {"error": str(e)})
-    
-    def _analyze_all_markets(self):
-        """Analyze ALL markets every 2 hours."""
-        try:
-            log_event("UNIVERSAL_ANALYSIS_START", {})
-            
-            analysis = universal_analyzer.analyze_everything()
-            
-            save_learning_data("auto_universal_analysis", {
-                "total_assets": analysis['total_assets_analyzed'],
-                "markets": len(analysis['markets']),
-                "top_opportunities": len(analysis['top_opportunities'])
-            })
-            
-            log_event("UNIVERSAL_ANALYSIS_COMPLETE", {
-                "assets_analyzed": analysis['total_assets_analyzed'],
-                "opportunities_found": len(analysis['top_opportunities']),
-                "markets_covered": len(analysis['markets'])
-            })
-            
-            # Send notifications for top opportunities
-            top_opps = analysis['top_opportunities'][:10]
-            if top_opps:
+        """Discover hidden gem cryptocurrencies."""
+        gems = gem_finder.discover_new_gems(limit=100)
+        top_gems = [g for g in gems if g.get('gem_score', 0) > 85]
+
+        save_learning_data("auto_gem_discovery", {
+            "total_discovered": len(gems),
+            "top_gems": len(top_gems),
+            "gems": top_gems[:10]
+        })
+
+        ai_hub.share_data("GemFinder", "gem_discoveries", top_gems)
+        ai_hub.send_message("GemFinder", "ALL", "gem_discovery", {
+            "total_gems": len(gems),
+            "high_potential": len(top_gems)
+        })
+
+        log_event("AUTO_GEM_DISCOVERY", {
+            "discovered": len(gems),
+            "high_potential": len(top_gems)
+        })
+
+        alerts = gem_finder.get_gem_alerts()
+        if alerts:
+            for alert in alerts[:5]:
                 notification_center.send_notification(
-                    "all_users",
-                    "market_opportunities",
-                    f"🚀 {len(top_opps)} new top opportunities discovered across all markets!"
+                    "all_users", "gem_alert",
+                    f"New Gem Alert: {alert['symbol']} - {alert['message']}"
                 )
-        except Exception as e:
-            log_event("UNIVERSAL_ANALYSIS_ERROR", {"error": str(e)})
-    
+
+    def _analyze_all_markets(self):
+        """Analyze ALL markets."""
+        log_event("UNIVERSAL_ANALYSIS_START", {})
+        analysis = universal_analyzer.analyze_everything()
+
+        save_learning_data("auto_universal_analysis", {
+            "total_assets": analysis['total_assets_analyzed'],
+            "markets": len(analysis['markets']),
+            "top_opportunities": len(analysis['top_opportunities'])
+        })
+
+        log_event("UNIVERSAL_ANALYSIS_COMPLETE", {
+            "assets_analyzed": analysis['total_assets_analyzed'],
+            "opportunities_found": len(analysis['top_opportunities']),
+            "markets_covered": len(analysis['markets'])
+        })
+
+        top_opps = analysis['top_opportunities'][:10]
+        if top_opps:
+            notification_center.send_notification(
+                "all_users", "market_opportunities",
+                f"{len(top_opps)} new top opportunities discovered across all markets!"
+            )
+
     def _collect_total_data(self):
-        """Collect EVERYTHING from ALL markets every 4 hours."""
-        try:
-            log_event("TOTAL_COLLECTION_START", {})
-            
-            data = total_collector.collect_all_data()
-            
-            save_learning_data("auto_total_collection", {
-                "total_cryptos": data['data']['cryptocurrencies']['total_cryptos'],
-                "total_us_stocks": data['data']['us_stocks']['total_stocks'],
-                "total_canadian_stocks": data['data']['canadian_stocks']['total_stocks'],
-                "total_nfts": data['data']['nfts']['total_collections'],
-                "total_whales": data['data']['whales']['total_transactions'],
-                "total_news": data['data']['news']['total_articles']
-            })
-            
-            total_assets = (data['data']['cryptocurrencies']['total_cryptos'] +
-                          data['data']['us_stocks']['total_stocks'] +
-                          data['data']['canadian_stocks']['total_stocks'] +
-                          data['data']['nfts']['total_collections'])
-            
-            log_event("TOTAL_COLLECTION_COMPLETE", {
-                "total_assets_collected": total_assets,
-                "whale_transactions": data['data']['whales']['total_transactions'],
-                "news_articles": data['data']['news']['total_articles']
-            })
-            
-        except Exception as e:
-            log_event("TOTAL_COLLECTION_ERROR", {"error": str(e)})
-    
+        """Collect EVERYTHING from ALL markets."""
+        log_event("TOTAL_COLLECTION_START", {})
+        data = total_collector.collect_all_data()
+
+        save_learning_data("auto_total_collection", {
+            "total_cryptos": data['data']['cryptocurrencies']['total_cryptos'],
+            "total_us_stocks": data['data']['us_stocks']['total_stocks'],
+            "total_canadian_stocks": data['data']['canadian_stocks']['total_stocks'],
+            "total_nfts": data['data']['nfts']['total_collections'],
+            "total_whales": data['data']['whales']['total_transactions'],
+            "total_news": data['data']['news']['total_articles']
+        })
+
+        total_assets = (data['data']['cryptocurrencies']['total_cryptos'] +
+                      data['data']['us_stocks']['total_stocks'] +
+                      data['data']['canadian_stocks']['total_stocks'] +
+                      data['data']['nfts']['total_collections'])
+
+        log_event("TOTAL_COLLECTION_COMPLETE", {
+            "total_assets_collected": total_assets,
+            "whale_transactions": data['data']['whales']['total_transactions'],
+            "news_articles": data['data']['news']['total_articles']
+        })
+
     def _evolve_ai(self):
-        """Evolve AI using all collected data every 6 hours."""
-        try:
-            log_event("AUTO_AI_EVOLUTION_START", {})
-            
-            # Get shared knowledge from hub
-            shared_knowledge = ai_hub.get_all_knowledge()
-            
-            # Individual AI evolution
-            report = ai_evolution.evolve()
-            
-            # Collective evolution
-            collective = ai_hub.evolve_collectively()
-            
-            save_learning_data("auto_ai_evolution", {
-                "evolution_level": report.get('new_level'),
-                "intelligence_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
-                "prediction_accuracy": report.get('prediction_accuracy', {}).get('overall'),
-                "collective_iq": collective['collective_iq'],
-                "collective_accuracy": collective['collective_accuracy'],
-                "evolution_synergy": collective['evolution_synergy']
-            })
-            
-            # Broadcast evolution to all AIs
-            ai_hub.send_message("Evolution", "ALL", "evolution_complete", {
-                "individual_level": report.get('new_level'),
-                "collective_iq": collective['collective_iq'],
-                "synergy": collective['evolution_synergy']
-            })
-            
-            log_event("AUTO_AI_EVOLUTION_COMPLETE", {
-                "new_level": report.get('new_level'),
-                "overall_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
-                "collective_iq": collective['collective_iq'],
-                "synergy": collective['evolution_synergy']
-            })
-            
-        except Exception as e:
-            log_event("AI_EVOLUTION_ERROR", {"error": str(e)})
-    
+        """Evolve AI using all collected data."""
+        log_event("AUTO_AI_EVOLUTION_START", {})
+        shared_knowledge = ai_hub.get_all_knowledge()
+        report = ai_evolution.evolve()
+        collective = ai_hub.evolve_collectively()
+
+        save_learning_data("auto_ai_evolution", {
+            "evolution_level": report.get('new_level'),
+            "intelligence_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
+            "prediction_accuracy": report.get('prediction_accuracy', {}).get('overall'),
+            "collective_iq": collective['collective_iq'],
+            "collective_accuracy": collective['collective_accuracy'],
+            "evolution_synergy": collective['evolution_synergy']
+        })
+
+        ai_hub.send_message("Evolution", "ALL", "evolution_complete", {
+            "individual_level": report.get('new_level'),
+            "collective_iq": collective['collective_iq'],
+            "synergy": collective['evolution_synergy']
+        })
+
+        log_event("AUTO_AI_EVOLUTION_COMPLETE", {
+            "new_level": report.get('new_level'),
+            "overall_iq": report.get('intelligence_metrics', {}).get('overall_iq'),
+            "collective_iq": collective['collective_iq'],
+            "synergy": collective['evolution_synergy']
+        })
+
     def _learn_from_data(self):
-        """Learn and improve from collected data."""
+        """Learn and improve from collected data — runs daily evolution cycle."""
+        evolution_report = ai_learning.daily_evolution(coordinator=ai_coordinator)
+        save_learning_data("auto_learning_evolution", evolution_report)
+        log_event("AUTO_LEARNING_EVOLUTION", {
+            "predictions_evaluated": evolution_report.get("predictions_auto_evaluated", 0),
+            "weight_changes": len(evolution_report.get("weight_changes", {})),
+            "accuracy": evolution_report.get("summary", {}).get("accuracy", 0),
+        })
+
+        if os.path.exists(LEARNING_DATA_FILE):
+            try:
+                with open(LEARNING_DATA_FILE, 'r') as f:
+                    learning_data = json.load(f)
+
+                market_patterns = [d for d in learning_data if d.get("type") == "auto_market_data"]
+                prediction_accuracy = [d for d in learning_data if d.get("type") == "auto_predictions"]
+
+                insights = {
+                    "total_data_points": len(learning_data),
+                    "market_samples": len(market_patterns),
+                    "predictions_made": len(prediction_accuracy),
+                    "learning_timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+                }
+
+                save_learning_data("auto_learning_insights", insights)
+                log_event("AUTO_LEARNING", insights)
+            except Exception as e:
+                log_event("LEARNING_DATA_READ_ERROR", {"error": str(e)})
+
+    def _save_all_data(self):
+        """Save all persistent data to disk."""
         try:
-            # Load learning data
-            if not os.path.exists(LEARNING_DATA_FILE):
-                return
-            
-            with open(LEARNING_DATA_FILE, 'r') as f:
-                learning_data = json.load(f)
-            
-            # Analyze patterns
-            market_patterns = [d for d in learning_data if d.get("type") == "auto_market_data"]
-            prediction_accuracy = [d for d in learning_data if d.get("type") == "auto_predictions"]
-            
-            insights = {
-                "total_data_points": len(learning_data),
-                "market_samples": len(market_patterns),
-                "predictions_made": len(prediction_accuracy),
-                "learning_timestamp": datetime.datetime.utcnow().isoformat()
-            }
-            
-            save_learning_data("auto_learning_insights", insights)
-            log_event("AUTO_LEARNING", insights)
-            
+            ai_learning.save_all()
         except Exception as e:
-            log_event("LEARNING_ERROR", {"error": str(e)})
-    
+            log_event("SAVE_LEARNING_ERROR", {"error": str(e)})
+        try:
+            ai_hub.save_all()
+        except Exception as e:
+            log_event("SAVE_HUB_ERROR", {"error": str(e)})
+        log_event("AUTO_DATA_SAVE", {"time": datetime.datetime.now(datetime.timezone.utc).isoformat()})
+
     def _health_check(self, cycle_count):
         """Perform system health check and cleanup."""
-        try:
-            health = {
-                "timestamp": datetime.datetime.utcnow().isoformat(),
-                "log_file_size": os.path.getsize(LOG_FILE) if os.path.exists(LOG_FILE) else 0,
-                "learning_data_size": os.path.getsize(LEARNING_DATA_FILE) if os.path.exists(LEARNING_DATA_FILE) else 0,
-                "uptime_hours": cycle_count * 5 / 60  # Approximate
-            }
-            
-            # Cleanup old logs if too large (> 100MB)
-            if health["log_file_size"] > 100 * 1024 * 1024:
+        health = {
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "log_file_size": os.path.getsize(LOG_FILE) if os.path.exists(LOG_FILE) else 0,
+            "learning_data_size": os.path.getsize(LEARNING_DATA_FILE) if os.path.exists(LEARNING_DATA_FILE) else 0,
+            "uptime_hours": round((time.time() - (self.start_time or time.time())) / 3600, 1),
+            "total_cycles": cycle_count,
+            "task_stats": self.task_stats,
+        }
+
+        # Cleanup old logs if too large (> 50MB)
+        if health["log_file_size"] > 50 * 1024 * 1024:
+            try:
                 with open(LOG_FILE, 'r') as f:
                     lines = f.readlines()
                 with open(LOG_FILE, 'w') as f:
-                    f.writelines(lines[-10000:])  # Keep last 10000 lines
-            
-            # Create automatic AI Hub backup
+                    f.writelines(lines[-5000:])
+            except Exception:
+                pass
+
+        # Cleanup learning data if too large (> 100MB)
+        if health["learning_data_size"] > 100 * 1024 * 1024:
             try:
-                backup_file = ai_hub.create_backup()
-                health["ai_hub_backup"] = backup_file
-                log_event("AUTO_AI_HUB_BACKUP_CREATED", {"file": backup_file})
-            except Exception as e:
-                log_event("AI_HUB_BACKUP_ERROR", {"error": str(e)})
-            
-            # Create unified cloud backup (every 24h)
-            try:
-                unified_backup = cloud_storage.backup_all_data()
-                health["unified_backup"] = unified_backup['backup_id']
-                health["backup_size_mb"] = unified_backup['size_bytes'] / 1024 / 1024
-                log_event("AUTO_UNIFIED_BACKUP_CREATED", {
-                    "backup_id": unified_backup['backup_id'],
-                    "size_mb": health["backup_size_mb"]
-                })
-            except Exception as e:
-                log_event("UNIFIED_BACKUP_ERROR", {"error": str(e)})
-            
-            # Get AI Hub status
-            hub_status = ai_hub.get_status()
-            health["ai_hub"] = hub_status
-            
-            # Get cloud storage status
-            try:
-                cloud_stats = cloud_storage.get_statistics()
-                health["cloud_storage"] = cloud_stats
-            except Exception as e:
-                log_event("CLOUD_STATS_ERROR", {"error": str(e)})
-            
-            log_event("AUTO_HEALTH_CHECK", health)
-            
+                with open(LEARNING_DATA_FILE, 'r') as f:
+                    learning_data = json.load(f)
+                # Keep only last 5000 entries
+                with open(LEARNING_DATA_FILE, 'w') as f:
+                    json.dump(learning_data[-5000:], f, indent=1, default=str)
+            except Exception:
+                pass
+
+        # Create backups
+        try:
+            backup_file = ai_hub.create_backup()
+            health["ai_hub_backup"] = backup_file
+            log_event("AUTO_AI_HUB_BACKUP_CREATED", {"file": backup_file})
         except Exception as e:
-            log_event("HEALTH_CHECK_ERROR", {"error": str(e)})
+            log_event("AI_HUB_BACKUP_ERROR", {"error": str(e)})
+
+        try:
+            unified_backup = cloud_storage.backup_all_data()
+            health["unified_backup"] = unified_backup['backup_id']
+            health["backup_size_mb"] = unified_backup['size_bytes'] / 1024 / 1024
+            log_event("AUTO_UNIFIED_BACKUP_CREATED", {
+                "backup_id": unified_backup['backup_id'],
+                "size_mb": health["backup_size_mb"]
+            })
+        except Exception as e:
+            log_event("UNIFIED_BACKUP_ERROR", {"error": str(e)})
+
+        hub_status = ai_hub.get_status()
+        health["ai_hub"] = hub_status
+
+        try:
+            cloud_stats = cloud_storage.get_statistics()
+            health["cloud_storage"] = cloud_stats
+        except Exception as e:
+            log_event("CLOUD_STATS_ERROR", {"error": str(e)})
+
+        log_event("AUTO_HEALTH_CHECK", health)
 
 # Initialize background worker
 background_worker = BackgroundAIWorker()
@@ -1733,6 +2137,8 @@ def main():
     print("=" * 70)
     print(f"Server running on: http://localhost:{port}")
     print(f"Debug mode: {debug}")
+    print(f"AI Workers: {len(ai_coordinator.workers)} active")
+    print(f"Learning System: {ai_learning.get_learning_summary()['total_predictions']} predictions tracked")
     print("Press CTRL+C to stop the server")
     print("=" * 70)
     
@@ -1748,7 +2154,7 @@ def main():
         app.run(host="0.0.0.0", port=port, debug=debug)
     finally:
         background_worker.stop()
-        log_event("SERVER_STOPPED", {"time": datetime.datetime.now().isoformat()})
+        log_event("SERVER_STOPPED", {"time": datetime.datetime.now(datetime.timezone.utc).isoformat()})
 
 if __name__ == "__main__":
     main()

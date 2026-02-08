@@ -8,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 import numpy as np
 
@@ -93,7 +93,7 @@ class PortfolioOptimizer:
         )
         
         return PortfolioResponse(
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             method=method,
             total_capital=capital,
             allocations=allocations,
@@ -327,7 +327,7 @@ async def health_check():
     return {
         "status": "healthy",
         "agent": "portfolio_optimizer",
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }
 
 @app.post("/optimize", response_model=PortfolioResponse)

@@ -29,7 +29,8 @@ class AIEvolutionSystem:
             try:
                 with open(self.ai_brain_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                print(f"⚠️ AIEvolutionSystem: failed to load ai_brain file: {e}")
                 pass
         
         # Initialize new AI brain
@@ -66,7 +67,8 @@ class AIEvolutionSystem:
             try:
                 with open(self.patterns_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                print(f"⚠️ AIEvolutionSystem: failed to load patterns file: {e}")
                 pass
         return []
     
@@ -147,7 +149,8 @@ class AIEvolutionSystem:
         try:
             with open(self.learning_file, 'r') as f:
                 return json.load(f)
-        except:
+        except Exception as e:
+            print(f"⚠️ AIEvolutionSystem: failed to load learning data: {e}")
             return []
     
     def _learn_market_patterns(self, learning_data: List[Dict]) -> Dict:

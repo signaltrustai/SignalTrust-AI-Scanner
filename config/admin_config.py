@@ -9,12 +9,13 @@ and this file should be modified to load credentials from environment variables
 or a secure secrets management system.
 """
 
+import os
+
 # Default admin account constants
-# ⚠️ FOR DEVELOPMENT ONLY - Change in production!
-ADMIN_USER_ID = "owner_admin_001"
-ADMIN_EMAIL = "signaltrustai@gmail.com"
-ADMIN_PASSWORD = "!Obiwan12!"  # TODO: Load from secure source in production
-ADMIN_FULL_NAME = "SignalTrust Admin"
+ADMIN_USER_ID = os.getenv("ADMIN_USER_ID", "owner_admin_001")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "signaltrustai@gmail.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "!Obiwan12!")  # ⚠️ Set ADMIN_PASSWORD env var in production!
+ADMIN_FULL_NAME = os.getenv("ADMIN_FULL_NAME", "SignalTrust Admin")
 ADMIN_PLAN = "enterprise"
 ADMIN_PAYMENT_STATUS = "active"
 

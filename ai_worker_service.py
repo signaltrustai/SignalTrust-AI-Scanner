@@ -376,8 +376,8 @@ class AIWorkerService:
                     for old_file in files[:-1000]:
                         try:
                             os.remove(old_file)
-                        except:
-                            pass
+                        except Exception as e:
+                            logger.warning(f"Could not remove old file {old_file}: {e}")
             
             logger.info("✅ Performance optimized: Old data cleaned")
             

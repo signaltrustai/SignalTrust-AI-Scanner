@@ -1,432 +1,407 @@
 #!/usr/bin/env python3
 """
-Universal Market Analyzer - Analyzes ALL markets: Stocks, Crypto, NFTs, Everything
-The most comprehensive market analysis system
+Universal Market Analyzer — SignalTrust AI Scanner
+════════════════════════════════════════════════════════════════
+Analyzes ALL markets using REAL data only — zero random scores.
+
+Data sources:
+  • RealTimeMarketData (CoinPaprika / CoinCap / Yahoo Finance)
+  • CryptoGemFinder (DEXScreener / CoinPaprika)
+  • Yahoo Finance chart API (stocks)
+  • DefiLlama (DeFi TVL)
 """
 
-import random
 import json
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+import logging
+import time
+import requests
+from datetime import datetime, timezone
+from typing import Dict, List
+
 from realtime_market_data import RealTimeMarketData
 from crypto_gem_finder import CryptoGemFinder
 
+logger = logging.getLogger(__name__)
+
+# ── tiny cache ──────────────────────────────────────────────────────
+_uma_cache: Dict[str, dict] = {}
+_CACHE_TTL = 300
+
+
+def _cached(key: str):
+    e = _uma_cache.get(key)
+    if e and time.time() - e["ts"] < _CACHE_TTL:
+        return e["v"]
+    return None
+
+
+def _store(key: str, val):
+    _uma_cache[key] = {"v": val, "ts": time.time()}
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Scoring helpers — deterministic from price data
+# ═══════════════════════════════════════════════════════════════════
+
+def _score_asset(change_pct: float, volume: float = 0) -> float:
+    """Compute a deterministic 0-100 opportunity score from real metrics.
+
+    Components:
+      • Momentum (0-40): abs(change_pct) capped at 20% maps linearly to 40
+      • Direction (0-30): positive change → 30, negative → 30*(1 - abs(chg)/20)
+      • Volume premium (0-30): log-scaled from volume when available
+    """
+    import math
+    abs_chg = min(abs(change_pct), 20)
+    momentum = (abs_chg / 20) * 40
+
+    if change_pct > 0:
+        direction = 30
+    else:
+        direction = max(0, 30 * (1 - abs_chg / 20))
+
+    vol_score = 0
+    if volume and volume > 0:
+        vol_score = min(30, math.log10(max(volume, 1)) * 3)
+
+    return round(min(100, momentum + direction + vol_score), 1)
+
+
+def _recommendation(score: float, change_pct: float) -> str:
+    if score >= 80 and change_pct > 0:
+        return "STRONG BUY"
+    elif score >= 65 and change_pct > 0:
+        return "BUY"
+    elif score >= 50:
+        return "HOLD"
+    else:
+        return "WATCH"
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Main class
+# ═══════════════════════════════════════════════════════════════════
 
 class UniversalMarketAnalyzer:
-    """Comprehensive analyzer for ALL markets."""
-    
+    """Comprehensive analyzer using REAL data only."""
+
     def __init__(self):
-        """Initialize the universal analyzer."""
         self.market_data = RealTimeMarketData()
         self.gem_finder = CryptoGemFinder()
-        
-        # Expanded stock lists
-        self.all_us_stocks = self._get_all_us_stocks()
-        self.all_canadian_stocks = self._get_all_canadian_stocks()
-        
-        # Crypto lists
-        self.all_cryptos = self.market_data.get_all_crypto(limit=None)
-        
-        # NFT collections
-        self.nft_collections = self._get_all_nft_collections()
-        
-        # DeFi protocols
-        self.defi_protocols = self._get_all_defi_protocols()
-        
-        # Metaverse tokens
-        self.metaverse_tokens = self._get_metaverse_tokens()
-        
-        # GameFi tokens
-        self.gamefi_tokens = self._get_gamefi_tokens()
-    
+
+    # ── public API (same interface) ────────────────────────────────
+
     def analyze_everything(self) -> Dict:
-        """Analyze EVERYTHING across all markets.
-        
-        Returns:
-            Comprehensive analysis of all markets
-        """
-        print("🌍 ANALYZING ALL GLOBAL MARKETS...")
-        
-        analysis = {
-            'timestamp': datetime.now().isoformat(),
-            'total_assets_analyzed': 0,
-            'markets': {}
+        """Analyze ALL markets using real data."""
+        cached = _cached("full_analysis")
+        if cached:
+            return cached
+
+        logger.info("Universal market analysis starting (live data)...")
+
+        analysis: Dict = {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "total_assets_analyzed": 0,
+            "data_source": "live",
+            "markets": {},
         }
-        
-        # 1. Analyze ALL US Stocks
-        print("📈 Analyzing ALL US Stocks...")
-        us_analysis = self._analyze_all_us_stocks()
-        analysis['markets']['us_stocks'] = us_analysis
-        analysis['total_assets_analyzed'] += us_analysis['count']
-        
-        # 2. Analyze ALL Canadian Stocks
-        print("🍁 Analyzing ALL Canadian Stocks...")
-        cad_analysis = self._analyze_all_canadian_stocks()
-        analysis['markets']['canadian_stocks'] = cad_analysis
-        analysis['total_assets_analyzed'] += cad_analysis['count']
-        
-        # 3. Analyze ALL Cryptocurrencies
-        print("💎 Analyzing ALL Cryptocurrencies...")
-        crypto_analysis = self._analyze_all_crypto()
-        analysis['markets']['cryptocurrencies'] = crypto_analysis
-        analysis['total_assets_analyzed'] += crypto_analysis['count']
-        
-        # 4. Discover NEW Hidden Gems
-        print("🔍 Discovering Hidden Gem Cryptos...")
-        gem_analysis = self._discover_gems()
-        analysis['markets']['hidden_gems'] = gem_analysis
-        analysis['total_assets_analyzed'] += gem_analysis['count']
-        
-        # 5. Analyze ALL NFTs
-        print("🎨 Analyzing ALL NFT Collections...")
-        nft_analysis = self._analyze_all_nfts()
-        analysis['markets']['nfts'] = nft_analysis
-        analysis['total_assets_analyzed'] += nft_analysis['count']
-        
-        # 6. Analyze ALL DeFi
-        print("🏦 Analyzing ALL DeFi Protocols...")
-        defi_analysis = self._analyze_all_defi()
-        analysis['markets']['defi'] = defi_analysis
-        analysis['total_assets_analyzed'] += defi_analysis['count']
-        
-        # 7. Analyze Metaverse
-        print("🌐 Analyzing Metaverse Tokens...")
-        metaverse_analysis = self._analyze_metaverse()
-        analysis['markets']['metaverse'] = metaverse_analysis
-        analysis['total_assets_analyzed'] += metaverse_analysis['count']
-        
-        # 8. Analyze GameFi
-        print("🎮 Analyzing GameFi Tokens...")
-        gamefi_analysis = self._analyze_gamefi()
-        analysis['markets']['gamefi'] = gamefi_analysis
-        analysis['total_assets_analyzed'] += gamefi_analysis['count']
-        
-        # Generate top opportunities
-        analysis['top_opportunities'] = self._find_top_opportunities(analysis)
-        
-        # Save comprehensive analysis
+
+        us = self._analyze_us_stocks()
+        analysis["markets"]["us_stocks"] = us
+        analysis["total_assets_analyzed"] += us["count"]
+
+        ca = self._analyze_canadian_stocks()
+        analysis["markets"]["canadian_stocks"] = ca
+        analysis["total_assets_analyzed"] += ca["count"]
+
+        crypto = self._analyze_crypto()
+        analysis["markets"]["cryptocurrencies"] = crypto
+        analysis["total_assets_analyzed"] += crypto["count"]
+
+        gems = self._discover_gems()
+        analysis["markets"]["hidden_gems"] = gems
+        analysis["total_assets_analyzed"] += gems["count"]
+
+        defi = self._analyze_defi()
+        analysis["markets"]["defi"] = defi
+        analysis["total_assets_analyzed"] += defi["count"]
+
+        analysis["top_opportunities"] = self._find_top_opportunities(analysis)
+
         self._save_analysis(analysis)
-        
+        _store("full_analysis", analysis)
         return analysis
-    
-    def _get_all_us_stocks(self) -> List[str]:
-        """Get comprehensive list of US stocks."""
-        # Top 500 US stocks
-        stocks = [
-            # Tech Giants
-            'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'TSLA', 'NVDA', 'AMD', 'INTC', 'QCOM',
-            # Finance
-            'JPM', 'BAC', 'WFC', 'GS', 'MS', 'C', 'BLK', 'SCHW', 'AXP', 'V', 'MA', 'PYPL',
-            # Healthcare
-            'JNJ', 'UNH', 'PFE', 'ABBV', 'TMO', 'MRK', 'ABT', 'DHR', 'BMY', 'AMGN', 'LLY',
-            # Retail
-            'WMT', 'HD', 'COST', 'TGT', 'LOW', 'TJX', 'DG', 'ROST', 'BBBY', 'BBY',
-            # Energy
-            'XOM', 'CVX', 'COP', 'SLB', 'EOG', 'MPC', 'PSX', 'VLO', 'OXY', 'HAL',
-            # Aerospace
-            'BA', 'LMT', 'RTX', 'GD', 'NOC', 'TXT', 'HII', 'LHX', 'HWM',
-            # Consumer
-            'PG', 'KO', 'PEP', 'PM', 'MDLZ', 'CL', 'GIS', 'K', 'HSY', 'STZ',
-            # Automotive
-            'GM', 'F', 'RIVN', 'LCID', 'NIO', 'XPEV', 'LI',
-            # Entertainment
-            'DIS', 'NFLX', 'CMCSA', 'T', 'VZ', 'TMUS', 'PARA', 'WBD',
-            # Industrial
-            'CAT', 'DE', 'MMM', 'HON', 'UPS', 'FDX', 'GE', 'EMR',
-        ]
-        return stocks + [f"STOCK{i}" for i in range(1, 401)]  # Add 400 more
-    
-    def _get_all_canadian_stocks(self) -> List[str]:
-        """Get comprehensive list of Canadian stocks."""
-        stocks = [
-            'SHOP.TO', 'RY.TO', 'TD.TO', 'ENB.TO', 'CNQ.TO', 'BNS.TO', 'BMO.TO',
-            'TRP.TO', 'CP.TO', 'CNR.TO', 'SU.TO', 'WCN.TO', 'BCE.TO', 'T.TO',
-            'MFC.TO', 'ABX.TO', 'FM.TO', 'BAM.TO', 'CCL-B.TO', 'NTR.TO',
-        ]
-        return stocks + [f"TSX{i}.TO" for i in range(1, 181)]  # 200 total
-    
-    def _get_all_nft_collections(self) -> List[Dict]:
-        """Get ALL NFT collections."""
-        collections = [
-            {'name': 'Bored Ape Yacht Club', 'symbol': 'BAYC', 'floor_price': 45.5},
-            {'name': 'CryptoPunks', 'symbol': 'PUNK', 'floor_price': 65.2},
-            {'name': 'Mutant Ape Yacht Club', 'symbol': 'MAYC', 'floor_price': 12.8},
-            {'name': 'Azuki', 'symbol': 'AZUKI', 'floor_price': 18.5},
-            {'name': 'Clone X', 'symbol': 'CLONEX', 'floor_price': 7.2},
-            {'name': 'Doodles', 'symbol': 'DOODLE', 'floor_price': 5.8},
-            {'name': 'Moonbirds', 'symbol': 'MOONBIRD', 'floor_price': 4.5},
-            {'name': 'Pudgy Penguins', 'symbol': 'PPG', 'floor_price': 6.3},
-        ]
-        # Add 200+ more NFT collections
-        for i in range(1, 201):
-            collections.append({
-                'name': f'NFT Collection {i}',
-                'symbol': f'NFT{i}',
-                'floor_price': random.uniform(0.1, 50.0)
-            })
-        return collections
-    
-    def _get_all_defi_protocols(self) -> List[str]:
-        """Get ALL DeFi protocols."""
-        return [
-            'AAVE', 'UNI', 'COMP', 'MKR', 'SNX', 'CRV', 'YFI', 'SUSHI',
-            'BAL', '1INCH', 'LDO', 'FXS', 'CVX', 'SPELL', 'ALCX', 'OHM',
-            'TRIBE', 'FEI', 'FRAX', 'LUNA', 'UST', 'ANCHOR', 'MIRROR'
-        ] + [f"DEFI{i}" for i in range(1, 101)]  # 120+ protocols
-    
-    def _get_metaverse_tokens(self) -> List[str]:
-        """Get metaverse tokens."""
-        return [
-            'MANA', 'SAND', 'AXS', 'ENJ', 'GALA', 'ILV', 'BLOK', 'RFOX',
-            'STARL', 'WILD', 'VOXEL', 'FLUX', 'UFO', 'DOME', 'NAKA'
-        ] + [f"META{i}" for i in range(1, 51)]  # 65 tokens
-    
-    def _get_gamefi_tokens(self) -> List[str]:
-        """Get GameFi tokens."""
-        return [
-            'AXS', 'SLP', 'GALA', 'ILV', 'ALICE', 'TLM', 'MBOX', 'YGG',
-            'SKILL', 'DPET', 'REVO', 'PYR', 'GEAR', 'FIGHT', 'HERO'
-        ] + [f"GAME{i}" for i in range(1, 51)]  # 65 tokens
-    
-    def _analyze_all_us_stocks(self) -> Dict:
-        """Analyze ALL US stocks."""
-        stocks = self.all_us_stocks
-        
-        opportunities = []
-        for stock in stocks[:100]:  # Analyze top 100
-            score = random.uniform(50, 99)
-            if score > 80:
-                opportunities.append({
-                    'symbol': stock,
-                    'score': score,
-                    'recommendation': '🚀 BUY',
-                    'target_gain': f"+{random.randint(20, 200)}%"
-                })
-        
-        return {
-            'count': len(stocks),
-            'analyzed': 100,
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:20]
-        }
-    
-    def _analyze_all_canadian_stocks(self) -> Dict:
-        """Analyze ALL Canadian stocks."""
-        stocks = self.all_canadian_stocks
-        
-        opportunities = []
-        for stock in stocks[:50]:
-            score = random.uniform(50, 99)
-            if score > 75:
-                opportunities.append({
-                    'symbol': stock,
-                    'score': score,
-                    'recommendation': '🍁 BUY',
-                    'target_gain': f"+{random.randint(15, 150)}%"
-                })
-        
-        return {
-            'count': len(stocks),
-            'analyzed': 50,
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:10]
-        }
-    
-    def _analyze_all_crypto(self) -> Dict:
-        """Analyze ALL cryptocurrencies."""
-        cryptos = self.market_data.get_all_crypto(limit=None)
-        
-        opportunities = []
-        for crypto in cryptos:
-            score = random.uniform(60, 99)
-            if score > 85:
-                opportunities.append({
-                    'symbol': crypto['symbol'],
-                    'score': score,
-                    'recommendation': '💎 STRONG BUY',
-                    'target_gain': f"+{random.randint(50, 1000)}%"
-                })
-        
-        return {
-            'count': len(cryptos),
-            'analyzed': len(cryptos),
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:30]
-        }
-    
-    def _discover_gems(self) -> Dict:
-        """Discover hidden gem cryptocurrencies."""
-        gems = self.gem_finder.discover_new_gems(limit=100)
-        
-        top_gems = [g for g in gems if g.get('gem_score', 0) > 80]
-        
-        return {
-            'count': len(gems),
-            'top_gems': top_gems[:20],
-            'alerts': self.gem_finder.get_gem_alerts()
-        }
-    
-    def _analyze_all_nfts(self) -> Dict:
-        """Analyze ALL NFT collections."""
-        collections = self.nft_collections
-        
-        opportunities = []
-        for nft in collections[:50]:
-            score = random.uniform(60, 95)
-            if score > 80:
-                opportunities.append({
-                    'name': nft['name'],
-                    'symbol': nft['symbol'],
-                    'floor_price': nft['floor_price'],
-                    'score': score,
-                    'recommendation': '🎨 BUY',
-                    'target_gain': f"+{random.randint(50, 500)}%"
-                })
-        
-        return {
-            'count': len(collections),
-            'analyzed': 50,
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:15]
-        }
-    
-    def _analyze_all_defi(self) -> Dict:
-        """Analyze ALL DeFi protocols."""
-        protocols = self.defi_protocols
-        
-        opportunities = []
-        for protocol in protocols[:30]:
-            score = random.uniform(65, 98)
-            if score > 82:
-                opportunities.append({
-                    'symbol': protocol,
-                    'score': score,
-                    'tvl': f"${random.randint(10, 1000)}M",
-                    'apy': f"{random.randint(20, 500)}%",
-                    'recommendation': '🏦 INVEST'
-                })
-        
-        return {
-            'count': len(protocols),
-            'analyzed': 30,
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:10]
-        }
-    
-    def _analyze_metaverse(self) -> Dict:
-        """Analyze metaverse tokens."""
-        tokens = self.metaverse_tokens
-        
-        opportunities = []
-        for token in tokens[:20]:
-            score = random.uniform(70, 97)
-            if score > 85:
-                opportunities.append({
-                    'symbol': token,
-                    'score': score,
-                    'recommendation': '🌐 BUY',
-                    'target_gain': f"+{random.randint(100, 2000)}%"
-                })
-        
-        return {
-            'count': len(tokens),
-            'analyzed': 20,
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:8]
-        }
-    
-    def _analyze_gamefi(self) -> Dict:
-        """Analyze GameFi tokens."""
-        tokens = self.gamefi_tokens
-        
-        opportunities = []
-        for token in tokens[:20]:
-            score = random.uniform(70, 96)
-            if score > 83:
-                opportunities.append({
-                    'symbol': token,
-                    'score': score,
-                    'recommendation': '🎮 BUY',
-                    'target_gain': f"+{random.randint(80, 1500)}%"
-                })
-        
-        return {
-            'count': len(tokens),
-            'analyzed': 20,
-            'opportunities': sorted(opportunities, key=lambda x: x['score'], reverse=True)[:8]
-        }
-    
-    def _find_top_opportunities(self, analysis: Dict) -> List[Dict]:
-        """Find top opportunities across ALL markets."""
-        all_opportunities = []
-        
-        for market, data in analysis['markets'].items():
-            if 'opportunities' in data:
-                for opp in data['opportunities']:
-                    opp['market'] = market
-                    all_opportunities.append(opp)
-            elif 'top_gems' in data:
-                for gem in data['top_gems'][:10]:
-                    all_opportunities.append({
-                        'symbol': gem['symbol'],
-                        'score': gem['gem_score'],
-                        'market': 'hidden_gems',
-                        'recommendation': '💎 GEM',
-                        'explosion_potential': gem['explosion_potential']
-                    })
-        
-        # Sort by score
-        return sorted(all_opportunities, key=lambda x: x.get('score', 0), reverse=True)[:50]
-    
-    def _save_analysis(self, analysis: Dict):
-        """Save comprehensive analysis."""
+
+    def get_analysis_summary(self) -> Dict:
+        """Load cached analysis or run fresh."""
         try:
-            with open('data/universal_market_analysis.json', 'w') as f:
+            with open("data/universal_market_analysis.json", "r") as f:
+                return json.load(f)
+        except Exception:
+            return self.analyze_everything()
+
+    def get_total_coverage(self) -> Dict:
+        return {
+            "us_stocks": len(self._us_tickers()),
+            "canadian_stocks": len(self._ca_tickers()),
+            "data_source": "live",
+        }
+
+    # ══════════════════════════════════════════════════════════════
+    #  US Stocks — Yahoo Finance chart API
+    # ══════════════════════════════════════════════════════════════
+
+    @staticmethod
+    def _us_tickers() -> List[str]:
+        return [
+            "AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "NVDA", "AMD", "INTC", "QCOM",
+            "JPM", "BAC", "WFC", "GS", "MS", "C", "BLK", "SCHW", "AXP", "V", "MA", "PYPL",
+            "JNJ", "UNH", "PFE", "ABBV", "TMO", "MRK", "ABT", "DHR", "BMY", "AMGN", "LLY",
+            "WMT", "HD", "COST", "TGT", "LOW", "TJX", "DG", "ROST", "BBY",
+            "XOM", "CVX", "COP", "SLB", "EOG", "MPC", "PSX", "VLO", "OXY", "HAL",
+            "BA", "LMT", "RTX", "GD", "NOC", "LHX",
+            "PG", "KO", "PEP", "PM", "MDLZ", "CL", "GIS", "HSY",
+            "GM", "F", "RIVN", "NIO",
+            "DIS", "NFLX", "CMCSA", "T", "VZ", "TMUS",
+            "CAT", "DE", "MMM", "HON", "UPS", "FDX", "GE",
+            "CRM", "ADBE", "ORCL", "NOW", "INTU",
+        ]
+
+    def _analyze_us_stocks(self) -> Dict:
+        cached = _cached("us_analysis")
+        if cached:
+            return cached
+
+        tickers = self._us_tickers()
+        assets = self._fetch_yahoo_batch(tickers)
+
+        opps = []
+        for a in assets:
+            s = _score_asset(a["change_pct"], a.get("volume", 0))
+            if s >= 60:
+                opps.append({
+                    "symbol": a["symbol"], "price": a["price"],
+                    "change_pct": a["change_pct"], "score": s,
+                    "recommendation": _recommendation(s, a["change_pct"]),
+                })
+
+        opps.sort(key=lambda x: x["score"], reverse=True)
+        result = {
+            "count": len(assets), "analyzed": len(assets),
+            "opportunities": opps[:20], "data_source": "yahoo_finance",
+        }
+        _store("us_analysis", result)
+        return result
+
+    # ══════════════════════════════════════════════════════════════
+    #  Canadian Stocks — Yahoo Finance (*.TO)
+    # ══════════════════════════════════════════════════════════════
+
+    @staticmethod
+    def _ca_tickers() -> List[str]:
+        return [
+            "SHOP.TO", "RY.TO", "TD.TO", "ENB.TO", "CNQ.TO", "BNS.TO", "BMO.TO",
+            "TRP.TO", "CP.TO", "CNR.TO", "SU.TO", "WCN.TO", "BCE.TO", "T.TO",
+            "MFC.TO", "ABX.TO", "FM.TO", "BAM.TO", "NTR.TO",
+        ]
+
+    def _analyze_canadian_stocks(self) -> Dict:
+        cached = _cached("ca_analysis")
+        if cached:
+            return cached
+
+        tickers = self._ca_tickers()
+        assets = self._fetch_yahoo_batch(tickers)
+
+        opps = []
+        for a in assets:
+            s = _score_asset(a["change_pct"], a.get("volume", 0))
+            if s >= 55:
+                opps.append({
+                    "symbol": a["symbol"], "price": a["price"],
+                    "change_pct": a["change_pct"], "score": s,
+                    "recommendation": _recommendation(s, a["change_pct"]),
+                })
+
+        opps.sort(key=lambda x: x["score"], reverse=True)
+        result = {
+            "count": len(assets), "analyzed": len(assets),
+            "opportunities": opps[:10], "data_source": "yahoo_finance",
+        }
+        _store("ca_analysis", result)
+        return result
+
+    # ── shared Yahoo helper ────────────────────────────────────────
+
+    @staticmethod
+    def _fetch_yahoo_batch(tickers: List[str]) -> List[Dict]:
+        results: List[Dict] = []
+        for t in tickers:
+            try:
+                r = requests.get(
+                    f"https://query1.finance.yahoo.com/v8/finance/chart/{t}",
+                    params={"range": "2d", "interval": "1d"},
+                    headers={"User-Agent": "Mozilla/5.0"}, timeout=6,
+                )
+                if r.status_code == 200:
+                    meta = r.json()["chart"]["result"][0]["meta"]
+                    prev = meta.get("chartPreviousClose", meta.get("previousClose", 0))
+                    price = meta.get("regularMarketPrice", prev)
+                    chg = ((price - prev) / prev * 100) if prev else 0
+                    results.append({
+                        "symbol": t, "price": round(price, 2),
+                        "change_pct": round(chg, 2),
+                        "volume": meta.get("regularMarketVolume", 0),
+                    })
+            except Exception:
+                continue
+        return results
+
+    # ══════════════════════════════════════════════════════════════
+    #  Crypto — CoinPaprika tickers (free, no key)
+    # ══════════════════════════════════════════════════════════════
+
+    def _analyze_crypto(self) -> Dict:
+        cached = _cached("crypto_analysis")
+        if cached:
+            return cached
+
+        cryptos = self.market_data.get_all_crypto(limit=100)
+
+        opps = []
+        for c in cryptos:
+            chg = c.get("change_percent", c.get("change_24h", 0)) or 0
+            vol = c.get("volume_24h", c.get("volume", 0)) or 0
+            s = _score_asset(chg, vol)
+            if s >= 60:
+                opps.append({
+                    "symbol": c.get("symbol", ""), "price": c.get("price", 0),
+                    "change_pct": round(chg, 2), "score": s,
+                    "recommendation": _recommendation(s, chg),
+                })
+
+        opps.sort(key=lambda x: x["score"], reverse=True)
+        result = {
+            "count": len(cryptos), "analyzed": len(cryptos),
+            "opportunities": opps[:30], "data_source": "coinpaprika",
+        }
+        _store("crypto_analysis", result)
+        return result
+
+    # ══════════════════════════════════════════════════════════════
+    #  Hidden Gems — CryptoGemFinder (already real data)
+    # ══════════════════════════════════════════════════════════════
+
+    def _discover_gems(self) -> Dict:
+        try:
+            gems = self.gem_finder.discover_new_gems(limit=50)
+            top = [g for g in gems if g.get("gem_score", 0) > 70]
+            alerts = self.gem_finder.get_gem_alerts()
+        except Exception:
+            gems, top, alerts = [], [], []
+
+        return {
+            "count": len(gems),
+            "top_gems": top[:20],
+            "alerts": alerts,
+            "data_source": "dexscreener",
+        }
+
+    # ══════════════════════════════════════════════════════════════
+    #  DeFi — DefiLlama (free, no key)
+    # ══════════════════════════════════════════════════════════════
+
+    def _analyze_defi(self) -> Dict:
+        cached = _cached("defi_analysis")
+        if cached:
+            return cached
+
+        protocols: List[Dict] = []
+        try:
+            r = requests.get("https://api.llama.fi/protocols", timeout=10)
+            if r.status_code == 200:
+                for p in r.json()[:50]:
+                    tvl = p.get("tvl", 0) or 0
+                    chg_1d = p.get("change_1d", 0) or 0
+                    protocols.append({
+                        "symbol": p.get("symbol", ""),
+                        "name": p.get("name", ""),
+                        "tvl": tvl,
+                        "tvl_display": f"${tvl / 1e6:.1f}M" if tvl < 1e9 else f"${tvl / 1e9:.2f}B",
+                        "change_1d": round(chg_1d, 2),
+                    })
+        except Exception as e:
+            logger.error(f"DefiLlama: {e}")
+
+        opps = []
+        for p in protocols:
+            chg = p.get("change_1d", 0)
+            tvl_val = p.get("tvl", 0)
+            s = _score_asset(chg, tvl_val)
+            if s >= 50:
+                opps.append({
+                    "symbol": p["symbol"], "name": p.get("name", ""),
+                    "tvl": p["tvl_display"], "change_1d": p["change_1d"],
+                    "score": s, "recommendation": _recommendation(s, chg),
+                })
+
+        opps.sort(key=lambda x: x["score"], reverse=True)
+        result = {
+            "count": len(protocols), "analyzed": len(protocols),
+            "opportunities": opps[:10], "data_source": "defillama",
+        }
+        _store("defi_analysis", result)
+        return result
+
+    # ══════════════════════════════════════════════════════════════
+    #  Cross-market opportunity ranking
+    # ══════════════════════════════════════════════════════════════
+
+    def _find_top_opportunities(self, analysis: Dict) -> List[Dict]:
+        all_opps: List[Dict] = []
+        for market, data in analysis["markets"].items():
+            if "opportunities" in data:
+                for opp in data["opportunities"]:
+                    opp["market"] = market
+                    all_opps.append(opp)
+            elif "top_gems" in data:
+                for gem in data["top_gems"][:10]:
+                    all_opps.append({
+                        "symbol": gem.get("symbol", ""),
+                        "score": gem.get("gem_score", 0),
+                        "market": "hidden_gems",
+                        "recommendation": "GEM",
+                        "explosion_potential": gem.get("explosion_potential", ""),
+                    })
+        return sorted(all_opps, key=lambda x: x.get("score", 0), reverse=True)[:50]
+
+    # ── persistence ────────────────────────────────────────────────
+
+    @staticmethod
+    def _save_analysis(analysis: Dict):
+        try:
+            import os
+            os.makedirs("data", exist_ok=True)
+            with open("data/universal_market_analysis.json", "w") as f:
                 json.dump(analysis, f, indent=2)
         except Exception as e:
-            print(f"Error saving analysis: {e}")
-    
-    def get_analysis_summary(self) -> Dict:
-        """Get summary of the latest analysis."""
-        try:
-            with open('data/universal_market_analysis.json', 'r') as f:
-                return json.load(f)
-        except:
-            return self.analyze_everything()
-    
-    def get_total_coverage(self) -> Dict:
-        """Get total market coverage statistics."""
-        return {
-            'cryptocurrencies': len(self.all_cryptos),
-            'us_stocks': len(self.all_us_stocks),
-            'canadian_stocks': len(self.all_canadian_stocks),
-            'nft_collections': len(self.nft_collections),
-            'defi_protocols': len(self.defi_protocols),
-            'metaverse_tokens': len(self.metaverse_tokens),
-            'gamefi_tokens': len(self.gamefi_tokens),
-            'total_assets': (len(self.all_cryptos) + len(self.all_us_stocks) + 
-                           len(self.all_canadian_stocks) + len(self.nft_collections) +
-                           len(self.defi_protocols) + len(self.metaverse_tokens) +
-                           len(self.gamefi_tokens))
-        }
+            logger.error(f"Save analysis: {e}")
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     analyzer = UniversalMarketAnalyzer()
-    
-    print("=" * 80)
-    print("🌍 UNIVERSAL MARKET ANALYZER")
-    print("Analyzing EVERYTHING: Stocks, Crypto, NFTs, DeFi, and MORE!")
-    print("=" * 80)
-    
+
+    print("=" * 70)
+    print("UNIVERSAL MARKET ANALYZER — LIVE DATA")
+    print("=" * 70)
+
     analysis = analyzer.analyze_everything()
-    
-    print("\n" + "=" * 80)
-    print("📊 ANALYSIS COMPLETE!")
-    print("=" * 80)
-    print(f"✅ Total Assets Analyzed: {analysis['total_assets_analyzed']}")
-    print(f"✅ Markets Covered: {len(analysis['markets'])}")
-    print(f"✅ Top Opportunities Found: {len(analysis['top_opportunities'])}")
-    
-    print("\n🏆 TOP 10 OPPORTUNITIES ACROSS ALL MARKETS:")
-    print("=" * 80)
-    for i, opp in enumerate(analysis['top_opportunities'][:10], 1):
-        print(f"{i}. {opp.get('symbol', opp.get('name', 'N/A'))} ({opp['market']})")
-        print(f"   Score: {opp['score']:.1f}/100")
-        print(f"   Recommendation: {opp['recommendation']}")
-        if 'target_gain' in opp:
-            print(f"   Target: {opp['target_gain']}")
+
+    print(f"\nTotal assets analyzed: {analysis['total_assets_analyzed']}")
+    print(f"Markets covered: {len(analysis['markets'])}")
+    print(f"Top opportunities: {len(analysis['top_opportunities'])}")
+
+    for i, opp in enumerate(analysis["top_opportunities"][:10], 1):
+        sym = opp.get("symbol", opp.get("name", "N/A"))
+        print(f"  {i}. {sym} ({opp['market']}) — score {opp.get('score', 0):.1f} — {opp.get('recommendation', '')}")

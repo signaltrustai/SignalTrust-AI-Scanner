@@ -129,7 +129,7 @@ class PaymentProcessor:
         },
         'signalai': {
             'name': 'SignalAI Strategy',
-            'price': 1.29,
+            'price': 9.99,
             'currency': 'USD',
             'billing_period': 'monthly',
             'trial_days': 3,

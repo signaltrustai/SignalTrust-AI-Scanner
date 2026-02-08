@@ -35,8 +35,9 @@ def admin_required(f):
             
             if not (is_admin_user_id(user_id) or is_admin_email(user_email)):
                 return jsonify({'error': 'Access denied - Admin only'}), 403
-        except:
+        except Exception as e:
             # Fallback check
+            print(f"⚠️ admin_required: admin config import failed: {e}")
             if user_id != 'owner_admin_001':
                 return jsonify({'error': 'Access denied - Admin only'}), 403
         

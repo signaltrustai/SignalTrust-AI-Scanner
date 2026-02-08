@@ -85,7 +85,8 @@ class CloudStorageManager:
             try:
                 with open(self.index_file, 'r') as f:
                     return json.load(f)
-            except:
+            except Exception as e:
+                print(f"⚠️ CloudStorageManager: failed to load index file: {e}")
                 pass
         
         return {
@@ -365,8 +366,8 @@ class CloudStorageManager:
                     time.sleep(0.5)
                     try:
                         shutil.rmtree(temp_dir, ignore_errors=True)
-                    except Exception:
-                        pass  # Temp files will be cleaned by OS
+                    except Exception as e:
+                        print(f"⚠️ CloudStorageManager: failed to remove temp dir: {e}")  # Temp files will be cleaned by OS
     
     def _calculate_checksum(self, file_path: str) -> str:
         """Calculate MD5 checksum of file."""

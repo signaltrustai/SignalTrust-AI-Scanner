@@ -96,7 +96,8 @@ Format your response as JSON with keys: trends, risk_level, opportunities, predi
             # Try to parse JSON response
             try:
                 return json.loads(response)
-            except:
+            except Exception as e:
+                print(f"⚠️ OpenAIProvider: failed to parse JSON response: {e}")
                 # If not JSON, return structured text
                 return {
                     'analysis': response,
@@ -172,7 +173,8 @@ Return JSON with: trends, risk_level, opportunities, prediction, recommendations
             response = self.generate_response(prompt)
             try:
                 return json.loads(response)
-            except:
+            except Exception as e:
+                print(f"⚠️ AnthropicProvider: failed to parse JSON response: {e}")
                 return {
                     'analysis': response,
                     'success': True,

@@ -133,23 +133,17 @@ class NotificationCenter:
         
         return user_notifications[:limit]
     
-    def mark_as_read(self, user_or_notif_id: str, notification_id: str = None) -> bool:
+    def mark_as_read(self, notification_id: str) -> bool:
         """Mark notification as read.
         
-        Supports both signatures:
-          mark_as_read(notification_id)          — original
-          mark_as_read(user_email, notification_id) — called by app.py
-        
         Args:
-            user_or_notif_id: User email (when 2 args) or notification_id (when 1 arg)
-            notification_id: Notification ID (when 2 args)
+            notification_id: Notification ID
             
         Returns:
             Success status
         """
-        target_id = notification_id if notification_id else user_or_notif_id
         for notification in self.notifications:
-            if notification['id'] == target_id:
+            if notification['id'] == notification_id:
                 notification['read'] = True
                 notification['read_at'] = datetime.now().isoformat()
                 self._save_notifications()
@@ -323,70 +317,6 @@ class NotificationCenter:
             data={'symbol': symbol} if symbol else {}
         )
     
-    # ── Compatibility methods called by app.py ──────────────────────────
-
-    def get_notifications(self, user_email: str, unread_only: bool = False, limit: int = 50) -> List[Dict]:
-        """Get notifications by user email (alias used by app.py).
-
-        Args:
-            user_email: User email (used as user_id internally)
-            unread_only: Only return unread notifications
-            limit: Maximum number of notifications
-
-        Returns:
-            List of notifications
-        """
-        return self.get_user_notifications(user_email, unread_only=unread_only, limit=limit)
-
-    def send_whale_alert(self, target: str, symbol: str, value_usd: float, tx_type: str) -> Dict:
-        """Send a whale alert notification (called by app.py's background worker).
-
-        Args:
-            target: Target user id or 'all_pro_users'
-            symbol: Token symbol
-            value_usd: Transaction value in USD
-            tx_type: Transaction type (transfer, swap, etc.)
-
-        Returns:
-            Created notification
-        """
-        transaction_data = {
-            "symbol": symbol or "Unknown",
-            "amount": value_usd,
-            "value_usd": value_usd,
-            "type": tx_type or "transfer",
-        }
-        if target == "all_pro_users":
-            # Broadcast — store under a special user_id; the UI can filter
-            return self.create_whale_alert("all_pro_users", transaction_data)
-        return self.create_whale_alert(target, transaction_data)
-
-    def send_notification(self, target: str, notification_type: str, message: str) -> Dict:
-        """Send a generic notification (called by app.py's background worker).
-
-        Args:
-            target: Target user id or 'all_users'
-            notification_type: Notification category string
-            message: Notification message body
-
-        Returns:
-            Created notification
-        """
-        type_map = {
-            "gem_alert": NotificationType.TRADE_SIGNAL,
-            "market_opportunities": NotificationType.MARKET_UPDATE,
-            "price_alert": NotificationType.PRICE_ALERT,
-            "system": NotificationType.SYSTEM,
-        }
-        n_type = type_map.get(notification_type, NotificationType.SYSTEM)
-        return self.create_notification(
-            user_id=target,
-            title=notification_type.replace("_", " ").title(),
-            message=message,
-            notification_type=n_type,
-            priority=NotificationPriority.MEDIUM,
-        )
-
     def _generate_id(self) -> str:
         """Generate unique notification ID."""
         import uuid

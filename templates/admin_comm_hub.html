@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignalTrust AI — Admin Communication Hub</title>
+<style>
+:root {
+    --bg-primary: #0f1117;
+    --bg-card: #1a1d2e;
+    --bg-card-hover: #222640;
+    --accent: #6c5ce7;
+    --accent-glow: rgba(108, 92, 231, 0.3);
+    --green: #00d68f;
+    --red: #ff6b6b;
+    --yellow: #ffd43b;
+    --blue: #3bc9db;
+    --orange: #ff922b;
+    --text-primary: #e8eaed;
+    --text-secondary: #8b92a5;
+    --border: #2d3148;
+    --gradient-1: linear-gradient(135deg, #6c5ce7, #a855f7);
+    --gradient-2: linear-gradient(135deg, #00d68f, #20c997);
+    --gradient-3: linear-gradient(135deg, #3bc9db, #4dabf7);
+    --gradient-4: linear-gradient(135deg, #ffd43b, #ff922b);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+}
+/* ── Nav ── */
+.dash-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+    background: rgba(26,29,46,0.95); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+}
+.brand { font-weight: 800; font-size: 1.15rem; color: var(--accent); text-decoration: none; }
+.nav-links { display: flex; gap: 1.2rem; }
+.nav-links a { color: var(--text-secondary); text-decoration: none; font-size: 0.88rem; transition: color .2s; }
+.nav-links a:hover, .nav-links a.active { color: var(--text-primary); }
+.user-badge { font-size: 0.85rem; color: var(--text-secondary); }
+.user-badge .plan { color: var(--yellow); text-transform: uppercase; font-weight: 700; font-size: 0.75rem; }
+
+/* ── Layout ── */
+.hub-container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+.hub-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
+.hub-header h1 { font-size: 1.6rem; }
+.hub-header .badge { background: var(--gradient-4); color: #000; padding: 0.2rem 0.7rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+
+/* ── Grid ── */
+.hub-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem; }
+@media (max-width: 1100px) { .hub-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 700px) { .hub-grid { grid-template-columns: 1fr; } }
+
+.stat-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.2rem;
+    transition: transform .2s, border-color .2s;
+}
+.stat-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.stat-card .label { font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+.stat-card .value { font-size: 1.8rem; font-weight: 700; }
+.stat-card .sub { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.3rem; }
+
+/* ── Sections ── */
+.section { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+.section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+.section-title .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.dot.blue { background: var(--blue); box-shadow: 0 0 6px var(--blue); }
+
+/* ── Messages Feed ── */
+.msg-feed { max-height: 500px; overflow-y: auto; }
+.msg-feed::-webkit-scrollbar { width: 6px; }
+.msg-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+.msg-item {
+    display: flex; gap: 0.8rem; padding: 0.8rem;
+    border-bottom: 1px solid rgba(45,49,72,0.5);
+    transition: background .2s;
+}
+.msg-item:hover { background: var(--bg-card-hover); }
+.msg-item:last-child { border-bottom: none; }
+.msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+.msg-avatar.admin { background: var(--gradient-4); color: #000; }
+.msg-avatar.stock { background: var(--gradient-2); color: #000; }
+.msg-avatar.crypto { background: var(--gradient-1); color: #fff; }
+.msg-avatar.whale { background: var(--gradient-3); color: #000; }
+.msg-avatar.other { background: #3d4266; color: var(--text-primary); }
+.msg-body { flex: 1; min-width: 0; }
+.msg-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+.msg-from { font-weight: 600; font-size: 0.85rem; }
+.msg-to { font-size: 0.7rem; color: var(--text-secondary); }
+.msg-priority { font-size: 0.65rem; padding: 1px 6px; border-radius: 10px; font-weight: 600; }
+.msg-priority.critical { background: var(--red); color: #fff; }
+.msg-priority.high { background: var(--orange); color: #000; }
+.msg-priority.normal { background: var(--accent); color: #fff; }
+.msg-priority.low { background: #3d4266; color: var(--text-secondary); }
+.msg-type { font-size: 0.7rem; color: var(--blue); background: rgba(59,201,219,0.1); padding: 1px 6px; border-radius: 8px; }
+.msg-content { font-size: 0.82rem; color: var(--text-secondary); word-break: break-word; }
+.msg-time { font-size: 0.68rem; color: #555; margin-top: 0.2rem; }
+
+/* ── Knowledge Table ── */
+.knowledge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem; }
+.knowledge-item {
+    background: rgba(45,49,72,0.3); border-radius: 8px; padding: 0.8rem;
+    border: 1px solid rgba(45,49,72,0.6);
+}
+.knowledge-item .k-type { font-size: 0.75rem; color: var(--accent); text-transform: uppercase; font-weight: 600; }
+.knowledge-item .k-count { font-size: 1.5rem; font-weight: 700; margin: 0.3rem 0; }
+.knowledge-item .k-label { font-size: 0.72rem; color: var(--text-secondary); }
+
+/* ── Insights ── */
+.insight-tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.insight-tab {
+    padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.78rem;
+    background: rgba(45,49,72,0.5); color: var(--text-secondary);
+    cursor: pointer; border: 1px solid transparent; transition: all .2s;
+}
+.insight-tab:hover { border-color: var(--accent); color: var(--text-primary); }
+.insight-tab.active { background: var(--accent); color: #fff; }
+.insight-list { max-height: 350px; overflow-y: auto; }
+.insight-item {
+    padding: 0.6rem; border-bottom: 1px solid rgba(45,49,72,0.4);
+    font-size: 0.82rem; color: var(--text-secondary);
+}
+.insight-item:hover { background: var(--bg-card-hover); }
+.insight-item .i-agent { font-weight: 600; color: var(--green); margin-right: 0.4rem; }
+.insight-item .i-time { font-size: 0.68rem; color: #555; float: right; }
+
+/* ── Workers ── */
+.worker-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.8rem; }
+.worker-card {
+    background: rgba(45,49,72,0.3); border: 1px solid rgba(45,49,72,0.6);
+    border-radius: 10px; padding: 1rem;
+}
+.worker-card .w-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.worker-card .w-provider { font-size: 0.72rem; color: var(--text-secondary); }
+.worker-card .w-stat { font-size: 0.78rem; margin-top: 0.3rem; }
+.worker-card .w-stat span { color: var(--green); font-weight: 600; }
+
+/* ── Compose ── */
+.compose-panel {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.5rem; margin-bottom: 1.5rem;
+}
+.compose-row { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; flex-wrap: wrap; }
+.compose-row label { font-size: 0.78rem; color: var(--text-secondary); display: block; margin-bottom: 0.3rem; }
+.compose-row select, .compose-row input, .compose-row textarea {
+    background: rgba(45,49,72,0.5); border: 1px solid var(--border); color: var(--text-primary);
+    border-radius: 8px; padding: 0.5rem 0.7rem; font-size: 0.85rem; width: 100%;
+    font-family: inherit;
+}
+.compose-row select:focus, .compose-row input:focus, .compose-row textarea:focus { border-color: var(--accent); outline: none; }
+.compose-row textarea { min-height: 80px; resize: vertical; }
+.compose-row .field { flex: 1; min-width: 150px; }
+
+.btn {
+    padding: 0.55rem 1.3rem; border-radius: 8px; border: none; font-weight: 600;
+    font-size: 0.85rem; cursor: pointer; transition: all .2s; display: inline-flex;
+    align-items: center; gap: 0.4rem;
+}
+.btn-primary { background: var(--gradient-1); color: #fff; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px var(--accent-glow); }
+.btn-green { background: var(--gradient-2); color: #000; }
+.btn-green:hover { transform: translateY(-1px); }
+.btn-yellow { background: var(--gradient-4); color: #000; }
+.btn-yellow:hover { transform: translateY(-1px); }
+.btn-sm { padding: 0.35rem 0.8rem; font-size: 0.78rem; }
+
+.actions-bar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+
+/* ── Toast ── */
+.toast {
+    position: fixed; bottom: 2rem; right: 2rem; padding: 0.8rem 1.5rem;
+    border-radius: 10px; font-size: 0.85rem; font-weight: 600; z-index: 9999;
+    animation: slideIn .3s ease;
+}
+.toast.success { background: var(--green); color: #000; }
+.toast.error { background: var(--red); color: #fff; }
+@keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+/* ── Loading ── */
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-overlay { text-align: center; padding: 3rem; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="dash-nav">
+    <a href="/" class="brand">SIGNALTRUST AI</a>
+    <div class="nav-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/ai-chat">AI Chat</a>
+        <a href="/scanner">Scanner</a>
+        <a href="/admin/comm-hub" class="active" style="color: var(--yellow);">🛰️ Comm Hub</a>
+    </div>
+    <div class="user-badge">
+        {{ user.full_name or user.email }} &middot; <span class="plan">ADMIN</span>
+    </div>
+</nav>
+
+<div class="hub-container">
+    <!-- HEADER -->
+    <div class="hub-header">
+        <h1>🛰️ AI Communication Hub</h1>
+        <span class="badge">ADMIN ONLY</span>
+    </div>
+
+    <!-- TOP STATS -->
+    <div class="hub-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="label">Hub Status</div>
+            <div class="value" id="hubStatus">--</div>
+            <div class="sub" id="hubExchanges">Loading...</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Collective IQ</div>
+            <div class="value" id="collectiveIQ">--</div>
+            <div class="sub" id="collectiveAccuracy">--</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Messages Queued</div>
+            <div class="value" id="msgCount">--</div>
+            <div class="sub" id="subscriberCount">-- subscribers</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Patterns Learned</div>
+            <div class="value" id="patternsLearned">--</div>
+            <div class="sub" id="predictionsShared">-- predictions shared</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">Gems Discovered</div>
+            <div class="value" id="gemsDiscovered">--</div>
+            <div class="sub" id="evolutionSynergy">synergy --</div>
+        </div>
+        <div class="stat-card">
+            <div class="label">AI Workers</div>
+            <div class="value" id="workerCount">--</div>
+            <div class="sub" id="totalTasks">-- total tasks</div>
+        </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="actions-bar">
+        <button class="btn btn-green" onclick="triggerEvolve()">🧬 Trigger Evolution</button>
+        <button class="btn btn-yellow" onclick="createBackup()">💾 Create Backup</button>
+        <button class="btn btn-primary" onclick="refreshData()">🔄 Refresh Data</button>
+    </div>
+
+    <!-- COMPOSE MESSAGE -->
+    <div class="compose-panel">
+        <div class="section-title"><span class="dot blue"></span> Send Directive to AI Agent</div>
+        <div class="compose-row">
+            <div class="field">
+                <label>To Agent</label>
+                <select id="msgTo">
+                    <option value="ALL">ALL Agents</option>
+                    <option value="STOCK">STOCK Agent</option>
+                    <option value="CRYPTO">CRYPTO Agent</option>
+                    <option value="WHALE">WHALE Agent</option>
+                    <option value="SITE">SITE Agent</option>
+                    <option value="SUPERVISOR">SUPERVISOR</option>
+                    <option value="DESIRE">DESIRE Agent</option>
+                    <option value="coordinator">Coordinator</option>
+                    <option value="learning_system">Learning System</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Message Type</label>
+                <select id="msgType">
+                    <option value="admin_directive">Admin Directive</option>
+                    <option value="priority_change">Priority Change</option>
+                    <option value="config_update">Config Update</option>
+                    <option value="task_assignment">Task Assignment</option>
+                    <option value="alert">Alert</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Priority</label>
+                <select id="msgPriority">
+                    <option value="0">🔴 Critical</option>
+                    <option value="1" selected>🟠 High</option>
+                    <option value="2">🟣 Normal</option>
+                    <option value="3">⚪ Low</option>
+                </select>
+            </div>
+        </div>
+        <div class="compose-row">
+            <div class="field" style="flex: 3;">
+                <label>Content</label>
+                <textarea id="msgContent" placeholder="e.g. Focus analysis on BTC and ETH for the next 6 hours..."></textarea>
+            </div>
+        </div>
+        <button class="btn btn-primary" onclick="sendMessage()">📨 Send Message</button>
+    </div>
+
+    <!-- AI WORKERS -->
+    <div class="section">
+        <div class="section-title"><span class="dot green"></span> AI Workers</div>
+        <div class="worker-list" id="workerList">
+            <div class="loading-overlay"><div class="spinner"></div> Loading workers...</div>
+        </div>
+    </div>
+
+    <!-- KNOWLEDGE BASE -->
+    <div class="section">
+        <div class="section-title"><span class="dot yellow"></span> Knowledge Base</div>
+        <div class="knowledge-grid" id="knowledgeGrid">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <!-- INSIGHTS TABS -->
+    <div class="section">
+        <div class="section-title"><span class="dot blue"></span> Recent Insights</div>
+        <div class="insight-tab-bar" id="insightTabs"></div>
+        <div class="insight-list" id="insightList">
+            <div class="loading-overlay"><div class="spinner"></div></div>
+        </div>
+    </div>
+
+    <!-- MESSAGES FEED -->
+    <div class="section">
+        <div class="section-title"><span class="dot green"></span> Message Feed (latest 100)</div>
+        <div class="msg-feed" id="msgFeed">
+            <div class="loading-overlay"><div class="spinner"></div> Loading messages...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+let hubData = null;
+let currentInsightTab = 'market_insights';
+
+// ── Fetch data ────────────────────────────────────
+async function fetchHubData() {
+    try {
+        const res = await fetch('/api/admin/comm-hub/status');
+        const data = await res.json();
+        if (data.success) {
+            hubData = data;
+            renderStats(data);
+            renderWorkers(data.coordinator);
+            renderKnowledge(data.knowledge_summary);
+            renderInsightTabs(data.insights);
+            renderMessages(data.messages);
+        }
+    } catch(e) { console.error('Fetch error:', e); }
+}
+
+// ── Render stats ──────────────────────────────────
+function renderStats(d) {
+    const s = d.status || {};
+    document.getElementById('hubStatus').textContent = s.status || 'online';
+    document.getElementById('hubExchanges').textContent = `${s.data_exchanges || 0} data exchanges`;
+    document.getElementById('collectiveIQ').textContent = s.collective_iq || 0;
+    document.getElementById('collectiveAccuracy').textContent = `Accuracy: ${s.collective_accuracy || 0}%`;
+    document.getElementById('msgCount').textContent = s.messages_in_queue || 0;
+    document.getElementById('subscriberCount').textContent = `${s.subscribers || 0} subscribers`;
+    document.getElementById('patternsLearned').textContent = s.patterns_learned || 0;
+    document.getElementById('predictionsShared').textContent = `${s.predictions_shared || 0} predictions shared`;
+    document.getElementById('gemsDiscovered').textContent = s.gems_discovered || 0;
+    document.getElementById('evolutionSynergy').textContent = `synergy ${s.evolution_synergy || 0}`;
+
+    const c = d.coordinator || {};
+    document.getElementById('workerCount').textContent = (c.workers || []).length;
+    document.getElementById('totalTasks').textContent = `${c.total_tasks || 0} total tasks`;
+}
+
+// ── Render workers ────────────────────────────────
+function renderWorkers(coord) {
+    const workers = coord?.workers || [];
+    if (!workers.length) {
+        document.getElementById('workerList').innerHTML = '<div style="color:var(--text-secondary);">No workers registered</div>';
+        return;
+    }
+    document.getElementById('workerList').innerHTML = workers.map(w => `
+        <div class="worker-card">
+            <div class="w-name">${w.name || '?'}</div>
+            <div class="w-provider">${w.provider || ''} · priority ${w.priority || '-'}</div>
+            <div class="w-stat">Tasks: <span>${w.tasks_completed || 0}</span> ✅ / ${w.tasks_failed || 0} ❌</div>
+            <div class="w-stat">Avg latency: <span>${w.avg_latency_ms || 0}ms</span></div>
+            <div class="w-stat">Weight: <span>${w.weight || 1.0}</span></div>
+        </div>
+    `).join('');
+}
+
+// ── Render knowledge ──────────────────────────────
+function renderKnowledge(summary) {
+    if (!summary || !Object.keys(summary).length) {
+        document.getElementById('knowledgeGrid').innerHTML = '<div style="color:var(--text-secondary);">No knowledge stored yet</div>';
+        return;
+    }
+    document.getElementById('knowledgeGrid').innerHTML = Object.entries(summary).map(([type, count]) => `
+        <div class="knowledge-item">
+            <div class="k-type">${type.replace(/_/g, ' ')}</div>
+            <div class="k-count">${count}</div>
+            <div class="k-label">entries</div>
+        </div>
+    `).join('');
+}
+
+// ── Render insight tabs ───────────────────────────
+function renderInsightTabs(insights) {
+    if (!insights) return;
+    const tabs = Object.keys(insights);
+    document.getElementById('insightTabs').innerHTML = tabs.map(t => `
+        <div class="insight-tab ${t === currentInsightTab ? 'active' : ''}"
+             onclick="switchInsightTab('${t}')">${t.replace(/_/g, ' ')}</div>
+    `).join('');
+    renderInsightList(insights[currentInsightTab] || []);
+}
+function switchInsightTab(tab) {
+    currentInsightTab = tab;
+    document.querySelectorAll('.insight-tab').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.insight-tab[onclick*="${tab}"]`)?.classList.add('active');
+    if (hubData?.insights) renderInsightList(hubData.insights[tab] || []);
+}
+function renderInsightList(items) {
+    if (!items.length) {
+        document.getElementById('insightList').innerHTML = '<div style="padding:1rem;color:var(--text-secondary);">No insights yet</div>';
+        return;
+    }
+    document.getElementById('insightList').innerHTML = items.map(item => {
+        const agent = item.from_ai || item.agent || '?';
+        const time = item.timestamp ? new Date(item.timestamp).toLocaleString() : '';
+        const content = typeof item.data === 'object' ? JSON.stringify(item.data).slice(0, 200) : String(item.data || '').slice(0, 200);
+        return `<div class="insight-item">
+            <span class="i-agent">${agent}</span>
+            ${content}
+            <span class="i-time">${time}</span>
+        </div>`;
+    }).join('');
+}
+
+// ── Render messages ───────────────────────────────
+function renderMessages(messages) {
+    if (!messages || !messages.length) {
+        document.getElementById('msgFeed').innerHTML = '<div style="padding:1rem;color:var(--text-secondary);">No messages yet. Send a directive above!</div>';
+        return;
+    }
+    const priorityLabels = {0:'critical',1:'high',2:'normal',3:'low'};
+    const priorityIcons = {0:'🔴',1:'🟠',2:'🟣',3:'⚪'};
+
+    document.getElementById('msgFeed').innerHTML = messages.map(m => {
+        const from = (m.from_ai || '?').toUpperCase();
+        const avatarClass = from === 'ADMIN' ? 'admin' :
+                           from === 'STOCK' ? 'stock' :
+                           from.includes('CRYPTO') ? 'crypto' :
+                           from.includes('WHALE') ? 'whale' : 'other';
+        const pri = m.priority ?? 2;
+        const priClass = priorityLabels[pri] || 'normal';
+        const content = typeof m.data === 'object' ? (m.data.content || JSON.stringify(m.data).slice(0,200)) : String(m.data || '');
+        const time = m.timestamp ? new Date(m.timestamp).toLocaleString() : '';
+
+        return `<div class="msg-item">
+            <div class="msg-avatar ${avatarClass}">${from.slice(0,3)}</div>
+            <div class="msg-body">
+                <div class="msg-header">
+                    <span class="msg-from">${m.from_ai || '?'}</span>
+                    <span class="msg-to">→ ${m.to_ai || 'ALL'}</span>
+                    <span class="msg-priority ${priClass}">${priorityIcons[pri] || ''} ${priClass}</span>
+                    <span class="msg-type">${m.msg_type || ''}</span>
+                </div>
+                <div class="msg-content">${escapeHtml(content)}</div>
+                <div class="msg-time">${time}</div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ── Actions ───────────────────────────────────────
+async function sendMessage() {
+    const to = document.getElementById('msgTo').value;
+    const type = document.getElementById('msgType').value;
+    const priority = document.getElementById('msgPriority').value;
+    const content = document.getElementById('msgContent').value.trim();
+    if (!content) { showToast('Please enter a message', 'error'); return; }
+
+    try {
+        const res = await fetch('/api/admin/comm-hub/send', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ to_ai: to, msg_type: type, priority: parseInt(priority), content })
+        });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Message sent!', 'success');
+            document.getElementById('msgContent').value = '';
+            setTimeout(fetchHubData, 500);
+        } else {
+            showToast(data.error || 'Failed', 'error');
+        }
+    } catch(e) { showToast('Network error', 'error'); }
+}
+
+async function triggerEvolve() {
+    try {
+        const res = await fetch('/api/admin/comm-hub/evolve', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Evolution triggered!', 'success');
+            setTimeout(fetchHubData, 1000);
+        } else { showToast(data.error || 'Failed', 'error'); }
+    } catch(e) { showToast('Network error', 'error'); }
+}
+
+async function createBackup() {
+    try {
+        const res = await fetch('/api/admin/comm-hub/backup', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Backup created: ' + (data.backup_path || ''), 'success');
+        } else { showToast(data.error || 'Failed', 'error'); }
+    } catch(e) { showToast('Network error', 'error'); }
+}
+
+function refreshData() { fetchHubData(); showToast('Refreshing...', 'success'); }
+
+function showToast(msg, type) {
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+}
+
+// ── Init ──────────────────────────────────────────
+fetchHubData();
+setInterval(fetchHubData, 15000);
+</script>
+</body>
+</html>

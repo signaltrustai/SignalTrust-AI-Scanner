@@ -5,30 +5,650 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - SignalTrust AI</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        :root {
+            --bg-primary: #0f1117;
+            --bg-card: #1a1d2e;
+            --bg-card-hover: #222640;
+            --accent: #6c5ce7;
+            --accent-glow: rgba(108, 92, 231, 0.3);
+            --green: #00d68f;
+            --red: #ff6b6b;
+            --yellow: #ffd43b;
+            --blue: #3bc9db;
+            --text-primary: #e8eaed;
+            --text-secondary: #8b92a5;
+            --border: #2d3148;
+            --gradient-1: linear-gradient(135deg, #6c5ce7, #a855f7);
+            --gradient-2: linear-gradient(135deg, #00d68f, #20c997);
+            --gradient-3: linear-gradient(135deg, #3bc9db, #4dabf7);
+            --gradient-4: linear-gradient(135deg, #ffd43b, #ff922b);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* ── Navigation ── */
+        .dash-nav {
+            background: rgba(26, 29, 46, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .dash-nav .brand {
+            font-size: 1.3rem;
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+            letter-spacing: 1px;
+        }
+        .dash-nav .nav-links {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .dash-nav .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .dash-nav .nav-links a:hover,
+        .dash-nav .nav-links a.active {
+            color: var(--accent);
+        }
+        .user-badge {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .user-badge .plan {
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* ── Dashboard Grid ── */
+        .dash-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+        }
+        .dash-header {
+            margin-bottom: 1.5rem;
+        }
+        .dash-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+        .dash-header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .dash-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.3rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .card-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .card-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            line-height: 1;
+        }
+        .card-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Stat card colors */
+        .card.purple .card-icon { background: var(--gradient-1); }
+        .card.green .card-icon { background: var(--gradient-2); }
+        .card.blue .card-icon { background: var(--gradient-3); }
+        .card.yellow .card-icon { background: var(--gradient-4); }
+
+        /* ── Status indicator ── */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse-dot 2s infinite;
+        }
+        .status-dot.online { background: var(--green); box-shadow: 0 0 8px var(--green); }
+        .status-dot.offline { background: var(--red); animation: none; }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ── Wide cards ── */
+        .card-wide {
+            grid-column: span 2;
+        }
+
+        /* ── Table ── */
+        .table-wrap {
+            overflow-x: auto;
+        }
+        .dash-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .dash-table th {
+            text-align: left;
+            padding: 0.7rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+        .dash-table td {
+            padding: 0.7rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(45, 49, 72, 0.5);
+        }
+        .dash-table tr:hover td {
+            background: rgba(108, 92, 231, 0.05);
+        }
+
+        /* ── Tags ── */
+        .tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .tag.bullish { background: rgba(0, 214, 143, 0.15); color: var(--green); }
+        .tag.bearish { background: rgba(255, 107, 107, 0.15); color: var(--red); }
+        .tag.neutral { background: rgba(139, 146, 165, 0.15); color: var(--text-secondary); }
+
+        /* ── Progress bar ── */
+        .progress-bar {
+            background: rgba(45, 49, 72, 0.5);
+            border-radius: 6px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+        .progress-fill.purple { background: var(--gradient-1); }
+        .progress-fill.green { background: var(--gradient-2); }
+        .progress-fill.blue { background: var(--gradient-3); }
+
+        /* ── AI Worker List ── */
+        .worker-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.7rem 0;
+            border-bottom: 1px solid rgba(45, 49, 72, 0.4);
+        }
+        .worker-item:last-child { border-bottom: none; }
+        .worker-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .worker-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* ── Quick Actions ── */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.8rem;
+        }
+        .action-btn {
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+        .action-btn .icon {
+            font-size: 1.4rem;
+            margin-bottom: 0.4rem;
+        }
+        .action-btn .label {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* ── Loading spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .dash-nav { padding: 0.8rem 1rem; }
+            .dash-container { padding: 1rem; }
+            .card-wide { grid-column: span 1; }
+            .dash-nav .nav-links { gap: 0.8rem; }
+            .dash-nav .nav-links a { font-size: 0.8rem; }
+            .dash-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="nav-brand" style="text-decoration: none;">⚡ SIGNALTRUST AI</a>
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/ai-chat">🤖 AI Chat</a>
-                <a href="/scanner">Scanner</a>
-                <a href="/tradingview">📊 TradingLive</a>
-                <a href="/analyzer">Analyzer</a>
-                <a href="/predictions">AI Predictions</a>
-                <a href="/dashboard" class="active">Dashboard</a>
-            </div>
+    <!-- Navigation -->
+    <nav class="dash-nav">
+        <a href="/" class="brand">SIGNALTRUST AI</a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/ai-chat">AI Chat</a>
+            <a href="/scanner">Scanner</a>
+            <a href="/tradingview">TradingLive</a>
+            <a href="/analyzer">Analyzer</a>
+            <a href="/predictions">Predictions</a>
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/profile">Profile</a>
+            {% if is_admin %}
+            <a href="/admin/comm-hub" style="color: var(--yellow);">🛰️ Comm Hub</a>
+            {% endif %}
+        </div>
+        <div class="user-badge">
+            {{ user.full_name or user.email or 'User' }}
+            &middot;
+            <span class="plan">{{ user.plan or 'free' }}</span>
         </div>
     </nav>
-    
-    <div class="container" style="padding: 2rem 0;">
-        <h1>Dashboard</h1>
-        <p>Your personalized trading dashboard</p>
-        <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 8px;">
-            <h2>Welcome to SignalTrust AI</h2>
-            <p>Your dashboard is being prepared with personalized insights.</p>
+
+    <div class="dash-container">
+        <!-- Header -->
+        <div class="dash-header">
+            <h1>Welcome back, {{ user.full_name or 'Trader' }}</h1>
+            <p>Your AI-powered trading command center &middot; <span id="live-time"></span></p>
+        </div>
+
+        <!-- Top Stats Row -->
+        <div class="dash-grid">
+            <div class="card purple">
+                <div class="card-header">
+                    <h3>AI System</h3>
+                    <div class="card-icon">&#9889;</div>
+                </div>
+                <div class="card-value" id="ai-status">
+                    <span class="status-dot online"></span> Online
+                </div>
+                <div class="card-sub">
+                    <span id="ai-workers">-</span> AI workers active &middot;
+                    <span id="ai-uptime">-</span>h uptime
+                </div>
+            </div>
+
+            <div class="card green">
+                <div class="card-header">
+                    <h3>Predictions</h3>
+                    <div class="card-icon">&#128200;</div>
+                </div>
+                <div class="card-value" id="total-predictions">-</div>
+                <div class="card-sub">
+                    Accuracy: <strong id="accuracy-pct">-</strong>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill green" id="accuracy-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="card blue">
+                <div class="card-header">
+                    <h3>Collective IQ</h3>
+                    <div class="card-icon">&#129504;</div>
+                </div>
+                <div class="card-value" id="collective-iq">-</div>
+                <div class="card-sub">
+                    Synergy: <strong id="synergy">-</strong>x &middot;
+                    <span id="data-exchanges">-</span> exchanges
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill blue" id="iq-bar" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <div class="card yellow">
+                <div class="card-header">
+                    <h3>Cache</h3>
+                    <div class="card-icon">&#128171;</div>
+                </div>
+                <div class="card-value" id="cache-hit-rate">-</div>
+                <div class="card-sub">
+                    <span id="cache-hits">-</span> hits &middot;
+                    <span id="cache-size">-</span> cached
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Row: AI Workers + Quick Actions -->
+        <div class="dash-grid">
+            <div class="card card-wide">
+                <div class="card-header">
+                    <h3>AI Workers</h3>
+                    <span class="spinner" id="workers-spinner"></span>
+                </div>
+                <div id="workers-list">
+                    <div class="worker-item">
+                        <span class="worker-name">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="action-grid">
+                    <a href="/scanner" class="action-btn">
+                        <div class="icon">&#128269;</div>
+                        <div class="label">Scan Markets</div>
+                    </a>
+                    <a href="/ai-chat" class="action-btn">
+                        <div class="icon">&#129302;</div>
+                        <div class="label">AI Chat</div>
+                    </a>
+                    <a href="/predictions" class="action-btn">
+                        <div class="icon">&#128200;</div>
+                        <div class="label">Predictions</div>
+                    </a>
+                    <a href="/tradingview" class="action-btn">
+                        <div class="icon">&#128202;</div>
+                        <div class="label">TradingLive</div>
+                    </a>
+                    <a href="/analyzer" class="action-btn">
+                        <div class="icon">&#128161;</div>
+                        <div class="label">Analyzer</div>
+                    </a>
+                    <a href="/signalai" class="action-btn">
+                        <div class="icon">&#9889;</div>
+                        <div class="label">SignalAI</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Worker Tasks + Hub Knowledge -->
+        <div class="dash-grid">
+            <div class="card">
+                <div class="card-header">
+                    <h3>24/7 Worker Tasks</h3>
+                </div>
+                <div class="table-wrap">
+                    <table class="dash-table" id="tasks-table">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Success</th>
+                                <th>Fail</th>
+                                <th>Avg Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tasks-tbody">
+                            <tr><td colspan="4" style="text-align:center; color: var(--text-secondary);">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>AI Hub Knowledge</h3>
+                </div>
+                <div id="hub-stats">
+                    <div class="worker-item">
+                        <span class="worker-name">Patterns Learned</span>
+                        <span class="worker-meta" id="hub-patterns">-</span>
+                    </div>
+                    <div class="worker-item">
+                        <span class="worker-name">Predictions Shared</span>
+                        <span class="worker-meta" id="hub-predictions">-</span>
+                    </div>
+                    <div class="worker-item">
+                        <span class="worker-name">Gems Discovered</span>
+                        <span class="worker-meta" id="hub-gems">-</span>
+                    </div>
+                    <div class="worker-item">
+                        <span class="worker-name">Messages Queued</span>
+                        <span class="worker-meta" id="hub-messages">-</span>
+                    </div>
+                    <div class="worker-item">
+                        <span class="worker-name">Data Exchanges</span>
+                        <span class="worker-meta" id="hub-exchanges">-</span>
+                    </div>
+                    <div class="worker-item">
+                        <span class="worker-name">Evolution Sessions</span>
+                        <span class="worker-meta" id="hub-sessions">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Your Plan</h3>
+                </div>
+                <div style="text-align: center; padding: 1rem 0;">
+                    <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">
+                        {% if user.plan == 'pro' %}&#128142;
+                        {% elif user.plan == 'enterprise' %}&#127775;
+                        {% elif user.plan == 'basic' %}&#128640;
+                        {% else %}&#9889;{% endif %}
+                    </div>
+                    <div style="font-size: 1.2rem; font-weight: 700; text-transform: uppercase; color: var(--accent);">
+                        {{ user.plan or 'Free' }}
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.3rem;">
+                        {% if user.plan == 'free' %}
+                            Upgrade for unlimited access
+                        {% elif user.plan == 'basic' %}
+                            100 scans/day &middot; 25 AI predictions
+                        {% elif user.plan == 'pro' %}
+                            Unlimited &middot; SignalAI included
+                        {% elif user.plan == 'enterprise' %}
+                            Everything unlimited &middot; Custom AI
+                        {% endif %}
+                    </div>
+                    {% if user.plan not in ['pro', 'enterprise'] %}
+                    <a href="/pricing" style="
+                        display: inline-block;
+                        margin-top: 1rem;
+                        padding: 0.6rem 1.5rem;
+                        background: var(--gradient-1);
+                        color: white;
+                        border-radius: 8px;
+                        text-decoration: none;
+                        font-weight: 600;
+                        font-size: 0.85rem;
+                    ">Upgrade Plan</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // Live clock
+        function updateClock() {
+            const el = document.getElementById('live-time');
+            const now = new Date();
+            el.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Fetch dashboard data
+        async function fetchStatus() {
+            try {
+                const resp = await fetch('/api/worker/status');
+                const data = await resp.json();
+                if (!data.success) return;
+
+                // Worker status
+                const w = data.worker;
+                document.getElementById('ai-uptime').textContent = w.uptime_hours || '0';
+                document.getElementById('ai-workers').textContent =
+                    data.coordinator.workers ? data.coordinator.workers.length : '-';
+
+                if (w.running) {
+                    document.getElementById('ai-status').innerHTML =
+                        '<span class="status-dot online"></span> Online';
+                } else {
+                    document.getElementById('ai-status').innerHTML =
+                        '<span class="status-dot offline"></span> Offline';
+                }
+
+                // Learning stats
+                const l = data.learning;
+                document.getElementById('total-predictions').textContent = l.total_predictions || 0;
+                const accPct = Math.round((l.accuracy || 0) * 100);
+                document.getElementById('accuracy-pct').textContent = accPct + '%';
+                document.getElementById('accuracy-bar').style.width = accPct + '%';
+
+                // Hub stats
+                const h = data.hub;
+                document.getElementById('collective-iq').textContent = h.collective_iq || 75;
+                document.getElementById('synergy').textContent = h.evolution_synergy || '1.0';
+                document.getElementById('data-exchanges').textContent = h.data_exchanges || 0;
+                document.getElementById('iq-bar').style.width = (h.collective_iq || 75) + '%';
+                document.getElementById('hub-patterns').textContent = h.patterns_learned || 0;
+                document.getElementById('hub-predictions').textContent = h.predictions_shared || 0;
+                document.getElementById('hub-gems').textContent = h.gems_discovered || 0;
+                document.getElementById('hub-messages').textContent = h.messages_in_queue || 0;
+                document.getElementById('hub-exchanges').textContent = h.data_exchanges || 0;
+
+                // Cache stats
+                const c = data.coordinator.cache || {};
+                const hitRate = Math.round((c.hit_rate || 0) * 100);
+                document.getElementById('cache-hit-rate').textContent = hitRate + '%';
+                document.getElementById('cache-hits').textContent = c.hits || 0;
+                document.getElementById('cache-size').textContent = c.size || 0;
+
+                // Workers list
+                const workers = data.coordinator.workers || [];
+                const wList = document.getElementById('workers-list');
+                if (workers.length > 0) {
+                    wList.innerHTML = workers.map(function(w) {
+                        const dot = w.success_rate >= 0.8 ? 'online' : 'offline';
+                        return '<div class="worker-item">' +
+                            '<div>' +
+                                '<span class="status-dot ' + dot + '"></span>' +
+                                '<span class="worker-name">' + w.name + '</span>' +
+                                '<br><span class="worker-meta">' + w.provider + ' &middot; P' + w.priority + '</span>' +
+                            '</div>' +
+                            '<div style="text-align:right">' +
+                                '<div>' + w.tasks_completed + ' tasks</div>' +
+                                '<div class="worker-meta">' + w.avg_latency_ms + 'ms avg</div>' +
+                            '</div>' +
+                        '</div>';
+                    }).join('');
+                }
+
+                // Task stats
+                const tasks = w.task_stats || {};
+                const tbody = document.getElementById('tasks-tbody');
+                const taskKeys = Object.keys(tasks);
+                if (taskKeys.length > 0) {
+                    tbody.innerHTML = taskKeys.map(function(k) {
+                        const t = tasks[k];
+                        return '<tr>' +
+                            '<td>' + k.replace(/_/g, ' ') + '</td>' +
+                            '<td style="color:var(--green)">' + (t.success || 0) + '</td>' +
+                            '<td style="color:' + (t.fail > 0 ? 'var(--red)' : 'var(--text-secondary)') + '">' + (t.fail || 0) + '</td>' +
+                            '<td>' + (t.avg_time || '-') + 's</td>' +
+                        '</tr>';
+                    }).join('');
+                }
+
+                // Hide spinner
+                document.getElementById('workers-spinner').style.display = 'none';
+
+            } catch (e) {
+                console.error('Dashboard fetch error:', e);
+            }
+        }
+
+        // Fetch on load and every 30 seconds
+        fetchStatus();
+        setInterval(fetchStatus, 30000);
+    </script>
 </body>
 </html>
