@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Test - SignalTrust AI</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0e27;
+            color: #e6e6e6;
+        }
+        h1 {
+            color: #ffd700;
+        }
+        .test-section {
+            background: #0d1321;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border: 1px solid #ffd700;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+        .error {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+        }
+        .info {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+        }
+        button {
+            background: #ffd700;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #f4d03f;
+        }
+        code {
+            background: #000;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 PWA Test Suite - SignalTrust AI</h1>
+    
+    <div class="test-section">
+        <h2>1. Manifest Test</h2>
+        <div id="manifest-test">Testing...</div>
+        <button onclick="testManifest()">Retest Manifest</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Service Worker Test</h2>
+        <div id="sw-test">Testing...</div>
+        <button onclick="testServiceWorker()">Retest Service Worker</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. PWA Install Test</h2>
+        <div id="install-test">
+            <div class="info">Check browser console for install prompt events</div>
+        </div>
+        <button onclick="testInstall()">Trigger Install</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Offline Test</h2>
+        <div id="offline-test">
+            <div class="info">Open DevTools → Network → Set to "Offline", then refresh</div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Icon Test</h2>
+        <div id="icon-test">Testing...</div>
+        <div style="margin-top: 10px;">
+            <img src="/static/icons/icon-72x72.png" alt="72x72" style="margin: 5px;">
+            <img src="/static/icons/icon-96x96.png" alt="96x96" style="margin: 5px;">
+            <img src="/static/icons/icon-128x128.png" alt="128x128" style="margin: 5px;">
+            <img src="/static/icons/icon-192x192.png" alt="192x192" style="margin: 5px;">
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. Mobile Meta Tags</h2>
+        <div id="meta-test">Testing...</div>
+    </div>
+    
+    <script>
+        let deferredPrompt;
+        
+        // Test 1: Manifest
+        async function testManifest() {
+            const result = document.getElementById('manifest-test');
+            result.innerHTML = '<div class="info">Testing manifest.json...</div>';
+            
+            try {
+                const response = await fetch('/manifest.json');
+                if (response.ok) {
+                    const manifest = await response.json();
+                    result.innerHTML = `
+                        <div class="success">✓ Manifest loaded successfully</div>
+                        <ul>
+                            <li>Name: ${manifest.name}</li>
+                            <li>Short name: ${manifest.short_name}</li>
+                            <li>Display: ${manifest.display}</li>
+                            <li>Theme color: ${manifest.theme_color}</li>
+                            <li>Icons: ${manifest.icons.length} defined</li>
+                            <li>Shortcuts: ${manifest.shortcuts?.length || 0} defined</li>
+                        </ul>
+                    `;
+                } else {
+                    result.innerHTML = `<div class="error">✗ Manifest not found (${response.status})</div>`;
+                }
+            } catch (e) {
+                result.innerHTML = `<div class="error">✗ Error: ${e.message}</div>`;
+            }
+        }
+        
+        // Test 2: Service Worker
+        async function testServiceWorker() {
+            const result = document.getElementById('sw-test');
+            result.innerHTML = '<div class="info">Testing service worker...</div>';
+            
+            if ('serviceWorker' in navigator) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/service-worker.js');
+                    result.innerHTML = `
+                        <div class="success">✓ Service Worker registered</div>
+                        <ul>
+                            <li>Scope: ${registration.scope}</li>
+                            <li>State: ${registration.active ? 'Active' : 'Pending'}</li>
+                            <li>Update found: ${registration.waiting ? 'Yes' : 'No'}</li>
+                        </ul>
+                    `;
+                    
+                    // Check cache
+                    const cacheNames = await caches.keys();
+                    result.innerHTML += `<div class="info">Caches: ${cacheNames.join(', ')}</div>`;
+                } catch (e) {
+                    result.innerHTML = `<div class="error">✗ Service Worker error: ${e.message}</div>`;
+                }
+            } else {
+                result.innerHTML = '<div class="error">✗ Service Worker not supported</div>';
+            }
+        }
+        
+        // Test 3: Install
+        function testInstall() {
+            const result = document.getElementById('install-test');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choice => {
+                    result.innerHTML = `<div class="success">Install choice: ${choice.outcome}</div>`;
+                    deferredPrompt = null;
+                });
+            } else {
+                result.innerHTML = '<div class="error">No install prompt available. App may already be installed or browser doesn\'t support it.</div>';
+            }
+        }
+        
+        // Test 6: Meta tags
+        function testMetaTags() {
+            const result = document.getElementById('meta-test');
+            const viewport = document.querySelector('meta[name="viewport"]');
+            const themeColor = document.querySelector('meta[name="theme-color"]');
+            const manifestLink = document.querySelector('link[rel="manifest"]');
+            
+            let html = '';
+            if (viewport) html += '<div class="success">✓ Viewport meta tag present</div>';
+            else html += '<div class="error">✗ Viewport meta tag missing</div>';
+            
+            if (themeColor) html += `<div class="success">✓ Theme color: ${themeColor.content}</div>`;
+            else html += '<div class="error">✗ Theme color missing</div>';
+            
+            if (manifestLink) html += '<div class="success">✓ Manifest link present</div>';
+            else html += '<div class="error">✗ Manifest link missing</div>';
+            
+            result.innerHTML = html;
+        }
+        
+        // Listen for install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const result = document.getElementById('install-test');
+            result.innerHTML = '<div class="success">✓ Install prompt available! Click button to trigger.</div>';
+            console.log('Install prompt captured');
+        });
+        
+        // Detect if running as PWA
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+            document.body.style.border = '5px solid #00ff88';
+            const banner = document.createElement('div');
+            banner.className = 'status success';
+            banner.innerHTML = '✓ Running as installed PWA!';
+            document.body.insertBefore(banner, document.body.firstChild);
+        }
+        
+        // Run tests on load
+        window.addEventListener('load', () => {
+            testManifest();
+            testServiceWorker();
+            testMetaTags();
+        });
+    </script>
+</body>
+</html>

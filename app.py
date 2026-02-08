@@ -363,6 +363,11 @@ def health():
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }), 200
 
+@app.route("/pwa-test")
+def pwa_test():
+    """PWA testing page."""
+    return render_template("pwa-test.html")
+
 @app.route("/ai-chat")
 def ai_chat_page():
     return render_template("ai_chat.html", **_nav_context('ai-chat'))
