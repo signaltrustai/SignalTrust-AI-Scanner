@@ -3200,7 +3200,7 @@ if os.getenv("GUNICORN_WORKER") or not hasattr(sys, 'ps1'):
 
 def main():
     """Start the Flask application."""
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.getenv("PORT", 5000))
     debug = os.getenv("FLASK_ENV") == "development"
     
     print("=" * 70)

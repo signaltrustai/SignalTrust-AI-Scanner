@@ -7,6 +7,7 @@ Enhanced with real AI provider support
 """
 
 import json
+import warnings
 from typing import Dict, List, Optional
 from datetime import datetime
 from asi1_integration import ASI1AIIntegration
@@ -475,7 +476,12 @@ Based on comprehensive market analysis, here are my predictions:
         ]
     
     def get_available_modes(self) -> List[Dict]:
-        """Backward-compatible alias for get_ai_modes."""
+        """Deprecated: Use get_ai_modes() instead. This alias is for legacy callers and may be removed later."""
+        warnings.warn(
+            "get_available_modes() is deprecated; use get_ai_modes() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         return self.get_ai_modes()
     
     def clear_history(self, user_id: str):
