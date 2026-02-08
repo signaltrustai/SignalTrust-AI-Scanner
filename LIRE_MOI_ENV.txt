@@ -1,0 +1,286 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║         🎯 GUIDE DES VARIABLES D'ENVIRONNEMENT 🎯               ║
+║                                                                  ║
+║              SignalTrust AI Scanner                              ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+
+
+📚 GUIDES DISPONIBLES (3 au choix selon votre besoin)
+═════════════════════════════════════════════════════
+
+┌────────────────────────────────────────────────────────────────┐
+│ 1️⃣  VARIABLES_ENV_SIMPLE.md                                    │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│    ⚡ GUIDE ULTRA-RAPIDE                                       │
+│    ⏱️  Temps: 3 minutes                                        │
+│    📄 Taille: 5 KB                                             │
+│    🎯 Pour: Démarrage rapide                                   │
+│                                                                │
+│    Contenu:                                                    │
+│    • Configuration en 4 étapes                                 │
+│    • Schéma visuel simple                                      │
+│    • Checklist minute                                          │
+│    • Solutions rapides                                         │
+│                                                                │
+│    👉 RECOMMANDÉ SI: Vous voulez démarrer MAINTENANT          │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────┐
+│ 2️⃣  GUIDE_VARIABLES_ENVIRONNEMENT.md                           │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│    📖 GUIDE COMPLET & DÉTAILLÉ                                 │
+│    ⏱️  Temps: 15-20 minutes                                    │
+│    📄 Taille: 21 KB                                            │
+│    🎯 Pour: Compréhension approfondie                          │
+│                                                                │
+│    Contenu:                                                    │
+│    • Explications détaillées de chaque concept                 │
+│    • 15+ schémas visuels                                       │
+│    • Guide étape par étape (5 étapes)                          │
+│    • Obtention clés API (OpenAI, Claude)                       │
+│    • Exemples 3 niveaux (débutant/pro)                         │
+│    • Troubleshooting complet                                   │
+│    • FAQ exhaustive                                            │
+│                                                                │
+│    👉 RECOMMANDÉ SI: Vous voulez TOUT comprendre              │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────┐
+│ 3️⃣  GUIDE_VISUEL_ENV.md                                        │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│    🎨 GUIDE VISUEL PROFESSIONNEL                               │
+│    ⏱️  Temps: 20-30 minutes                                    │
+│    📄 Taille: 48 KB                                            │
+│    🎯 Pour: Documentation professionnelle                      │
+│                                                                │
+│    Contenu:                                                    │
+│    • 25+ diagrammes ASCII professionnels                       │
+│    • Architecture système complète                             │
+│    • Flux visuels détaillés                                    │
+│    • Guide pas-à-pas illustré                                  │
+│    • Exemples de code réels                                    │
+│    • Troubleshooting visuel                                    │
+│    • Tables de référence                                       │
+│                                                                │
+│    👉 RECOMMANDÉ SI: Vous êtes apprenant VISUEL               │
+│                    ou voulez IMPRIMER/PRÉSENTER                │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
+
+
+🚀 DÉMARRAGE RAPIDE (Pour les plus pressés)
+════════════════════════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│  Configuration en 4 ÉTAPES (5 minutes top chrono!)          │
+└──────────────────────────────────────────────────────────────┘
+
+Étape 1: COPIER LE MODÈLE (30 secondes)
+────────────────────────────────────────
+Windows:    copy .env.example .env
+Mac/Linux:  cp .env.example .env
+
+Étape 2: OBTENIR CLÉ OPENAI (2 minutes)
+────────────────────────────────────────
+1. Aller sur: https://platform.openai.com
+2. Sign Up (créer compte gratuit)
+3. Settings → API Keys
+4. Create new secret key
+5. COPIER la clé (commence par "sk-proj-")
+
+Étape 3: CONFIGURER .env (2 minutes)
+─────────────────────────────────────
+Ouvrir .env avec Notepad/TextEdit et remplir:
+
+OPENAI_API_KEY=sk-proj-VOTRE_CLÉ_ICI
+SECRET_KEY=génerer_32_caractères_aléatoires
+ADMIN_PASSWORD=VotreMotDePasse123!
+
+Pour générer SECRET_KEY:
+python -c "import secrets; print(secrets.token_hex(32))"
+
+Étape 4: DÉMARRER! (30 secondes)
+──────────────────────────────────
+python start.py
+
+✅ C'EST TOUT! Application démarrée!
+
+
+📊 SCHÉMA VISUEL SIMPLIFIÉ
+═══════════════════════════
+
+┌─────────────────────────────────────────────────────────────┐
+│                    COMMENT ÇA MARCHE?                       │
+└─────────────────────────────────────────────────────────────┘
+
+    Fichier .env              Application          Internet
+    (Vos secrets)            (SignalTrust)         (APIs)
+    
+    ┌───────────┐            ┌──────────┐          ┌────────┐
+    │OPENAI_KEY │────lit────▶│   App    │──utilise─▶│ OpenAI │
+    │SECRET_KEY │            │ Flask    │          │Claude  │
+    │ADMIN_PASS │            │          │          │CoinGeko│
+    └───────────┘            └──────────┘          └────────┘
+         🔐                      🚀                   ☁️
+    (Sécurisé)              (Utilise)            (Services)
+
+
+🔐 RÈGLES D'OR DE SÉCURITÉ
+═══════════════════════════
+
+┌──────────────────────────────────────────────────────────────┐
+│  ⚠️  À FAIRE                      ⚠️  À NE JAMAIS FAIRE      │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ✅ Créer fichier .env            ❌ Committer .env sur Git  │
+│  ✅ Utiliser clés différentes     ❌ Partager vos clés API   │
+│  ✅ Garder .env en local          ❌ Mettre guillemets       │
+│  ✅ Sauvegarder en lieu sûr       ❌ Laisser espaces         │
+│  ✅ Changer clés régulièrement    ❌ Publier sur internet    │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+
+
+🐛 PROBLÈMES FRÉQUENTS & SOLUTIONS
+═══════════════════════════════════
+
+❌ Erreur: "API Key not found"
+✅ Solution:
+   • Vérifier nom fichier: ".env" (pas .env.txt)
+   • Fichier dans même dossier que app.py
+   • Pas d'espaces: OPENAI_API_KEY=sk-...
+
+❌ Erreur: "Invalid API key"
+✅ Solution:
+   • Copier clé ENTIÈRE (51 caractères)
+   • Pas de guillemets autour
+   • Régénérer nouvelle clé si besoin
+
+❌ Erreur: "Module not found: dotenv"
+✅ Solution:
+   pip install -r requirements.txt
+
+❌ Fichier .env invisible
+✅ Solution:
+   Windows: Affichage → Éléments masqués
+   Mac: Cmd + Shift + . dans Finder
+
+
+💰 COÛTS (Informations utiles)
+═══════════════════════════════
+
+OpenAI:
+─────────────────────────────────────
+Plan Gratuit:   $5 crédit initial
+Modèle:         gpt-4o-mini (recommandé)
+Coût:           ~$0.15-0.60 par million tokens
+Par analyse:    ~$0.01-0.10
+Budget/mois:    $10-50 (usage normal)
+
+Anthropic Claude:
+─────────────────────────────────────
+Plan Gratuit:   $5 crédit initial
+Modèle:         claude-3-5-sonnet (recommandé)
+Coût:           $3-15 par million tokens
+Par analyse:    ~$0.05-0.20
+Budget/mois:    $20-80 (usage normal)
+
+
+📋 CHECKLIST RAPIDE
+════════════════════
+
+Configuration Minimale:
+☐ Fichier .env créé
+☐ OPENAI_API_KEY rempli
+☐ SECRET_KEY généré
+☐ ADMIN_PASSWORD défini
+☐ python start.py lancé
+☐ ✅ Application démarrée!
+
+Configuration Recommandée:
+☐ COINGECKO_API_KEY ajouté
+☐ Adresses wallet vérifiées
+☐ PAYPAL_EMAIL configuré
+☐ ✅ Toutes fonctionnalités actives!
+
+
+🌐 DÉPLOIEMENT SUR RENDER
+═══════════════════════════
+
+Sur Render.com, PAS de fichier .env!
+Utiliser l'interface web:
+
+1. dashboard.render.com
+2. Votre service → Environment
+3. Add Environment Variable
+4. Ajouter chaque variable:
+   Key: OPENAI_API_KEY
+   Value: sk-proj-...
+5. Save Changes
+6. ✅ Redéploiement automatique!
+
+
+📚 RESSOURCES SUPPLÉMENTAIRES
+══════════════════════════════
+
+Obtenir Clés API:
+─────────────────────────────────────
+OpenAI:         https://platform.openai.com/api-keys
+Anthropic:      https://console.anthropic.com/account/keys
+CoinGecko:      https://www.coingecko.com/en/api/pricing
+
+Documentation Projet:
+─────────────────────────────────────
+RENDER_SETUP_COMPLETE.md    - Déploiement Render
+ADMIN_PAYMENT_QUICK_REFERENCE.md - Paiements
+.env.example                - Modèle complet
+
+
+✅ CHECKLIST DE SUCCÈS
+═══════════════════════
+
+☐ Guide lu (au moins le simple)
+☐ Fichier .env créé
+☐ Clé OpenAI obtenue et configurée
+☐ SECRET_KEY généré
+☐ ADMIN_PASSWORD défini
+☐ Application démarrée sans erreur
+☐ Page web accessible (localhost:5000)
+☐ Login admin fonctionnel
+
+✅ TOUTES LES CASES COCHÉES = SUCCÈS! 🎉
+
+
+📞 BESOIN D'AIDE?
+══════════════════
+
+Support:         signaltrustai@gmail.com
+Documentation:   Voir les 3 guides ci-dessus
+GitHub Issues:   https://github.com/signaltrustai/SignalTrust-AI-Scanner
+
+
+═══════════════════════════════════════════════════════════════
+                    RÉSUMÉ ULTRA-RAPIDE
+═══════════════════════════════════════════════════════════════
+
+1. cp .env.example .env                        (30 secondes)
+2. Obtenir clé sur platform.openai.com         (2 minutes)
+3. Éditer .env avec vos clés                   (2 minutes)
+4. python start.py                             (30 secondes)
+
+TOTAL: 5 MINUTES ⏱️
+
+═══════════════════════════════════════════════════════════════
+
+
+🎉 Vous êtes prêt à utiliser SignalTrust AI Scanner! 🎉
+
+Dernière mise à jour: 8 février 2026
+Version: 1.0
