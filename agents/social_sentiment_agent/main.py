@@ -105,7 +105,12 @@ class SocialSentimentAgent:
         )
     
     async def _analyze_twitter(self, symbol: str, timeframe: str) -> Dict:
-        """Analyze Twitter sentiment"""
+        """
+        Analyze Twitter sentiment
+        
+        NOTE: This is a placeholder implementation with simulated data.
+        In production, integrate with Twitter API v2 and BERT-finance model.
+        """
         # Simulated data (would use Twitter API + BERT-finance)
         return {
             "mention_count": 1250,
@@ -120,7 +125,12 @@ class SocialSentimentAgent:
         }
     
     async def _analyze_reddit(self, symbol: str, timeframe: str) -> Dict:
-        """Analyze Reddit sentiment"""
+        """
+        Analyze Reddit sentiment
+        
+        NOTE: This is a placeholder implementation with simulated data.
+        In production, integrate with Reddit API (PRAW) and BERT-finance model.
+        """
         # Simulated data (would use Reddit API + BERT-finance)
         return {
             "mention_count": 450,
@@ -135,7 +145,11 @@ class SocialSentimentAgent:
         }
     
     async def _analyze_discord(self, symbol: str, timeframe: str) -> Dict:
-        """Analyze Discord sentiment"""
+        """
+        Analyze Discord sentiment
+        
+        NOTE: Placeholder implementation. Production requires Discord bot integration.
+        """
         return {
             "mention_count": 320,
             "sentiment_score": 0.60,
@@ -143,7 +157,11 @@ class SocialSentimentAgent:
         }
     
     async def _analyze_telegram(self, symbol: str, timeframe: str) -> Dict:
-        """Analyze Telegram sentiment"""
+        """
+        Analyze Telegram sentiment
+        
+        NOTE: Placeholder implementation. Production requires Telegram Bot API integration.
+        """
         return {
             "mention_count": 580,
             "sentiment_score": 0.58,

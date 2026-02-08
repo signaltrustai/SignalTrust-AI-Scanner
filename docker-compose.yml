@@ -19,6 +19,8 @@ services:
       - news_agent
       - social_sentiment_agent
       - onchain_agent
+      - macro_economics_agent
+      - portfolio_optimizer_agent
       - supervisor
     volumes:
       - ./agents/coordinator:/app
@@ -127,6 +129,34 @@ services:
     environment:
       - GLASSNODE_API_KEY=${GLASSNODE_API_KEY}
       - DUNE_API_KEY=${DUNE_API_KEY}
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - signaltrust_network_eu
+
+  # ---- MACRO ECONOMICS (NEW) ----------------------------------------
+  macro_economics_agent:
+    build:
+      context: ./agents/macro_economics_agent
+      dockerfile: Dockerfile
+    container_name: signaltrust_macro_eu
+    ports:
+      - "8007:8000"
+    environment:
+      - FRED_API_KEY=${FRED_API_KEY}
+      - WORLD_BANK_API_KEY=${WORLD_BANK_API_KEY}
+      - EIA_API_KEY=${EIA_API_KEY}
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    networks:
+      - signaltrust_network_eu
+
+  # ---- PORTFOLIO OPTIMIZER (NEW) ------------------------------------
+  portfolio_optimizer_agent:
+    build:
+      context: ./agents/portfolio_optimizer_agent
+      dockerfile: Dockerfile
+    container_name: signaltrust_portfolio_eu
+    ports:
+      - "8008:8000"
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     networks:
       - signaltrust_network_eu

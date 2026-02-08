@@ -333,7 +333,7 @@ class HybridSignalGenerator:
         self.llm_weight = 0.4
         self.ml_weight = 0.6
     
-    async def generate_signal(self, ticker: str, llm_result: Dict,
+    def generate_signal(self, ticker: str, llm_result: Dict,
                             market_data: Dict) -> Dict:
         """
         Generate comprehensive trading signal
