@@ -11,6 +11,7 @@ from functools import wraps
 import subprocess
 import sys
 import uuid
+import logging
 # Import local modules
 from user_auth import UserAuth
 from payment_processor import PaymentProcessor
@@ -86,6 +87,17 @@ AGENT_IDS = {
 
 LOG_FILE = "signaltrust_events.log"
 LEARNING_DATA_FILE = "data/ai_learning_data.json"
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Initialize system components
 user_auth = UserAuth()
