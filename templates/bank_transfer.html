@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Transfer Payment - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .bank-payment-container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 30px;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .payment-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .payment-header h1 {
+            color: #FFD700;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .currency-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .currency-card {
+            padding: 20px;
+            background: #333;
+            border: 2px solid #444;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .currency-card:hover {
+            border-color: #FFD700;
+            transform: translateY(-3px);
+        }
+        
+        .currency-card.selected {
+            border-color: #FFD700;
+            background: #2a2a2a;
+        }
+        
+        .currency-flag {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+        
+        .bank-details-box {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 2px solid #444;
+        }
+        
+        .bank-details-header {
+            color: #FFD700;
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .detail-group {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #444;
+        }
+        
+        .detail-group:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            color: #888;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 500;
+            font-family: monospace;
+            background: #1a1a1a;
+            padding: 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .reference-highlight {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .reference-highlight h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .reference-number {
+            font-size: 2em;
+            font-weight: bold;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+        
+        .copy-btn {
+            background: #FFD700;
+            color: #000;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+        
+        .copy-btn:hover {
+            background: #FFC700;
+            transform: scale(1.05);
+        }
+        
+        .instructions-box {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+        }
+        
+        .instructions-box h3 {
+            color: #FFD700;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+        
+        .step-list li {
+            counter-increment: step-counter;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #1a1a1a;
+            border-radius: 10px;
+            position: relative;
+            padding-left: 60px;
+            color: #ccc;
+        }
+        
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #FFD700;
+            color: #000;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .important-notes {
+            background: #3a2a1a;
+            border-left: 4px solid #FFD700;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .important-notes h4 {
+            color: #FFD700;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .important-notes ul {
+            color: #ccc;
+            line-height: 1.8;
+        }
+        
+        .download-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background: rgba(255, 152, 0, 0.2);
+            border: 2px solid #ff9800;
+            color: #ff9800;
+        }
+        
+        .alert-box {
+            background: rgba(33, 150, 243, 0.1);
+            border: 2px solid #2196F3;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            color: #64B5F6;
+        }
+        
+        .alert-box h4 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="bank-payment-container">
+        <div class="payment-header">
+            <h1>🏦 Bank Wire Transfer</h1>
+            <p style="color: #aaa; font-size: 1.1em;">Secure bank payment option</p>
+        </div>
+
+        <div class="alert-box">
+            <h4>📋 Processing Time</h4>
+            <p>Bank transfers typically take 2-3 business days to process. Your subscription will be activated once payment is confirmed.</p>
+        </div>
+
+        <!-- Currency Selector -->
+        <div class="currency-selector">
+            <div class="currency-card selected" data-currency="USD" onclick="selectCurrency('USD')">
+                <div class="currency-flag">🇺🇸</div>
+                <div><strong>USD</strong></div>
+                <small style="color: #888;">US Dollar</small>
+            </div>
+            <div class="currency-card" data-currency="EUR" onclick="selectCurrency('EUR')">
+                <div class="currency-flag">🇪🇺</div>
+                <div><strong>EUR</strong></div>
+                <small style="color: #888;">Euro</small>
+            </div>
+            <div class="currency-card" data-currency="GBP" onclick="selectCurrency('GBP')">
+                <div class="currency-flag">🇬🇧</div>
+                <div><strong>GBP</strong></div>
+                <small style="color: #888;">Pound</small>
+            </div>
+            <div class="currency-card" data-currency="CAD" onclick="selectCurrency('CAD')">
+                <div class="currency-flag">🇨🇦</div>
+                <div><strong>CAD</strong></div>
+                <small style="color: #888;">Canadian $</small>
+            </div>
+        </div>
+
+        <!-- Reference Number Highlight -->
+        <div class="reference-highlight">
+            <h3>⚠️ IMPORTANT - Payment Reference Number</h3>
+            <div class="reference-number" id="referenceNumber">Loading...</div>
+            <p style="margin: 10px 0 0 0;">Include this reference in your transfer!</p>
+        </div>
+
+        <!-- Plan Details -->
+        <div class="bank-details-box">
+            <div class="bank-details-header">
+                💰 Payment Amount
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Plan</div>
+                <div class="detail-value">
+                    <span id="planName">Pro Plan</span>
+                </div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Amount to Transfer</div>
+                <div class="detail-value">
+                    <span id="transferAmount" style="font-size: 1.5em; color: #FFD700;">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bank Details -->
+        <div class="bank-details-box">
+            <div class="bank-details-header">
+                🏦 Bank Account Details
+            </div>
+            <div id="bankDetailsContainer">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Download Instructions Button -->
+        <button class="download-btn" onclick="downloadInstructions()">
+            📄 Download Complete Instructions (PDF)
+        </button>
+
+        <!-- Instructions -->
+        <div class="instructions-box">
+            <h3>📝 How to Complete Your Payment</h3>
+            <ul class="step-list">
+                <li>Log in to your online banking or visit your bank branch</li>
+                <li>Select "Wire Transfer" or "International Transfer" option</li>
+                <li>Enter the bank details provided above</li>
+                <li>Enter the exact amount shown</li>
+                <li><strong>IMPORTANT:</strong> Include the reference number in the transfer notes</li>
+                <li>Complete the transfer and save your receipt</li>
+                <li>Email your receipt to: <strong>payments@signaltrust.ai</strong></li>
+                <li>Wait for email confirmation (usually within 2-3 business days)</li>
+            </ul>
+
+            <div class="important-notes">
+                <h4>⚠️ Important Notes</h4>
+                <ul>
+                    <li><strong>Reference Number:</strong> Always include <span id="refNote"></span> in your transfer</li>
+                    <li><strong>Exact Amount:</strong> Please transfer the exact amount shown above</li>
+                    <li><strong>Processing Time:</strong> 2-3 business days for verification</li>
+                    <li><strong>Confirmation:</strong> You'll receive email once payment is confirmed</li>
+                    <li><strong>Expiry:</strong> Complete payment within 7 days</li>
+                    <li><strong>Fees:</strong> Your bank may charge a wire transfer fee</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedCurrency = 'USD';
+        let transferData = {};
+
+        // Initialize
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || 'pro';
+            
+            await loadTransferData(plan);
+        }
+
+        async function loadTransferData(plan) {
+            try {
+                const response = await fetch(`/api/bank/transfer-info?plan=${plan}&currency=${selectedCurrency}`);
+                transferData = await response.json();
+                
+                if (transferData.success) {
+                    updatePaymentDetails();
+                } else {
+                    alert('Error loading transfer information');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to load transfer information');
+            }
+        }
+
+        function selectCurrency(currency) {
+            selectedCurrency = currency;
+            
+            // Update UI
+            document.querySelectorAll('.currency-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-currency="${currency}"]`).classList.add('selected');
+            
+            // Reload data
+            const urlParams = new URLSearchParams(window.location.search);
+            const plan = urlParams.get('plan') || 'pro';
+            loadTransferData(plan);
+        }
+
+        function updatePaymentDetails() {
+            // Update plan and amount
+            document.getElementById('planName').textContent = 
+                transferData.plan.toUpperCase() + ' Plan';
+            document.getElementById('transferAmount').textContent = 
+                `${transferData.symbol}${transferData.amount} ${transferData.currency}`;
+            
+            // Update reference number
+            document.getElementById('referenceNumber').textContent = 
+                transferData.reference_number;
+            document.getElementById('refNote').textContent = 
+                transferData.reference_number;
+            
+            // Update bank details
+            updateBankDetails(transferData.bank_details);
+        }
+
+        function updateBankDetails(bankDetails) {
+            const container = document.getElementById('bankDetailsContainer');
+            container.innerHTML = '';
+            
+            // Common fields
+            const fields = [
+                { label: 'Bank Name', value: bankDetails.bank_name },
+                { label: 'Account Holder', value: bankDetails.account_holder },
+                { label: 'Currency', value: bankDetails.currency }
+            ];
+            
+            // Add currency-specific fields
+            if (bankDetails.iban) {
+                fields.push({ label: 'IBAN', value: bankDetails.iban });
+            }
+            if (bankDetails.account_number) {
+                fields.push({ label: 'Account Number', value: bankDetails.account_number });
+            }
+            if (bankDetails.routing_number) {
+                fields.push({ label: 'Routing Number (ACH)', value: bankDetails.routing_number });
+            }
+            if (bankDetails.swift_code) {
+                fields.push({ label: 'SWIFT/BIC Code', value: bankDetails.swift_code });
+            }
+            if (bankDetails.sort_code) {
+                fields.push({ label: 'Sort Code', value: bankDetails.sort_code });
+            }
+            if (bankDetails.transit_number) {
+                fields.push({ label: 'Transit Number', value: bankDetails.transit_number });
+            }
+            if (bankDetails.institution_number) {
+                fields.push({ label: 'Institution Number', value: bankDetails.institution_number });
+            }
+            if (bankDetails.bank_address) {
+                fields.push({ label: 'Bank Address', value: bankDetails.bank_address });
+            }
+            
+            // Create HTML
+            fields.forEach(field => {
+                const group = document.createElement('div');
+                group.className = 'detail-group';
+                group.innerHTML = `
+                    <div class="detail-label">${field.label}</div>
+                    <div class="detail-value">
+                        <span>${field.value}</span>
+                        <button class="copy-btn" onclick="copyToClipboard('${field.value}')">📋 Copy</button>
+                    </div>
+                `;
+                container.appendChild(group);
+            });
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        async function downloadInstructions() {
+            try {
+                const response = await fetch(`/api/bank/download-instructions?transfer_id=${transferData.transfer_id}`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `SignalTrust-Transfer-Instructions-${transferData.reference_number}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } catch (error) {
+                alert('Download will be available soon. Please save this page for reference.');
+            }
+        }
+
+        // Initialize on page load
+        window.onload = init;
+    </script>
+</body>
+</html>

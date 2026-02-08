@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Subscription Builder - SignalTrust AI</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .subscription-builder {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        
+        .builder-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .builder-header h1 {
+            color: #FFD700;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .builder-section {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 15px;
+        }
+        
+        .section-title {
+            color: #FFD700;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFD700;
+        }
+        
+        .plan-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .plan-card {
+            background: #333;
+            padding: 20px;
+            border-radius: 12px;
+            border: 3px solid #444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            border-color: #FFD700;
+        }
+        
+        .plan-card.selected {
+            border-color: #FFD700;
+            background: #2a2a2a;
+        }
+        
+        .plan-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 1.8em;
+            color: #FFD700;
+            margin: 10px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: #333;
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #444;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .feature-card:hover {
+            border-color: #FFD700;
+        }
+        
+        .feature-card.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.1);
+        }
+        
+        .feature-card.included {
+            border-color: #2196F3;
+            background: rgba(33, 150, 243, 0.1);
+            opacity: 0.7;
+        }
+        
+        .feature-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .feature-name {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        
+        .feature-price {
+            color: #FFD700;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        
+        .feature-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        
+        .bundle-card {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 15px;
+        }
+        
+        .bundle-card:hover {
+            transform: scale(1.02);
+        }
+        
+        .bundle-card.selected {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+        
+        .bundle-savings {
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .price-summary {
+            position: sticky;
+            top: 20px;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid #FFD700;
+        }
+        
+        .summary-title {
+            font-size: 1.5em;
+            color: #FFD700;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #444;
+            color: #ccc;
+        }
+        
+        .summary-item.total {
+            border-bottom: none;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #FFD700;
+            margin-top: 10px;
+            padding-top: 15px;
+            border-top: 2px solid #FFD700;
+        }
+        
+        .cycle-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .cycle-btn {
+            padding: 10px 20px;
+            border: 2px solid #444;
+            background: #333;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .cycle-btn.active {
+            border-color: #FFD700;
+            background: #FFD700;
+            color: #000;
+        }
+        
+        .subscribe-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .subscribe-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .category-title {
+            color: #aaa;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 20px 0 10px 0;
+        }
+        
+        @media (max-width: 1024px) {
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .price-summary {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="subscription-builder">
+        <div class="builder-header">
+            <h1>🎯 Build Your Perfect Plan</h1>
+            <p style="color: #aaa; font-size: 1.1em;">Choose only the features you need</p>
+        </div>
+
+        <div class="cycle-toggle">
+            <button class="cycle-btn active" data-cycle="monthly" onclick="switchCycle('monthly')">
+                💳 Monthly
+            </button>
+            <button class="cycle-btn" data-cycle="yearly" onclick="switchCycle('yearly')">
+                💰 Yearly (Save 17%)
+            </button>
+        </div>
+
+        <div class="builder-grid">
+            <!-- Left Column: Options -->
+            <div>
+                <!-- Base Plans -->
+                <div class="builder-section">
+                    <div class="section-title">1️⃣ Choose Base Plan</div>
+                    <div class="plan-cards" id="basePlans">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Feature Bundles -->
+                <div class="builder-section">
+                    <div class="section-title">2️⃣ Add Feature Bundles (Optional)</div>
+                    <div id="bundles">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Individual Features -->
+                <div class="builder-section">
+                    <div class="section-title">3️⃣ Add Individual Features</div>
+                    <div id="features">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Price Summary -->
+            <div class="price-summary">
+                <div class="summary-box">
+                    <div class="summary-title">💰 Your Plan</div>
+                    
+                    <div id="summaryContent">
+                        <div class="summary-item">
+                            <span>Base Plan</span>
+                            <span id="basePlanPrice">$0</span>
+                        </div>
+                        <div id="addonsList"></div>
+                        <div id="bundlesList"></div>
+                        <div class="summary-item" id="savingsRow" style="display: none;">
+                            <span style="color: #4CAF50;">💚 Savings</span>
+                            <span style="color: #4CAF50;" id="savings">$0</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Total</span>
+                            <span id="totalPrice">$0</span>
+                        </div>
+                        <div style="text-align: center; margin-top: 10px; color: #888; font-size: 0.9em;">
+                            per <span id="cycleLabel">month</span>
+                        </div>
+                    </div>
+                    
+                    <button class="subscribe-btn" onclick="proceedToCheckout()">
+                        🚀 Subscribe Now
+                    </button>
+                    
+                    <div style="margin-top: 15px; text-align: center; color: #888; font-size: 0.9em;">
+                        <p>✅ Cancel anytime</p>
+                        <p>✅ No hidden fees</p>
+                        <p>✅ 14-day money-back guarantee</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedBasePlan = 'free';
+        let selectedAddons = [];
+        let selectedBundles = [];
+        let billingCycle = 'monthly';
+        let allData = {};
+
+        // Initialize
+        async function init() {
+            await loadPlans();
+            updateSummary();
+        }
+
+        async function loadPlans() {
+            try {
+                const response = await fetch('/api/subscription/plans');
+                allData = await response.json();
+                
+                renderBasePlans();
+                renderBundles();
+                renderFeatures();
+            } catch (error) {
+                console.error('Error loading plans:', error);
+            }
+        }
+
+        function renderBasePlans() {
+            const container = document.getElementById('basePlans');
+            container.innerHTML = '';
+            
+            Object.entries(allData.base_plans).forEach(([id, plan]) => {
+                const price = plan[`price_${billingCycle}`];
+                const card = document.createElement('div');
+                card.className = `plan-card ${id === selectedBasePlan ? 'selected' : ''}`;
+                card.onclick = () => selectBasePlan(id);
+                card.innerHTML = `
+                    <div class="plan-name">${plan.name}</div>
+                    <div class="plan-price">$${price}</div>
+                    <div style="color: #aaa; font-size: 0.9em;">${plan.description}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderBundles() {
+            const container = document.getElementById('bundles');
+            container.innerHTML = '';
+            
+            Object.entries(allData.feature_bundles).forEach(([id, bundle]) => {
+                const price = billingCycle === 'yearly' ? bundle.price_monthly * 10 : bundle.price_monthly;
+                const card = document.createElement('div');
+                card.className = `feature-card bundle-card ${selectedBundles.includes(id) ? 'selected' : ''}`;
+                card.onclick = () => toggleBundle(id);
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <div style="font-size: 2em;">${bundle.icon}</div>
+                            <div style="font-weight: bold; font-size: 1.2em; margin: 10px 0;">${bundle.name}</div>
+                            <div style="font-size: 0.9em; margin-bottom: 10px;">${bundle.description}</div>
+                            <div style="font-weight: bold; font-size: 1.3em;">$${price}/${billingCycle === 'monthly' ? 'mo' : 'yr'}</div>
+                            ${bundle.savings ? `<div class="bundle-savings">Save $${bundle.savings}/mo</div>` : ''}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderFeatures() {
+            const container = document.getElementById('features');
+            container.innerHTML = '';
+            
+            // Group by category
+            const categories = {};
+            Object.entries(allData.addon_features).forEach(([id, feature]) => {
+                if (!categories[feature.category]) {
+                    categories[feature.category] = [];
+                }
+                categories[feature.category].push({id, ...feature});
+            });
+            
+            Object.entries(categories).forEach(([category, features]) => {
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = category;
+                container.appendChild(categoryTitle);
+                
+                const grid = document.createElement('div');
+                grid.className = 'feature-grid';
+                
+                features.forEach(feature => {
+                    const price = billingCycle === 'yearly' ? feature.price_monthly * 10 : feature.price_monthly;
+                    const isIncluded = isFeatureIncluded(feature.id);
+                    const card = document.createElement('div');
+                    card.className = `feature-card ${selectedAddons.includes(feature.id) ? 'selected' : ''} ${isIncluded ? 'included' : ''}`;
+                    if (!isIncluded) {
+                        card.onclick = () => toggleAddon(feature.id);
+                    }
+                    card.innerHTML = `
+                        <div class="feature-icon">${feature.icon}</div>
+                        <div class="feature-name">${feature.name}</div>
+                        <div style="color: #aaa; font-size: 0.85em; margin: 5px 0;">${feature.description}</div>
+                        <div class="feature-price">$${price}/${billingCycle === 'monthly' ? 'mo' : 'yr'}</div>
+                        ${isIncluded ? '<div class="feature-badge">Included</div>' : ''}
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                container.appendChild(grid);
+            });
+        }
+
+        function isFeatureIncluded(featureId) {
+            const plan = allData.base_plans[selectedBasePlan];
+            if (plan.included_features.includes('all')) return true;
+            if (plan.included_features.includes(featureId)) return true;
+            
+            // Check bundles
+            for (const bundleId of selectedBundles) {
+                const bundle = allData.feature_bundles[bundleId];
+                if (bundle.features === 'all' || bundle.features.includes(featureId)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        function selectBasePlan(planId) {
+            selectedBasePlan = planId;
+            renderBasePlans();
+            renderFeatures();
+            updateSummary();
+        }
+
+        function toggleAddon(addonId) {
+            if (isFeatureIncluded(addonId)) return;
+            
+            const index = selectedAddons.indexOf(addonId);
+            if (index > -1) {
+                selectedAddons.splice(index, 1);
+            } else {
+                selectedAddons.push(addonId);
+            }
+            renderFeatures();
+            updateSummary();
+        }
+
+        function toggleBundle(bundleId) {
+            const index = selectedBundles.indexOf(bundleId);
+            if (index > -1) {
+                selectedBundles.splice(index, 1);
+            } else {
+                selectedBundles.push(bundleId);
+            }
+            renderBundles();
+            renderFeatures();
+            updateSummary();
+        }
+
+        function switchCycle(cycle) {
+            billingCycle = cycle;
+            
+            document.querySelectorAll('.cycle-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.cycle === cycle);
+            });
+            
+            document.getElementById('cycleLabel').textContent = cycle === 'monthly' ? 'month' : 'year';
+            
+            renderBasePlans();
+            renderBundles();
+            renderFeatures();
+            updateSummary();
+        }
+
+        async function updateSummary() {
+            try {
+                const response = await fetch('/api/subscription/calculate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        base_plan: selectedBasePlan,
+                        addons: selectedAddons,
+                        bundles: selectedBundles,
+                        billing_cycle: billingCycle
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('basePlanPrice').textContent = `$${data.base_plan.price}`;
+                    
+                    // Addons
+                    const addonsList = document.getElementById('addonsList');
+                    addonsList.innerHTML = '';
+                    data.addons.forEach(addon => {
+                        const item = document.createElement('div');
+                        item.className = 'summary-item';
+                        item.innerHTML = `
+                            <span>+ ${addon.name}</span>
+                            <span>$${addon.price}</span>
+                        `;
+                        addonsList.appendChild(item);
+                    });
+                    
+                    // Bundles
+                    const bundlesList = document.getElementById('bundlesList');
+                    bundlesList.innerHTML = '';
+                    data.bundles.forEach(bundle => {
+                        const item = document.createElement('div');
+                        item.className = 'summary-item';
+                        item.innerHTML = `
+                            <span>+ ${bundle.name}</span>
+                            <span>$${bundle.price}</span>
+                        `;
+                        bundlesList.appendChild(item);
+                    });
+                    
+                    // Savings
+                    if (data.savings > 0) {
+                        document.getElementById('savingsRow').style.display = 'flex';
+                        document.getElementById('savings').textContent = `-$${data.savings.toFixed(2)}`;
+                    } else {
+                        document.getElementById('savingsRow').style.display = 'none';
+                    }
+                    
+                    document.getElementById('totalPrice').textContent = `$${data.total}`;
+                }
+            } catch (error) {
+                console.error('Error updating summary:', error);
+            }
+        }
+
+        function proceedToCheckout() {
+            const params = new URLSearchParams({
+                base_plan: selectedBasePlan,
+                addons: selectedAddons.join(','),
+                bundles: selectedBundles.join(','),
+                billing_cycle: billingCycle
+            });
+            
+            window.location.href = `/payment/methods?${params.toString()}`;
+        }
+
+        // Initialize on page load
+        window.onload = init;
+    </script>
+</body>
+</html>
