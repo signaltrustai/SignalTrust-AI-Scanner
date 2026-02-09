@@ -502,5 +502,78 @@
     "volatility": "high",
     "mtf_consensus": "bearish",
     "data_source": "live"
+  },
+  {
+    "symbol": "BTC",
+    "strategy": "SignalAI",
+    "timestamp": "2026-02-09T04:07:49.441439+00:00",
+    "current_price": 104000,
+    "signal": "SELL",
+    "strength": 35,
+    "confidence": 28,
+    "indicators": {
+      "EMA9": 104000.0,
+      "EMA21": 104000.0,
+      "EMA50": 104000,
+      "RSI": 100.0,
+      "MACD": {
+        "value": 0.0,
+        "signal": 0.0,
+        "histogram": 0.0,
+        "crossover": "none"
+      },
+      "BB": {
+        "upper": 104000.0,
+        "middle": 104000.0,
+        "lower": 104000.0,
+        "pct_b": 0.5,
+        "bandwidth": 0.0
+      },
+      "STOCH": {
+        "k": 50,
+        "d": 50.0,
+        "crossover": "none"
+      },
+      "ADX": 0,
+      "ICHIMOKU": {
+        "tenkan": 104000,
+        "kijun": 104000,
+        "senkou_a": 0,
+        "senkou_b": 0,
+        "chikou": 0,
+        "cloud_color": "neutral",
+        "price_vs_cloud": "inside"
+      },
+      "OBV": {
+        "value": 0,
+        "trend": "neutral"
+      },
+      "VWAP": 0,
+      "ROC": 0.0,
+      "WILLIAMS": -50.0,
+      "ATR": 0.0,
+      "SR": {
+        "support": 100880.0,
+        "resistance": 107120.0,
+        "levels": []
+      },
+      "regime": "ranging",
+      "volatility": "low",
+      "multi_timeframe": {
+        "short": "bearish",
+        "medium": "neutral",
+        "long": "neutral",
+        "consensus": "mixed"
+      }
+    },
+    "recommendation": "Weak Sell \u2014 Monitor position closely, early bearish signals",
+    "entry_price": 104208.0,
+    "stop_loss": 107655.6,
+    "take_profit": 101888.8,
+    "risk_reward": 0.58,
+    "regime": "ranging",
+    "volatility": "low",
+    "mtf_consensus": "mixed",
+    "data_source": "live"
   }
 ]
