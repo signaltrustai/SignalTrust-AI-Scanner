@@ -12,7 +12,6 @@ import logging
 
 from ai_memory_system import get_memory
 
-logging.getLogger('AICommands')
 logger = logging.getLogger('AICommands')
 
 
