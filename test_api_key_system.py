@@ -32,7 +32,7 @@ def test_key_manager():
     # Test 1: Store keys
     print("\n1️⃣ Testing key storage...")
     test_keys = {
-        'OPENAI_API_KEY': 'sk-proj-test123456789',
+        'OPENAI_API_KEY': 'sk-proj-test123456789',  # Project key format
         'ANTHROPIC_API_KEY': 'sk-ant-test987654321',
         'COINGECKO_API_KEY': 'CG-' + 'a' * 32,
     }
@@ -95,8 +95,8 @@ def test_key_validator():
     
     # Test cases: (key_name, key_value, should_be_valid)
     test_cases = [
-        ('OPENAI_API_KEY', 'sk-proj-abcdefghij1234567890', False),  # proj prefix not in pattern
-        ('OPENAI_API_KEY', 'sk-abcdefghij1234567890', True),  # Valid format
+        ('OPENAI_API_KEY', 'sk-proj-abcdefghij1234567890', True),  # Project key format
+        ('OPENAI_API_KEY', 'sk-abcdefghij1234567890', True),  # Legacy key format
         ('ANTHROPIC_API_KEY', 'sk-ant-' + 'a' * 95, True),
         ('COINGECKO_API_KEY', 'CG-' + 'a' * 32, True),
         ('ALPHAVANTAGE_API_KEY', 'A' * 16, True),

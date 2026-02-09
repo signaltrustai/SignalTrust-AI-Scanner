@@ -54,11 +54,25 @@ class KeyManager:
     
     def _create_cipher(self, password: str) -> Fernet:
         """Create Fernet cipher from password."""
+        # Load or generate salt
+        salt_file = self.base_dir / ".salt"
+        if salt_file.exists():
+            with open(salt_file, 'rb') as f:
+                salt = f.read()
+        else:
+            # Generate random salt on first use
+            import secrets
+            salt = secrets.token_bytes(32)
+            # Save salt (unencrypted - it's not secret)
+            salt_file.parent.mkdir(parents=True, exist_ok=True)
+            with open(salt_file, 'wb') as f:
+                f.write(salt)
+        
         # Use PBKDF2HMAC to derive a key from password
         kdf = PBKDF2HMAC(
             algorithm=hashes.SHA256(),
             length=32,
-            salt=b'signaltrust_ai_salt_v1',  # Static salt for consistency
+            salt=salt,
             iterations=100000,
         )
         key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
@@ -296,6 +310,20 @@ class KeyManager:
         """Clear the in-memory key cache."""
         self._cache.clear()
         logger.info("Key cache cleared")
+    
+    def _mask_key(self, key_value: str) -> str:
+        """Safely mask an API key for display.
+        
+        Args:
+            key_value: The key to mask
+            
+        Returns:
+            Masked key string
+        """
+        if not key_value or len(key_value) < 8:
+            return "***"
+        # Show only first 4 and last 4 characters
+        return key_value[:4] + "..." + key_value[-4:]
 
 
 # Convenience functions for common operations
@@ -338,7 +366,7 @@ if __name__ == "__main__":
     print("\nAvailable keys:")
     for key in manager.list_keys():
         value = manager.get_key(key)
-        masked = value[:8] + "..." + value[-4:] if value and len(value) > 12 else "***"
+        masked = manager._mask_key(value) if value else "***"
         print(f"  {key}: {masked}")
     
     print("\nUse environment variable API_MASTER_PASSWORD to enable encryption.")

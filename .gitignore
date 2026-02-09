@@ -55,6 +55,7 @@ htmlcov/
 # Secure API Keys
 config/api_keys/keys.enc
 config/api_keys/*.enc
+config/api_keys/.salt
 
 # Docker
 agents/*/workspace/

@@ -6,7 +6,7 @@ Ce guide explique comment utiliser le nouveau système de gestion sécurisée de
 
 Un système intelligent pour stocker et gérer vos clés API de manière sécurisée avec:
 
-- ✅ **Chiffrement**: Clés chiffrées sur disque (AES-128)
+- ✅ **Chiffrement**: Clés chiffrées sur disque (AES-128-CBC avec HMAC-SHA256)
 - ✅ **Validation**: Vérification automatique du format
 - ✅ **Fallback**: Utilise les variables d'environnement si besoin
 - ✅ **Multi-Provider**: Supporte OpenAI, Anthropic, CoinGecko, etc.
@@ -33,7 +33,7 @@ from config.api_keys import KeyManager
 # Initialiser le gestionnaire
 manager = KeyManager()
 
-# Stocker une clé
+# Stocker une clé (supporte sk-proj- et sk- formats)
 manager.set_key('OPENAI_API_KEY', 'sk-proj-...', save=True)
 manager.set_key('COINGECKO_API_KEY', 'CG-...', save=True)
 
@@ -87,7 +87,7 @@ manager = KeyManager()
 # Afficher toutes les clés (masquées)
 for key_name in manager.list_keys():
     value = manager.get_key(key_name)
-    masked = value[:8] + "..." + value[-4:] if value else "N/A"
+    masked = manager._mask_key(value) if value else "N/A"
     print(f"{key_name}: {masked}")
 ```
 
