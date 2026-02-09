@@ -7,7 +7,14 @@ Tests the agent_client module and Flask API endpoints
 import sys
 import requests
 import json
+import pytest
 from agent_client import get_agent_client
+
+
+@pytest.fixture
+def client():
+    """Pytest fixture providing AgentClient instance."""
+    return get_agent_client()
 
 def print_section(title):
     """Print a section header"""

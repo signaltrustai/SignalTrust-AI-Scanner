@@ -30,6 +30,7 @@ class PaymentProcessor:
             'limits': {
                 'scans_per_day': 5,
                 'symbols_per_scan': 3,
+                'ai_predictions': 3,
                 'ai_predictions_per_day': 3,
                 'gems_discoveries_per_day': 3,
                 'whale_tracking': False,
@@ -57,6 +58,7 @@ class PaymentProcessor:
             'limits': {
                 'scans_per_day': 100,
                 'symbols_per_scan': 10,
+                'ai_predictions': 25,
                 'ai_predictions_per_day': 25,
                 'gems_discoveries_per_day': 15,
                 'whale_tracking': False,
@@ -87,6 +89,7 @@ class PaymentProcessor:
             'limits': {
                 'scans_per_day': -1,
                 'symbols_per_scan': -1,
+                'ai_predictions': -1,
                 'ai_predictions_per_day': -1,
                 'gems_discoveries_per_day': -1,
                 'whale_tracking': True,
@@ -117,6 +120,7 @@ class PaymentProcessor:
             'limits': {
                 'scans_per_day': -1,
                 'symbols_per_scan': -1,
+                'ai_predictions': -1,
                 'ai_predictions_per_day': -1,
                 'gems_discoveries_per_day': -1,
                 'whale_tracking': True,
