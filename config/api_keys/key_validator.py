@@ -25,7 +25,10 @@ class KeyValidator:
     
     # API key format patterns
     KEY_PATTERNS = {
-        'OPENAI_API_KEY': r'^sk-(proj-)?[a-zA-Z0-9]{20,}$',  # Supports both legacy and project keys
+        # OpenAI: Supports both legacy (sk-) and project (sk-proj-) keys
+        # Legacy format: sk-{20+ alphanumeric chars}
+        # Project format: sk-proj-{20+ alphanumeric chars}
+        'OPENAI_API_KEY': r'^sk-(proj-)?[a-zA-Z0-9]{20,}$',
         'ANTHROPIC_API_KEY': r'^sk-ant-[a-zA-Z0-9\-_]{95,}$',
         'COINGECKO_API_KEY': r'^CG-[a-zA-Z0-9]{32}$',
         'ALPHAVANTAGE_API_KEY': r'^[A-Z0-9]{16}$',

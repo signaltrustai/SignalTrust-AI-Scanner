@@ -52,7 +52,7 @@ def test_key_manager():
     for key_name in test_keys.keys():
         retrieved = manager.get_key(key_name, fallback_env=False)
         status = "✅" if retrieved else "❌"
-        masked = retrieved[:8] + "..." if retrieved else "None"
+        masked = manager._mask_key(retrieved) if retrieved else "None"
         print(f"  {status} Retrieved {key_name}: {masked}")
     
     # Test 3: List keys
