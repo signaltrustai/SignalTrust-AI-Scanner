@@ -30,11 +30,17 @@ def _safe_int(value, default: int, min_val: int = 1, max_val: int = 1000) -> int
 
 
 _SYMBOL_RE = re.compile(r'^[A-Za-z0-9/\-_.]{1,20}$')
+_MAX_WHALE_USD = 1_000_000_000
 
 
 def _valid_symbol(symbol: str) -> bool:
     """Return True if *symbol* looks like a valid ticker / pair."""
-    return bool(symbol and _SYMBOL_RE.match(symbol))
+    if not symbol or not _SYMBOL_RE.match(symbol):
+        return False
+    # Reject path-traversal patterns
+    if '..' in symbol:
+        return False
+    return True
 
 # Import local modules
 from user_auth import UserAuth
@@ -1697,7 +1703,7 @@ def api_agents_whale_watch():
     
     try:
         network = request.args.get("network", "btc")
-        min_usd = _safe_int(request.args.get("min_usd", 5_000_000), default=5_000_000, min_val=0, max_val=1_000_000_000)
+        min_usd = _safe_int(request.args.get("min_usd", 5_000_000), default=5_000_000, min_val=0, max_val=_MAX_WHALE_USD)
         
         result = agent_client.watch_whales(network, min_usd)
         

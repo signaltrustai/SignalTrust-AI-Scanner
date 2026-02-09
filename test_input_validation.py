@@ -64,6 +64,10 @@ def test_valid_symbol_rejects_bad_symbols():
     assert _valid_symbol("BTC;DROP TABLE") is False
     assert _valid_symbol("<script>") is False
     assert _valid_symbol("BTC & echo pwned") is False
+    # Path-traversal patterns
+    assert _valid_symbol("../BTC") is False
+    assert _valid_symbol("BTC/../../") is False
+    assert _valid_symbol("..") is False
     print("  ✅ _valid_symbol: invalid symbols rejected")
     return True
 
