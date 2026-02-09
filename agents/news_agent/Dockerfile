@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+# Docker image for the News Agent service
+
 WORKDIR /app
 
 # Install dependencies

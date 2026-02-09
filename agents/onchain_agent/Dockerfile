@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+# Docker image for the Onchain Agent service
+
 WORKDIR /app
 
 COPY requirements.txt .

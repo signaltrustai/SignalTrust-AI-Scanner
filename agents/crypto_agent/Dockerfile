@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+# Docker image for the Crypto Agent service
+
 WORKDIR /app
 
 # Install dependencies
