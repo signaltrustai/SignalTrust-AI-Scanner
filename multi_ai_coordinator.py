@@ -441,7 +441,7 @@ class AIWorker:
     # ---- Google Gemini ----------------------------------------------------
 
     def _call_gemini(self, task_type: str, prompt: str, data: dict) -> dict:
-        api_key = self.config.get("api_key") or os.getenv("GOOGLE_AI_API_KEY", os.getenv("GEMINI_API_KEY", ""))
+        api_key = self.config.get("api_key") or os.getenv("GOOGLE_AI_API_KEY") or os.getenv("GEMINI_API_KEY", "")
         model = self.config.get("model", "gemini-2.0-flash")
         if not api_key:
             return {"success": False, "error": "No Google AI / Gemini API key"}

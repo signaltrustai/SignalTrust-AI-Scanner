@@ -52,7 +52,7 @@ class CollaborationInvitation:
     status: str = "PENDING"
 
     def to_dict(self) -> dict:
-        """Serialise to a plain dict (JSON-safe)."""
+        """Serialize to a plain dict (JSON-safe)."""
         return asdict(self)
 
     @property

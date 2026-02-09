@@ -138,7 +138,7 @@ def test_coordinator_task_specialists():
 
     # Minimum 10 specialized task types
     assert len(specialists) >= 10, f"Expected 10+ task types, got {len(specialists)}"
-    print("  ✅ Task specialist mapping has 12 optimized assignments")
+    print(f"  ✅ Task specialist mapping has {len(specialists)} optimized assignments")
     return True
 
 
