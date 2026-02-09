@@ -1,6 +1,13 @@
 # SignalTrust AI Market Scanner
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/signaltrustai/SignalTrust-AI-Scanner/blob/main/notebooks/SignalTrust_AI_Demo.ipynb)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-proprietary-red.svg)](LICENSE)
+[![Flask](https://img.shields.io/badge/framework-Flask-green.svg)](https://flask.palletsprojects.com/)
+
 The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
+
+> **🚀 Try it now:** [Open the interactive demo in Google Colab](https://colab.research.google.com/github/signaltrustai/SignalTrust-AI-Scanner/blob/main/notebooks/SignalTrust_AI_Demo.ipynb) — no installation required!
 
 ## 🧠 NEW: AI Evolution System ✨✨✨
 

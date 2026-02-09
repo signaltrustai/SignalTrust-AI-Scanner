@@ -15,8 +15,26 @@ import sys
 import uuid
 import logging
 import warnings
+import re
 
 logger = logging.getLogger(__name__)
+
+
+def _safe_int(value, default: int, min_val: int = 1, max_val: int = 1000) -> int:
+    """Safely parse an integer from a request parameter with bounds."""
+    try:
+        val = int(value) if value is not None else default
+        return max(min_val, min(max_val, val))
+    except (ValueError, TypeError):
+        return default
+
+
+_SYMBOL_RE = re.compile(r'^[A-Za-z0-9/\-_.]{1,20}$')
+
+
+def _valid_symbol(symbol: str) -> bool:
+    """Return True if *symbol* looks like a valid ticker / pair."""
+    return bool(symbol and _SYMBOL_RE.match(symbol))
 
 # Import local modules
 from user_auth import UserAuth
@@ -541,6 +559,14 @@ def api_upload_avatar():
     if file.filename == "" or not _allowed_file(file.filename):
         return jsonify({"success": False, "error": "Invalid file type. Use PNG, JPG, GIF, or WEBP"}), 400
 
+    # Check file size (max 5 MB)
+    max_size = 5 * 1024 * 1024
+    file.seek(0, 2)
+    size = file.tell()
+    file.seek(0)
+    if size > max_size:
+        return jsonify({"success": False, "error": "File too large. Maximum size is 5 MB"}), 413
+
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     ext = file.filename.rsplit(".", 1)[1].lower()
@@ -946,6 +972,8 @@ def api_analyze_technical():
         
         if not symbol:
             return jsonify({"success": False, "error": "Symbol required"}), 400
+        if not _valid_symbol(symbol):
+            return jsonify({"success": False, "error": "Invalid symbol format"}), 400
         
         analysis = market_analyzer.analyze_technical(symbol, timeframe)
         save_learning_data("technical_analysis", {"symbol": symbol, "analysis": analysis})
@@ -1121,10 +1149,12 @@ def api_predict_price():
         if not data:
             return jsonify({"success": False, "error": "JSON body required"}), 400
         symbol = data.get("symbol")
-        days = data.get("days", 7)
+        days = _safe_int(data.get("days", 7), default=7, min_val=1, max_val=90)
         
         if not symbol:
             return jsonify({"success": False, "error": "Symbol required"}), 400
+        if not _valid_symbol(symbol):
+            return jsonify({"success": False, "error": "Invalid symbol format"}), 400
         
         prediction = ai_predictor.predict_price(symbol, days)
         save_learning_data("price_prediction", {"symbol": symbol, "prediction": prediction})
@@ -1145,6 +1175,8 @@ def api_predict_signals():
         
         if not symbol:
             return jsonify({"success": False, "error": "Symbol required"}), 400
+        if not _valid_symbol(symbol):
+            return jsonify({"success": False, "error": "Invalid symbol format"}), 400
         
         signals = ai_predictor.generate_signals(symbol)
         save_learning_data("trading_signals", {"symbol": symbol, "signals": signals})
@@ -1164,6 +1196,8 @@ def api_predict_risk():
         
         if not symbol:
             return jsonify({"success": False, "error": "Symbol required"}), 400
+        if not _valid_symbol(symbol):
+            return jsonify({"success": False, "error": "Invalid symbol format"}), 400
         
         risk = ai_predictor.assess_risk(symbol)
         save_learning_data("risk_assessment", {"symbol": symbol, "risk": risk})
@@ -1290,7 +1324,7 @@ def api_mark_notification_read():
 def api_discover_gems():
     """Discover hidden gem cryptocurrencies."""
     try:
-        limit = int(request.args.get("limit", 50))
+        limit = _safe_int(request.args.get("limit", 50), default=50, max_val=500)
         gems = gem_finder.discover_new_gems(limit=limit)
         
         save_learning_data("gems_discovered", {"count": len(gems), "gems": gems[:10]})
@@ -1304,7 +1338,7 @@ def api_discover_gems():
 def api_top_gems():
     """Get top-scored gem cryptocurrencies."""
     try:
-        limit = int(request.args.get("limit", 10))
+        limit = _safe_int(request.args.get("limit", 10), default=10, max_val=100)
         gems = gem_finder.get_top_gems(limit=limit)
         return jsonify({"success": True, "data": gems}), 200
     except Exception as e:
@@ -1365,7 +1399,7 @@ def api_universal_summary():
 def api_top_opportunities():
     """Get top investment opportunities across ALL markets."""
     try:
-        limit = int(request.args.get("limit", 50))
+        limit = _safe_int(request.args.get("limit", 50), default=50, max_val=500)
         summary = universal_analyzer.get_analysis_summary()
         opportunities = summary.get('top_opportunities', [])[:limit]
         return jsonify({"success": True, "data": opportunities}), 200
@@ -1663,7 +1697,7 @@ def api_agents_whale_watch():
     
     try:
         network = request.args.get("network", "btc")
-        min_usd = int(request.args.get("min_usd", 5_000_000))
+        min_usd = _safe_int(request.args.get("min_usd", 5_000_000), default=5_000_000, min_val=0, max_val=1_000_000_000)
         
         result = agent_client.watch_whales(network, min_usd)
         
@@ -2379,7 +2413,7 @@ def api_cloud_sync():
 def api_cloud_list_backups():
     """List available backups."""
     try:
-        limit = int(request.args.get("limit", 20))
+        limit = _safe_int(request.args.get("limit", 20), default=20, max_val=100)
         backups = cloud_storage.list_backups(limit=limit)
         
         return jsonify({
