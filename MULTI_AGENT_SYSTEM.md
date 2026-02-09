@@ -1,143 +1,218 @@
-# SignalTrust Multi-Agent System EU
+# 🚀 SignalTrust AI — Enhanced Multi‑Agent System + Colab Integration
 
-## 🤖 Vue d'ensemble
+This document introduces the improved multi‑agent architecture and provides a direct Google Colab integration for testing, orchestrating, and extending the SignalTrust AI system.
 
-Le système multi-agent SignalTrust EU est une architecture distribuée qui orchestre 6 agents spécialisés pour l'analyse complète des marchés financiers.
+---
+
+## 🧠 Multi‑Agent Intelligence System (Enhanced)
+
+SignalTrust AI uses a distributed multi‑agent architecture designed for deep market intelligence.
+Each agent specializes in a specific domain and collaborates through a central orchestrator.
+
+### Core Agents
+- 🎯 **Coordinator (Port 8000)** — CrewAI-based orchestrator
+- 💰 **Crypto Agent (8001)** — FinGPT crypto analysis
+- 📈 **Stock Agent (8002)** — StockGPT stock analysis
+- 🐋 **Whale Agent (8003)** — Blockchain whale tracking
+- 📰 **News Agent (8004)** — Market news aggregation
+
+### Advanced Agents
+- 💬 **Social Sentiment (8005)** — Twitter, Reddit, Discord sentiment
+- ⛓️ **On‑Chain Data (8006)** — Blockchain metrics
+- 🌍 **Macro Economics (8007)** — Global macro analysis
+- 📊 **Portfolio Optimizer (8008)** — Allocation & risk optimization
+
+### Supervisor
+- 🔍 **Auto‑GPT Supervisor** — Monitors, corrects, and improves agent behavior
+
+---
+
+## 📘 Official Google Colab Notebook
+
+Launch SignalTrust AI directly in Google Colab — no installation required.
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/signaltrustai/SignalTrust-AI-Scanner/blob/main/SignalTrust_AI_Scanner.ipynb)
+
+The notebook includes:
+- Automatic environment setup
+- Flask server launch
+- ngrok exposure
+- Multi‑agent startup
+- API testing examples
+
+---
+
+## ⚡ Quick Start (Multi‑Agent System)
+
+```bash
+./setup_agents.sh
+./test_agents.sh
+```
+
+---
 
 ## 📊 Architecture
 
 ```
-┌───────────────────┐        ┌───────────────────┐
-│   Client / UI    │◀──────▶│   Coordinator    │
-│ (Web, Mobile…)   │  API   │   (CrewAI)       │
-└───────────────────┘        └───────┬───────────┘
-                                    │
-               ┌────────────────────┼─────────────────────┐
-               │                    │                     │
-   ┌─────────────────┐   ┌─────────────────┐   ┌─────────────────┐
-   │ Crypto-Analyst │   │ Stock-Analyst   │   │ Whale-Watcher   │
-   │ (FinGPT)       │   │ (Stock-GPT)     │   │ (whale-watcher)│
-   └───────▲─────────┘   └───────▲─────────┘   └───────▲─────────┘
-           │                     │                     │
-   ┌───────┴───────┐   ┌───────┴───────┐   ┌─────────┴───────┐
-   │  Market-News  │   │  Supervisor   │   │   LLM (OpenAI)  │
-   │   (NewsGPT)   │   │ (Auto-GPT)   │   │                 │
-   └───────────────┘   └───────────────┘   └─────────────────┘
+┌───────────────────┐        ┌────────────────────┐
+│   Client / UI     │◀──────▶│   Coordinator      │
+│ (Web, Mobile…)    │  API   │   (CrewAI, 8000)   │
+└───────────────────┘        └───────┬────────────┘
+                                     │
+        ┌──────────┬─────────┬───────┼───────┬──────────┬──────────┐
+        │          │         │       │       │          │          │
+   ┌────▼────┐ ┌───▼────┐ ┌─▼──────┐│  ┌────▼────┐ ┌──▼───────┐ │
+   │ Crypto  │ │ Stock  │ │ Whale  ││  │  News   │ │ Social   │ │
+   │ (8001)  │ │ (8002) │ │ (8003) ││  │ (8004)  │ │ Sent.    │ │
+   │ FinGPT  │ │StockGPT│ │Whale-W ││  │ NewsGPT │ │ (8005)   │ │
+   └─────────┘ └────────┘ └────────┘│  └─────────┘ └──────────┘ │
+                                     │                            │
+                      ┌──────────────┼──────────────┐             │
+                      │              │              │             │
+                 ┌────▼─────┐ ┌─────▼─────┐ ┌──────▼──────┐      │
+                 │ On-Chain │ │ Macro     │ │ Portfolio   │      │
+                 │  (8006)  │ │ Econ.     │ │ Optimizer   │      │
+                 │ Metrics  │ │  (8007)   │ │  (8008)     │      │
+                 └──────────┘ └───────────┘ └─────────────┘      │
+                                                                  │
+                               ┌──────────────────────┐           │
+                               │  Supervisor          │◀──────────┘
+                               │  (Auto-GPT)          │
+                               └──────────────────────┘
 ```
 
-## 🎯 Les 6 Agents
+## 🎯 The 9 Agents
 
-### 1️⃣ Crypto-Analyst (Port 8001)
-**Rôle**: Analyse le marché des crypto-monnaies
-- **Base**: FinGPT architecture
-- **Données**: OHLCV, indicateurs techniques
-- **API**: `POST /predict` avec symbole (ex: BTC/USDT)
-- **Sortie**: Tendance, support/résistance, sentiment, prix cibles
-
-### 2️⃣ Stock-Market Analyst (Port 8002)
-**Rôle**: Analyse le marché des actions
-- **Base**: Stock-GPT architecture  
-- **Données**: Prix, volatilité, données fondamentales
-- **API**: `POST /predict` avec ticker (ex: AAPL)
-- **Sortie**: Recommandation Buy/Hold/Sell, prix cibles, confiance
-
-### 3️⃣ Whale-Watcher (Port 8003)
-**Rôle**: Surveillance des grandes transactions blockchain
-- **Base**: whale-watcher architecture
-- **Données**: Transactions > $5M sur BTC, ETH, BNB
-- **API**: `GET /whales?network=btc&min_usd=5000000`
-- **Sortie**: Patterns (accumulation/distribution), score de risque
-
-### 4️⃣ Market-News Agent (Port 8004)
-**Rôle**: Agrégation et résumé des actualités
-- **Base**: NewsGPT architecture
-- **Données**: RSS, NewsCatcher API, Google News
-- **API**: `POST /news` avec topics
-- **Sortie**: 5 insights clés, impact scores
-
-### 5️⃣ Supervisor
-**Rôle**: Orchestrateur et gestionnaire de quotas
-- **Base**: Auto-GPT architecture
-- **Fonctions**: 
-  - Surveillance de l'état des agents
-  - Gestion du budget API
-  - Relance des tâches échouées
-  - Logs et historique
-
-### 6️⃣ Coordinator (Port 8000)
-**Rôle**: Chef d'orchestre principal
+### 1️⃣ Coordinator (Port 8000)
+**Role**: Central orchestrator
 - **Base**: CrewAI framework
-- **Fonctions**:
-  - Définition des workflows en YAML
-  - Orchestration multi-agent
-  - Agrégation des résultats
-  - Calcul du score de confiance global
+- **API**: `POST /run-workflow`, `GET /agents`, `GET /health`
+- **Output**: Aggregated analysis with confidence score
+
+### 2️⃣ Crypto Agent (Port 8001)
+**Role**: Cryptocurrency market analysis
+- **Base**: FinGPT architecture
+- **Data**: OHLCV, technical indicators
+- **API**: `POST /predict` with symbol (e.g. BTC/USDT)
+- **Output**: Trend, support/resistance, sentiment, price targets
+
+### 3️⃣ Stock Agent (Port 8002)
+**Role**: Stock market analysis
+- **Base**: StockGPT architecture
+- **Data**: Price, volatility, fundamentals
+- **API**: `POST /predict` with ticker (e.g. AAPL)
+- **Output**: Buy/Hold/Sell recommendation, price targets, confidence
+
+### 4️⃣ Whale Agent (Port 8003)
+**Role**: Large blockchain transaction monitoring
+- **Data**: Transactions > $5M on BTC, ETH, BNB
+- **API**: `GET /whales?network=btc&min_usd=5000000`
+- **Output**: Accumulation/distribution patterns, risk score
+
+### 5️⃣ News Agent (Port 8004)
+**Role**: News aggregation and sentiment
+- **Data**: RSS, NewsCatcher API, Google News
+- **API**: `POST /news` with topics
+- **Output**: 5 key insights, impact scores
+
+### 6️⃣ Social Sentiment Agent (Port 8005)
+**Role**: Social media sentiment analysis
+- **Data**: Twitter, Reddit, Discord
+- **API**: `POST /analyze` with query and sources
+- **Output**: Sentiment scores, trending topics, influencer activity
+
+### 7️⃣ On-Chain Agent (Port 8006)
+**Role**: Blockchain on-chain metrics
+- **Data**: Glassnode, Dune Analytics
+- **API**: `POST /analyze` with network and metrics
+- **Output**: TVL, gas fees, active addresses, DeFi metrics
+
+### 8️⃣ Macro Economics Agent (Port 8007)
+**Role**: Global macroeconomic analysis
+- **Data**: FRED, World Bank, EIA
+- **API**: `POST /indicators` with indicator list
+- **Output**: GDP, inflation, unemployment, Fed events
+
+### 9️⃣ Portfolio Optimizer Agent (Port 8008)
+**Role**: Portfolio allocation and risk management
+- **API**: `POST /optimize` with assets and risk tolerance
+- **Output**: Optimal allocation, expected return, risk metrics
+
+### 🔍 Supervisor (No public port)
+**Role**: Auto-GPT based oversight
+- Monitors agent health
+- Manages API budget
+- Retries failed tasks
+- Logs all activity
+
+---
 
 ## 🚀 Installation
 
-### Prérequis
-- Docker et Docker Compose
-- Clés API (voir section Configuration)
+### Prerequisites
+- Docker and Docker Compose
+- API keys (see Configuration section)
 
-### Étape 1: Cloner le repository
+### Step 1: Clone the repository
 ```bash
 git clone https://github.com/signaltrustai/SignalTrust-AI-Scanner.git
 cd SignalTrust-AI-Scanner
 ```
 
-### Étape 2: Configurer les clés API
+### Step 2: Configure API keys
 ```bash
-# Copier le fichier d'exemple
 cp .env.example .env
-
-# Éditer et ajouter vos clés API
 nano .env
 ```
 
-Clés requises:
-- `OPENAI_API_KEY`: Pour tous les agents LLM
-- `COINGECKO_API_KEY`: Pour les données crypto
-- `ALPHAVANTAGE_API_KEY`: Pour les données boursières
-- `WHALEALERT_API_KEY`: Pour les transactions blockchain
-- `NEWS_CATCHER_API_KEY`: Pour les actualités
+Required keys:
+- `OPENAI_API_KEY`: For all LLM agents
+- `COINGECKO_API_KEY`: For crypto data
+- `ALPHAVANTAGE_API_KEY`: For stock data
+- `WHALEALERT_API_KEY`: For blockchain transactions
+- `NEWS_CATCHER_API_KEY`: For news
 
-### Étape 3: Lancer les services
+Optional (enhanced AI):
+- `DEEPSEEK_API_KEY`: Strong reasoning for predictions
+- `GOOGLE_AI_API_KEY`: Fast Gemini for summaries
+- `ANTHROPIC_API_KEY`: Claude for deep analysis
+
+### Step 3: Launch all services
 ```bash
-# Construire et démarrer tous les agents
-docker compose up -d
+./setup_agents.sh
+```
 
-# Vérifier que tous les services sont en ligne
+Or manually:
+```bash
+docker compose build
+docker compose up -d
 docker compose ps
 ```
 
-### Étape 4: Tester le système
+### Step 4: Test the system
 ```bash
-# Test du coordinator
+./test_agents.sh
+```
+
+Or test individual agents:
+```bash
+# Coordinator
 curl http://localhost:8000/
 
-# Test du crypto analyst
+# Crypto prediction
 curl -X POST http://localhost:8001/predict \
   -H "Content-Type: application/json" \
   -d '{"symbol": "BTC/USDT"}'
 
-# Test du stock analyst
+# Stock prediction
 curl -X POST http://localhost:8002/predict \
   -H "Content-Type: application/json" \
   -d '{"ticker": "AAPL"}'
 
-# Test du whale watcher
+# Whale monitoring
 curl "http://localhost:8003/whales?network=btc&min_usd=5000000"
 
-# Test du news agent
-curl -X POST http://localhost:8004/news \
-  -H "Content-Type: application/json" \
-  -d '{"topics": ["crypto", "stocks"], "max_items": 10}'
-```
-
-## 📡 API du Coordinator
-
-### Lancer un workflow complet
-```bash
+# Full workflow
 curl -X POST http://localhost:8000/run-workflow \
   -H "Content-Type: application/json" \
   -d '{
@@ -148,154 +223,78 @@ curl -X POST http://localhost:8000/run-workflow \
   }'
 ```
 
-**Réponse**:
-```json
-{
-  "workflow": "signaltrust_market_pipeline_eu",
-  "status": "completed",
-  "confidence": 0.95,
-  "results": {
-    "crypto_analyst": { "status": "success", "data": {...} },
-    "stock_analyst": { "status": "success", "data": {...} },
-    "whale_watcher": { "status": "success", "data": {...} },
-    "news_agent": { "status": "success", "data": {...} }
-  },
-  "aggregated_data": {...},
-  "timestamp": "2026-02-07T23:45:00"
-}
-```
+---
 
-### Lister les agents disponibles
+## 📡 API Documentation
+
+Each agent exposes Swagger docs:
+
+| Agent | URL |
+|-------|-----|
+| Coordinator | http://localhost:8000/docs |
+| Crypto Agent | http://localhost:8001/docs |
+| Stock Agent | http://localhost:8002/docs |
+| Whale Agent | http://localhost:8003/docs |
+| News Agent | http://localhost:8004/docs |
+| Social Sentiment | http://localhost:8005/docs |
+| On-Chain Agent | http://localhost:8006/docs |
+| Macro Economics | http://localhost:8007/docs |
+| Portfolio Optimizer | http://localhost:8008/docs |
+
+---
+
+## 🔐 Security
+
+1. ✅ Never commit the `.env` file
+2. ✅ Use different API keys for dev/prod
+3. ✅ Enable authentication on the coordinator API
+4. ✅ Limit network access with firewalls
+5. ✅ Monitor API usage to avoid overcharges
+
+---
+
+## 💰 Cost Estimates
+
+### Free APIs (with limits)
+- **CoinGecko**: Free (50 calls/min)
+- **Alpha Vantage**: Free (500 calls/day)
+- **WhaleAlert**: Free (1000 calls/day)
+- **NewsCatcher**: Trial available
+
+### AI Providers (pay-per-use)
+- **OpenAI gpt-4o-mini**: ~$0.00015/1K tokens (input)
+- **DeepSeek**: ~$0.14/1M tokens (very affordable)
+- **Google Gemini**: Free tier (60 req/min)
+
+**Monthly budget** (100 analyses/day): ~$3-10/month
+
+---
+
+## 🛑 Stop Services
+
 ```bash
-curl http://localhost:8000/agents
+docker compose down      # Stop all
+docker compose down -v   # Stop and remove volumes
 ```
 
-## 🔧 Configuration avancée
+---
 
-### Personnaliser le workflow (crew.yaml)
-```yaml
-name: custom_workflow
-description: Mon workflow personnalisé
-agents:
-  - name: crypto_analyst
-    role: "Analyse crypto"
-    task: "POST /predict"
-    url: "http://crypto_agent:8000"
-workflow:
-  - step: crypto_analyst
-    input:
-      symbol: "ETH/USDT"
-  - step: aggregator
-```
+## 🐛 Troubleshooting
 
-### Ajuster les ressources Docker
-```yaml
-# docker-compose.yml
-services:
-  coordinator:
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
-```
-
-## 📊 Monitoring
-
-### Vérifier les logs
+### Agents won't start
 ```bash
-# Tous les services
-docker compose logs -f
-
-# Un service spécifique
-docker compose logs -f crypto_agent
-docker compose logs -f coordinator
-```
-
-### État du Supervisor
-Le supervisor maintient un historique de toutes les tâches:
-```bash
-docker exec -it signaltrust_supervisor_eu python supervisor.py
-```
-
-## 🛑 Arrêt des services
-```bash
-# Arrêter tous les services
-docker compose down
-
-# Arrêter et supprimer les volumes
-docker compose down -v
-```
-
-## 🔐 Sécurité
-
-### Bonnes pratiques
-1. ✅ Ne jamais commiter le fichier `.env`
-2. ✅ Utiliser des clés API différentes pour dev/prod
-3. ✅ Activer l'authentification sur l'API coordinator
-4. ✅ Limiter l'accès réseau avec des firewalls
-5. ✅ Surveiller l'utilisation des API pour éviter les surcoûts
-
-### Budget API
-Le supervisor limite automatiquement les appels API:
-```bash
-# Dans .env
-API_BUDGET=200  # Maximum 200 appels par session
-```
-
-## 💰 Coûts estimés
-
-### APIs gratuites (avec limitations)
-- **CoinGecko**: Gratuit (50 calls/min)
-- **Alpha Vantage**: Gratuit (500 calls/jour)
-- **WhaleAlert**: Gratuit (1000 calls/jour)
-- **NewsCatcher**: Trial disponible
-
-### OpenAI (payant)
-- **gpt-4o-mini**: ~$0.00015/1K tokens (entrée), ~$0.0006/1K tokens (sortie)
-- **Usage typique**: 500-2000 tokens/analyse = $0.0003-$0.0012 par requête
-
-**Budget mensuel estimé** (100 analyses/jour):
-- APIs externes: Gratuit (dans les limites)
-- OpenAI: ~$3-10/mois avec gpt-4o-mini
-
-## 🐛 Dépannage
-
-### Les agents ne démarrent pas
-```bash
-# Vérifier les logs
 docker compose logs
-
-# Reconstruire les images
 docker compose build --no-cache
 ```
 
-### Erreur "API key not found"
-Vérifier que le fichier `.env` est présent et contient toutes les clés.
+### "API key not found"
+Check `.env` file is present and contains all required keys.
 
-### Erreur de connexion entre agents
-Vérifier que tous les services sont sur le même réseau Docker:
+### Agent connection errors
 ```bash
 docker network inspect signaltrust-ai-scanner_signaltrust_network_eu
 ```
 
-## 📚 Documentation des agents
-
-Chaque agent expose sa propre documentation Swagger:
-- Coordinator: http://localhost:8000/docs
-- Crypto Agent: http://localhost:8001/docs
-- Stock Agent: http://localhost:8002/docs
-- Whale Agent: http://localhost:8003/docs
-- News Agent: http://localhost:8004/docs
-
-## 🤝 Contribution
-
-Les contributions sont bienvenues! Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour les guidelines.
-
-## 📝 License
-
-Copyright © 2026 SignalTrust EU. All rights reserved.
-
 ---
 
-**Made with ❤️ by SignalTrust EU Team**
+**Made with ❤️ by SignalTrust AI Team**
