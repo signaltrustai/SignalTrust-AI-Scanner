@@ -129,7 +129,7 @@ class LearningMetrics:
         self.response_times: List[float] = []
         self.evolution_level = 1
         self.experience_points = 0
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
     
     def record_prediction(self, prediction_type: str, correct: bool, response_time: float):
         """Enregistrer une prédiction"""
@@ -327,6 +327,309 @@ class AIAgent:
         }
 
 
+class MarketIntelligenceAgent(AIAgent):
+    """Agent spécialisé dans l'analyse de marchés et prédictions de tendances"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        symbol = input_data.get("symbol", "UNKNOWN")
+        price = input_data.get("price", 0)
+        volume = input_data.get("volume", 0)
+
+        trend = "neutral"
+        if patterns:
+            values = [p["value"] for p in patterns if isinstance(p.get("value"), (int, float))]
+            if len(values) >= 2:
+                trend = "bullish" if values[-1] > values[0] else "bearish"
+
+        confidence_boost = min(0.2, len(patterns) * 0.02)
+        return {
+            "symbol": symbol,
+            "trend": trend,
+            "signal": "buy" if trend == "bullish" else ("sell" if trend == "bearish" else "hold"),
+            "price_context": price,
+            "volume_context": volume,
+            "patterns_analyzed": len(patterns),
+            "confidence_boost": confidence_boost,
+        }
+
+
+class UserExperienceAgent(AIAgent):
+    """Agent spécialisé dans la personnalisation de l'expérience utilisateur"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        user_id = input_data.get("user_id", "anonymous")
+        action = input_data.get("action", "browse")
+        preferences = input_data.get("preferences", [])
+
+        recommended_features = ["dashboard", "scanner", "predictions"]
+        if patterns:
+            for p in patterns:
+                val = p.get("value")
+                if isinstance(val, str) and val not in recommended_features:
+                    recommended_features.append(val)
+
+        return {
+            "user_id": user_id,
+            "action": action,
+            "recommended_features": recommended_features[:5],
+            "personalization_level": min(100, 50 + len(patterns) * 5),
+            "user_segment": "active" if len(patterns) > 3 else "new",
+        }
+
+
+class RiskManagerAgent(AIAgent):
+    """Agent spécialisé dans l'évaluation et la gestion des risques"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        portfolio_value = input_data.get("portfolio_value", 0)
+        positions = input_data.get("positions", [])
+        volatility = input_data.get("volatility", 0.5)
+
+        risk_score = min(100, max(0, int(volatility * 100)))
+        if patterns:
+            historical_risks = [
+                p["value"] for p in patterns if isinstance(p.get("value"), (int, float))
+            ]
+            if historical_risks:
+                avg_risk = sum(historical_risks) / len(historical_risks)
+                risk_score = int((risk_score + avg_risk) / 2)
+
+        if risk_score > 70:
+            risk_level = "high"
+        elif risk_score > 40:
+            risk_level = "medium"
+        else:
+            risk_level = "low"
+
+        return {
+            "risk_score": risk_score,
+            "risk_level": risk_level,
+            "portfolio_value": portfolio_value,
+            "positions_count": len(positions),
+            "recommendation": "reduce_exposure" if risk_level == "high" else "maintain",
+            "max_drawdown_estimate": round(volatility * portfolio_value * 0.1, 2) if portfolio_value else 0,
+        }
+
+
+class TradingOptimizerAgent(AIAgent):
+    """Agent spécialisé dans l'optimisation des stratégies de trading"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        strategy = input_data.get("strategy", "balanced")
+        symbol = input_data.get("symbol", "UNKNOWN")
+        entry_price = input_data.get("entry_price", 0)
+
+        optimal_strategy = strategy
+        stop_loss_pct = 0.05
+        take_profit_pct = 0.10
+
+        if patterns:
+            numeric_vals = [p["value"] for p in patterns if isinstance(p.get("value"), (int, float))]
+            if numeric_vals:
+                avg_val = sum(numeric_vals) / len(numeric_vals)
+                if avg_val > 0:
+                    take_profit_pct = min(0.20, 0.10 + avg_val * 0.001)
+                    stop_loss_pct = max(0.02, 0.05 - avg_val * 0.0005)
+
+        return {
+            "symbol": symbol,
+            "optimal_strategy": optimal_strategy,
+            "entry_price": entry_price,
+            "stop_loss": round(entry_price * (1 - stop_loss_pct), 2) if entry_price else 0,
+            "take_profit": round(entry_price * (1 + take_profit_pct), 2) if entry_price else 0,
+            "position_size_recommendation": "standard",
+            "patterns_considered": len(patterns),
+        }
+
+
+class ContentGeneratorAgent(AIAgent):
+    """Agent spécialisé dans la génération de contenu personnalisé"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        topic = input_data.get("topic", "market_update")
+        audience = input_data.get("audience", "general")
+        content_type = input_data.get("content_type", "summary")
+
+        insights = []
+        if patterns:
+            for p in patterns[:5]:
+                val = p.get("value", "")
+                if val:
+                    insights.append(str(val))
+
+        return {
+            "topic": topic,
+            "audience": audience,
+            "content_type": content_type,
+            "insights_used": len(insights),
+            "content_ready": len(insights) > 0,
+            "data_points": insights[:3],
+        }
+
+
+class SecurityGuardAgent(AIAgent):
+    """Agent spécialisé dans la détection de fraudes et menaces"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        activity_type = input_data.get("activity_type", "login")
+        ip_address = input_data.get("ip_address", "unknown")
+        user_id = input_data.get("user_id", "anonymous")
+
+        threat_score = 0
+        anomalies = []
+
+        # Check high-risk activity types regardless of patterns
+        if activity_type in ("bulk_trade", "large_withdrawal"):
+            threat_score += 20
+            anomalies.append("high_risk_activity")
+
+        if patterns:
+            known_ips = [p["value"] for p in patterns if isinstance(p.get("value"), str)]
+            if ip_address not in known_ips and known_ips:
+                threat_score += 30
+                anomalies.append("unknown_ip")
+
+        if threat_score > 50:
+            action = "block"
+        elif threat_score > 20:
+            action = "review"
+        else:
+            action = "allow"
+
+        return {
+            "threat_score": min(100, threat_score),
+            "action": action,
+            "anomalies": anomalies,
+            "activity_type": activity_type,
+            "user_id": user_id,
+        }
+
+
+class SupportAssistantAgent(AIAgent):
+    """Agent spécialisé dans le support automatisé 24/7"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        query = input_data.get("query", "")
+        category = input_data.get("category", "general")
+
+        response = "Please contact our support team for assistance."
+        confidence_score = 0.3
+
+        if patterns:
+            for p in patterns:
+                val = p.get("value", "")
+                if isinstance(val, str) and len(val) > 10:
+                    response = val
+                    confidence_score = 0.7
+                    break
+
+        return {
+            "query": query,
+            "category": category,
+            "response": response,
+            "confidence": confidence_score,
+            "requires_human": confidence_score < 0.5,
+            "patterns_matched": len(patterns),
+        }
+
+
+class PatternRecognizerAgent(AIAgent):
+    """Agent spécialisé dans l'identification de patterns de marché"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        prices = input_data.get("prices", [])
+        symbol = input_data.get("symbol", "UNKNOWN")
+
+        detected_patterns = []
+        if len(prices) >= 3:
+            if prices[-1] > prices[-2] > prices[-3]:
+                detected_patterns.append({"name": "uptrend", "strength": "strong"})
+            elif prices[-1] < prices[-2] < prices[-3]:
+                detected_patterns.append({"name": "downtrend", "strength": "strong"})
+            else:
+                detected_patterns.append({"name": "consolidation", "strength": "moderate"})
+
+        if patterns:
+            for p in patterns:
+                val = p.get("value")
+                if isinstance(val, dict) and "name" in val:
+                    detected_patterns.append(val)
+
+        return {
+            "symbol": symbol,
+            "patterns_detected": detected_patterns[:5],
+            "total_patterns": len(detected_patterns),
+            "historical_patterns_used": len(patterns),
+            "analysis_depth": len(prices),
+        }
+
+
+class SentimentAnalyzerAgent(AIAgent):
+    """Agent spécialisé dans l'analyse de sentiment du marché"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        text = input_data.get("text", "")
+        source = input_data.get("source", "unknown")
+
+        positive_words = {"buy", "bull", "up", "gain", "profit", "growth", "rise", "strong"}
+        negative_words = {"sell", "bear", "down", "loss", "crash", "drop", "weak", "decline"}
+
+        words = text.lower().split()
+        pos_count = sum(1 for w in words if w in positive_words)
+        neg_count = sum(1 for w in words if w in negative_words)
+        total = pos_count + neg_count
+
+        if total > 0:
+            score = (pos_count - neg_count) / total
+        else:
+            score = 0.0
+
+        if score > 0.2:
+            sentiment = "positive"
+        elif score < -0.2:
+            sentiment = "negative"
+        else:
+            sentiment = "neutral"
+
+        return {
+            "sentiment": sentiment,
+            "score": round(score, 3),
+            "source": source,
+            "positive_signals": pos_count,
+            "negative_signals": neg_count,
+            "historical_context": len(patterns),
+        }
+
+
+class PortfolioManagerAgent(AIAgent):
+    """Agent spécialisé dans la gestion et l'optimisation de portefeuille"""
+
+    def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
+        holdings = input_data.get("holdings", {})
+        risk_tolerance = input_data.get("risk_tolerance", "moderate")
+        total_value = input_data.get("total_value", 0)
+
+        num_holdings = len(holdings)
+        diversification = "good" if num_holdings >= 5 else ("moderate" if num_holdings >= 3 else "poor")
+
+        if risk_tolerance == "aggressive":
+            target_allocation = {"stocks": 0.7, "crypto": 0.2, "bonds": 0.1}
+        elif risk_tolerance == "conservative":
+            target_allocation = {"stocks": 0.4, "crypto": 0.05, "bonds": 0.55}
+        else:
+            target_allocation = {"stocks": 0.55, "crypto": 0.1, "bonds": 0.35}
+
+        return {
+            "total_value": total_value,
+            "num_holdings": num_holdings,
+            "diversification": diversification,
+            "risk_tolerance": risk_tolerance,
+            "target_allocation": target_allocation,
+            "rebalance_needed": diversification == "poor",
+            "historical_performance_data": len(patterns),
+        }
+
+
 class AIEvolutionEngine:
     """Moteur d'évolution pour tous les agents IA"""
     
@@ -347,7 +650,7 @@ class AIEvolutionEngine:
         """Initialiser tous les agents IA spécialisés"""
         
         # 1. Market Intelligence Agent
-        self.register_agent(AIAgent(
+        self.register_agent(MarketIntelligenceAgent(
             name="MarketIntelligence",
             role="Analyser les marchés et prédire les tendances",
             specialization="market_analysis",
@@ -355,7 +658,7 @@ class AIEvolutionEngine:
         ))
         
         # 2. User Experience Agent
-        self.register_agent(AIAgent(
+        self.register_agent(UserExperienceAgent(
             name="UserExperience",
             role="Personnaliser l'expérience utilisateur",
             specialization="user_behavior",
@@ -363,7 +666,7 @@ class AIEvolutionEngine:
         ))
         
         # 3. Risk Management Agent
-        self.register_agent(AIAgent(
+        self.register_agent(RiskManagerAgent(
             name="RiskManager",
             role="Évaluer et gérer les risques",
             specialization="risk_assessment",
@@ -371,7 +674,7 @@ class AIEvolutionEngine:
         ))
         
         # 4. Trading Optimization Agent
-        self.register_agent(AIAgent(
+        self.register_agent(TradingOptimizerAgent(
             name="TradingOptimizer",
             role="Optimiser les stratégies de trading",
             specialization="trading_optimization",
@@ -379,7 +682,7 @@ class AIEvolutionEngine:
         ))
         
         # 5. Content Generation Agent
-        self.register_agent(AIAgent(
+        self.register_agent(ContentGeneratorAgent(
             name="ContentGenerator",
             role="Générer du contenu personnalisé",
             specialization="content_creation",
@@ -387,7 +690,7 @@ class AIEvolutionEngine:
         ))
         
         # 6. Security Agent
-        self.register_agent(AIAgent(
+        self.register_agent(SecurityGuardAgent(
             name="SecurityGuard",
             role="Détecter fraudes et menaces",
             specialization="security_detection",
@@ -395,7 +698,7 @@ class AIEvolutionEngine:
         ))
         
         # 7. Customer Support Agent
-        self.register_agent(AIAgent(
+        self.register_agent(SupportAssistantAgent(
             name="SupportAssistant",
             role="Support automatisé 24/7",
             specialization="customer_support",
@@ -403,7 +706,7 @@ class AIEvolutionEngine:
         ))
         
         # 8. Pattern Recognition Agent
-        self.register_agent(AIAgent(
+        self.register_agent(PatternRecognizerAgent(
             name="PatternRecognizer",
             role="Identifier les patterns de marché",
             specialization="pattern_detection",
@@ -411,7 +714,7 @@ class AIEvolutionEngine:
         ))
         
         # 9. Sentiment Analysis Agent
-        self.register_agent(AIAgent(
+        self.register_agent(SentimentAnalyzerAgent(
             name="SentimentAnalyzer",
             role="Analyser le sentiment du marché",
             specialization="sentiment_analysis",
@@ -419,7 +722,7 @@ class AIEvolutionEngine:
         ))
         
         # 10. Portfolio Manager Agent
-        self.register_agent(AIAgent(
+        self.register_agent(PortfolioManagerAgent(
             name="PortfolioManager",
             role="Gérer et optimiser le portefeuille",
             specialization="portfolio_management",

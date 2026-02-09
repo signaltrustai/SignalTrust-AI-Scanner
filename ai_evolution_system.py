@@ -8,7 +8,6 @@ import json
 import os
 from datetime import datetime
 from typing import Dict, List
-import random
 
 
 class AIEvolutionSystem:
@@ -207,18 +206,22 @@ class AIEvolutionSystem:
     def _improve_prediction_accuracy(self, learning_data: List[Dict]) -> Dict:
         """Improve prediction accuracy based on outcomes."""
         improvements = {}
+
+        # Base improvement scales with learning data volume (diminishing returns)
+        data_factor = min(1.0, len(learning_data) / 50.0)
         
-        # Simulate accuracy improvement
         for market in ['crypto', 'stocks', 'nfts']:
             current = self.ai_brain['prediction_accuracy'][market]
-            improvement = random.uniform(0.01, 0.05)  # 1-5% improvement
-            new_accuracy = min(0.99, current + improvement)  # Max 99%
+            # Improvement diminishes as accuracy gets higher
+            headroom = 0.99 - current
+            improvement = headroom * 0.05 * data_factor
+            new_accuracy = min(0.99, current + improvement)
             
             self.ai_brain['prediction_accuracy'][market] = new_accuracy
             improvements[market] = {
                 'previous': current,
                 'new': new_accuracy,
-                'improvement': improvement
+                'improvement': round(improvement, 6)
             }
         
         # Update overall
@@ -281,7 +284,18 @@ class AIEvolutionSystem:
     
     def _discover_correlations(self, learning_data: List[Dict]) -> Dict:
         """Discover correlations between different markets."""
-        correlations_found = random.randint(5, 20)
+        # Count correlation signals from actual learning data
+        correlations_found = 0
+        for session in learning_data[-10:]:
+            insights = session.get('learning_insights', {})
+            if insights.get('top_gainers') and insights.get('whale_insights'):
+                correlations_found += 2
+            if insights.get('news_sentiment') and insights.get('top_gainers'):
+                correlations_found += 1
+        correlations_found = max(1, correlations_found)
+
+        # Strength based on data volume
+        strength = min(0.95, 0.5 + len(learning_data) * 0.01)
         
         self.ai_brain['knowledge_base']['price_correlations'] = {
             'correlations_found': correlations_found,
@@ -290,18 +304,20 @@ class AIEvolutionSystem:
         
         return {
             'correlations_discovered': correlations_found,
-            'correlation_strength': random.uniform(0.6, 0.95)
+            'correlation_strength': round(strength, 4)
         }
     
     def _update_intelligence(self):
-        """Update intelligence metrics."""
+        """Update intelligence metrics based on learning progress."""
         metrics = self.ai_brain['intelligence_metrics']
+        sessions = self.ai_brain['total_learning_sessions']
+
+        # Improvement diminishes with each session (logarithmic growth)
+        base_improvement = max(0.1, 2.0 / (1 + sessions * 0.1))
         
-        # Improve each metric slightly
         for metric in metrics:
             if metric != 'overall_iq':
-                improvement = random.uniform(1, 3)
-                metrics[metric] = min(100, metrics[metric] + improvement)
+                metrics[metric] = min(100, metrics[metric] + base_improvement)
         
         # Calculate overall IQ
         metrics['overall_iq'] = sum(
@@ -343,18 +359,53 @@ class AIEvolutionSystem:
         """Get predictions enhanced by AI learning."""
         accuracy = self.ai_brain['prediction_accuracy'].get(asset_type, 0.65)
         intelligence = self.ai_brain['intelligence_metrics']['prediction_power']
-        
+
+        # Derive direction from learned patterns instead of random
+        bullish_count = 0
+        bearish_count = 0
+        for pattern in self.learned_patterns[-20:]:
+            ptype = pattern.get('type', '')
+            if ptype in ('gainer_pattern', 'whale_accumulation'):
+                bullish_count += 1
+            elif ptype in ('whale_distribution',):
+                bearish_count += 1
+
+        if bullish_count > bearish_count:
+            direction = 'UP'
+        elif bearish_count > bullish_count:
+            direction = 'DOWN'
+        else:
+            direction = 'UP' if accuracy >= 0.65 else 'DOWN'
+
+        # Derive target_change from accuracy and intelligence
+        base_change = (accuracy - 0.5) * 100
+        target_change = round(base_change * (intelligence / 70), 2)
+
+        # Timeline scales with evolution level
+        level = self.ai_brain['evolution_level']
+        timeline_days = max(1, 14 - level)
+
+        # Derive recommendation from direction and accuracy
+        if direction == 'UP' and accuracy >= 0.8:
+            recommendation = 'STRONG BUY'
+        elif direction == 'UP':
+            recommendation = 'BUY'
+        elif direction == 'DOWN' and accuracy >= 0.8:
+            recommendation = 'SELL'
+        else:
+            recommendation = 'HOLD'
+
         return {
             'asset': asset,
             'prediction': {
-                'direction': random.choice(['UP', 'DOWN']),
+                'direction': direction,
                 'confidence': accuracy,
-                'target_change': random.uniform(-50, 200),
-                'timeline': f"{random.randint(1, 30)} days",
+                'target_change': target_change,
+                'timeline': f"{timeline_days} days",
                 'ai_intelligence_used': intelligence,
-                'evolution_level': self.ai_brain['evolution_level']
+                'evolution_level': level
             },
-            'recommendation': random.choice(['STRONG BUY', 'BUY', 'HOLD', 'SELL'])
+            'recommendation': recommendation
         }
 
 

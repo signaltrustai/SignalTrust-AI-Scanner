@@ -51,6 +51,7 @@ test_*.json
 .coverage
 htmlcov/
 .env
+.pytest_cache/
 
 # Docker
 agents/*/workspace/
