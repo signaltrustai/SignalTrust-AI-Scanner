@@ -25,9 +25,9 @@ test_endpoint() {
     echo -n "Testing $name... "
     
     if [ "$method" = "GET" ]; then
-        response=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+        response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$url")
     else
-        response=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$url" \
+        response=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 -X POST "$url" \
             -H "Content-Type: application/json" \
             -d "$data")
     fi
@@ -41,13 +41,17 @@ test_endpoint() {
     fi
 }
 
-echo "1. Testing Health Endpoints"
+echo "1. Testing Health Endpoints (9 agents)"
 echo "----------------------------"
-test_endpoint "Coordinator Health" "http://localhost:8000/" "GET"
-test_endpoint "Crypto Agent Health" "http://localhost:8001/" "GET"
-test_endpoint "Stock Agent Health" "http://localhost:8002/" "GET"
-test_endpoint "Whale Agent Health" "http://localhost:8003/" "GET"
-test_endpoint "News Agent Health" "http://localhost:8004/" "GET"
+test_endpoint "Coordinator Health"       "http://localhost:8000/" "GET"
+test_endpoint "Crypto Agent Health"      "http://localhost:8001/" "GET"
+test_endpoint "Stock Agent Health"       "http://localhost:8002/" "GET"
+test_endpoint "Whale Agent Health"       "http://localhost:8003/" "GET"
+test_endpoint "News Agent Health"        "http://localhost:8004/" "GET"
+test_endpoint "Social Sentiment Health"  "http://localhost:8005/" "GET"
+test_endpoint "On-Chain Agent Health"    "http://localhost:8006/" "GET"
+test_endpoint "Macro Economics Health"   "http://localhost:8007/" "GET"
+test_endpoint "Portfolio Optimizer Health" "http://localhost:8008/" "GET"
 echo ""
 
 echo "2. Testing Agent Endpoints"
@@ -56,6 +60,10 @@ test_endpoint "Crypto Prediction" "http://localhost:8001/predict" "POST" '{"symb
 test_endpoint "Stock Prediction" "http://localhost:8002/predict" "POST" '{"ticker":"AAPL"}'
 test_endpoint "Whale Monitoring" "http://localhost:8003/whales?network=btc&min_usd=5000000" "GET"
 test_endpoint "News Aggregation" "http://localhost:8004/news" "POST" '{"topics":["crypto","stocks"],"max_items":5}'
+test_endpoint "Social Sentiment" "http://localhost:8005/analyze" "POST" '{"query":"bitcoin","sources":["twitter","reddit"]}'
+test_endpoint "On-Chain Metrics" "http://localhost:8006/analyze" "POST" '{"network":"ethereum","metrics":["tvl","gas"]}'
+test_endpoint "Macro Indicators" "http://localhost:8007/indicators" "POST" '{"indicators":["gdp","inflation","unemployment"]}'
+test_endpoint "Portfolio Optimize" "http://localhost:8008/optimize" "POST" '{"assets":["BTC","ETH","AAPL"],"risk_tolerance":"medium"}'
 echo ""
 
 echo "3. Testing Coordinator"
@@ -74,7 +82,7 @@ echo "----------------------------"
 echo "Running complete market analysis workflow..."
 echo ""
 
-response=$(curl -s -X POST http://localhost:8000/run-workflow \
+response=$(curl -s --max-time 30 -X POST http://localhost:8000/run-workflow \
     -H "Content-Type: application/json" \
     -d '{
         "symbol": "ETH/USDT",
@@ -99,11 +107,15 @@ echo ""
 
 echo "5. API Documentation Check"
 echo "----------------------------"
-test_endpoint "Coordinator Swagger" "http://localhost:8000/docs" "GET"
-test_endpoint "Crypto Agent Swagger" "http://localhost:8001/docs" "GET"
-test_endpoint "Stock Agent Swagger" "http://localhost:8002/docs" "GET"
-test_endpoint "Whale Agent Swagger" "http://localhost:8003/docs" "GET"
-test_endpoint "News Agent Swagger" "http://localhost:8004/docs" "GET"
+test_endpoint "Coordinator Swagger"       "http://localhost:8000/docs" "GET"
+test_endpoint "Crypto Agent Swagger"      "http://localhost:8001/docs" "GET"
+test_endpoint "Stock Agent Swagger"       "http://localhost:8002/docs" "GET"
+test_endpoint "Whale Agent Swagger"       "http://localhost:8003/docs" "GET"
+test_endpoint "News Agent Swagger"        "http://localhost:8004/docs" "GET"
+test_endpoint "Social Sentiment Swagger"  "http://localhost:8005/docs" "GET"
+test_endpoint "On-Chain Agent Swagger"    "http://localhost:8006/docs" "GET"
+test_endpoint "Macro Economics Swagger"   "http://localhost:8007/docs" "GET"
+test_endpoint "Portfolio Optimizer Swagger" "http://localhost:8008/docs" "GET"
 echo ""
 
 echo "================================================"
