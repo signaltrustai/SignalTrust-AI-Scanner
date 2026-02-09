@@ -13,15 +13,6 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import logging
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('data/ai_worker.log'),
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger('AIWorker')
 
 

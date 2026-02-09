@@ -257,34 +257,20 @@ def get_current_user():
     return None
 
 def save_learning_data(data_type: str, data: dict):
-    """Save learning data for AI improvement."""
+    """Save learning data for AI improvement (append-only JSONL for speed)."""
     try:
-        if not os.path.exists(os.path.dirname(LEARNING_DATA_FILE)):
-            os.makedirs(os.path.dirname(LEARNING_DATA_FILE))
-        
-        # Load existing data
-        learning_data = []
-        if os.path.exists(LEARNING_DATA_FILE):
-            try:
-                with open(LEARNING_DATA_FILE, 'r') as f:
-                    learning_data = json.load(f)
-            except Exception as e:
-                log_event("LEARNING_DATA_LOAD_ERROR", {"error": str(e)})
-                learning_data = []
-        
-        # Add new entry
-        learning_data.append({
+        dirname = os.path.dirname(LEARNING_DATA_FILE)
+        if dirname and not os.path.exists(dirname):
+            os.makedirs(dirname, exist_ok=True)
+
+        entry = json.dumps({
             "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
             "type": data_type,
-            "data": data
-        })
-        
-        # Keep last 10000 entries
-        learning_data = learning_data[-10000:]
-        
-        # Save
-        with open(LEARNING_DATA_FILE, 'w') as f:
-            json.dump(learning_data, f)
+            "data": data,
+        }, default=str)
+
+        with open(LEARNING_DATA_FILE, "a", encoding="utf-8") as f:
+            f.write(entry + "\n")
     except Exception as e:
         log_event("LEARNING_DATA_ERROR", {"error": str(e)})
 
@@ -320,7 +306,7 @@ def call_agent(agent_key: str, message: str):
     payload = {"input": message}
 
     try:
-        response = requests.post(url, json=payload, headers=headers)
+        response = requests.post(url, json=payload, headers=headers, timeout=15)
         response.raise_for_status()
         return response.json()
     except Exception as e:

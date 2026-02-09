@@ -15,7 +15,10 @@ Data sources:
 import math
 import time
 import logging
+import threading
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
@@ -27,20 +30,23 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-# ── tiny cache ─────────────────────────────────────────────────────
+# ── thread-safe cache ──────────────────────────────────────────────
 _price_cache: Dict[str, dict] = {}
+_cache_lock = threading.Lock()
 _CACHE_TTL = 90  # seconds
 
 
 def _get_cached(key: str):
-    e = _price_cache.get(key)
-    if e and time.time() - e["ts"] < _CACHE_TTL:
-        return e["val"]
+    with _cache_lock:
+        e = _price_cache.get(key)
+        if e and time.time() - e["ts"] < _CACHE_TTL:
+            return e["val"]
     return None
 
 
 def _set_cache(key: str, val):
-    _price_cache[key] = {"val": val, "ts": time.time()}
+    with _cache_lock:
+        _price_cache[key] = {"val": val, "ts": time.time()}
 
 
 # ── fetch helpers ──────────────────────────────────────────────────
@@ -152,6 +158,24 @@ def _compute_beta(closes: List[float], bench_closes: List[float]) -> float:
 
 class AIPredictor:
     """AI-powered market predictor with REAL data."""
+
+    # Shared session with connection pooling
+    _session = None
+    _session_lock = threading.Lock()
+
+    @classmethod
+    def _get_session(cls) -> requests.Session:
+        if cls._session is None:
+            with cls._session_lock:
+                if cls._session is None:
+                    s = requests.Session()
+                    retry = Retry(total=2, backoff_factor=0.3, status_forcelist=[429, 500, 502, 503, 504])
+                    adapter = HTTPAdapter(pool_connections=5, pool_maxsize=10, max_retries=retry)
+                    s.mount("https://", adapter)
+                    s.mount("http://", adapter)
+                    s.headers.update({"User-Agent": "SignalTrust-AI/4.0"})
+                    cls._session = s
+        return cls._session
 
     def __init__(self, use_real_ai: bool = True):
         self.model_version = "4.0.0"

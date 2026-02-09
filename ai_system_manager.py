@@ -11,15 +11,6 @@ import signal
 from datetime import datetime
 import logging
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('data/ai_system.log'),
-        logging.StreamHandler()
-    ]
-)
 logger = logging.getLogger('AISystem')
 
 

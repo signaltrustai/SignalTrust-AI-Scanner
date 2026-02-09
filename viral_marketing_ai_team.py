@@ -18,7 +18,6 @@ from typing import Dict, List, Optional
 import random
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

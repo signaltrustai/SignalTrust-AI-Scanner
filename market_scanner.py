@@ -17,13 +17,18 @@ Falls back gracefully to cached / estimated data when APIs are unreachable.
 
 import logging
 import hashlib
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 try:
     import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
 except ImportError:
     requests = None
+    HTTPAdapter = None
+    Retry = None
 
 logger = logging.getLogger(__name__)
 
@@ -69,13 +74,18 @@ class MarketScanner:
     """Scanner for multiple market types using real APIs."""
 
     def __init__(self):
-        """Initialize market scanner."""
+        """Initialize market scanner with connection pooling."""
         self.watchlist: List[str] = []
         self.scan_history: List[Dict] = []
         self._cache: Dict[str, Dict] = {}
         self._cache_ttl = 120  # seconds
-        self._session = requests.Session() if requests else None
-        if self._session:
+        self._session = None
+        if requests:
+            self._session = requests.Session()
+            retry = Retry(total=2, backoff_factor=0.3, status_forcelist=[429, 500, 502, 503, 504])
+            adapter = HTTPAdapter(pool_connections=5, pool_maxsize=10, max_retries=retry)
+            self._session.mount("https://", adapter)
+            self._session.mount("http://", adapter)
             self._session.headers.update({
                 'User-Agent': 'SignalTrust-Scanner/2.0',
                 'Accept': 'application/json',
@@ -84,17 +94,28 @@ class MarketScanner:
     # ── Public API ───────────────────────────────────────────────────
 
     def get_markets_overview(self) -> Dict:
-        """Get overview of all major markets with real data."""
-        crypto = self._fetch_crypto_overview()
-        stocks = self._fetch_stock_overview()
-        indices = self._fetch_indices()
-        forex = self._get_forex_pairs(5)
+        """Get overview of all major markets with real data (parallel fetch)."""
+        results: Dict[str, object] = {}
+
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            futures = {
+                pool.submit(self._fetch_crypto_overview): 'crypto',
+                pool.submit(self._fetch_stock_overview): 'stocks',
+                pool.submit(self._fetch_indices): 'indices',
+                pool.submit(self._get_forex_pairs, 5): 'forex',
+            }
+            for f in as_completed(futures, timeout=20):
+                key = futures[f]
+                try:
+                    results[key] = f.result()
+                except Exception:
+                    results[key] = {} if key != 'forex' else []
 
         return {
-            'stocks': stocks,
-            'crypto': crypto,
-            'forex': {'total_pairs': len(_FOREX_PAIRS), 'major_pairs': forex},
-            'indices': {'major_indices': indices},
+            'stocks': results.get('stocks', {}),
+            'crypto': results.get('crypto', {}),
+            'forex': {'total_pairs': len(_FOREX_PAIRS), 'major_pairs': results.get('forex', [])},
+            'indices': {'major_indices': results.get('indices', {})},
         }
 
     def scan_market(self, market_type: str, symbols: List[str]) -> Dict:
