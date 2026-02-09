@@ -32,12 +32,12 @@ Objectif : rassembler les travaux des PR #20, #21 et #23 dans un seul pull reque
 ## Nouvelle vague d’unification (PR #29, #30, #32, #33, #34, #35, #37, #38, #39, #40, #41, #42, #43, #44)
 - Objectif : regrouper toutes les PR listées ci-dessus en un seul merge propre sur `main` sans doublons (la demande initiale listait #35 deux fois, à vérifier).
 - Étapes proposées :
-  1. Lister les fichiers touchés par chaque PR et marquer les overlaps (surtout les deux #35).
+  1. Lister les fichiers touchés par chaque PR et marquer les overlaps (notamment la double mention de #35).
   2. Classer les PR par dépendance/impact (ex. migrations, configs, endpoints) puis rejouer dans cet ordre en local.
   3. Résoudre les conflits manuellement en privilégiant la version la plus récente/stable et en supprimant les doublons.
   4. Vérifier les chemins critiques : démarrage Flask (`app.py`), routes clés, manifest PWA, paiements et configs Render.
   5. Exécuter les tests ciblés existants liés aux modules touchés ; ajouter un smoke-test minimal si une route nouvelle est unifiée.
-  6. Ouvrir une seule PR « Unified PR (#29, #30, #32-#35, #37-#44) » et fermer/archiver les PR individuelles.
+  6. Ouvrir une seule PR « Unified PR (#29, #30, #32, #33, #34, #35, #37, #38, #39, #40, #41, #42, #43, #44) » et fermer/archiver les PR individuelles.
 - Notes rapides :
   - Traiter le doublon signalé (#35 mentionné deux fois dans la demande) pour éviter une inclusion multiple.
   - Inclure explicitement #43 (nouvelle exigence) dans la passe d’unification.
