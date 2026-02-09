@@ -14,6 +14,7 @@ import subprocess
 import sys
 import uuid
 import logging
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -3195,16 +3196,13 @@ if os.getenv("GUNICORN_WORKER") or not hasattr(sys, 'ps1'):
         pass  # Non-fatal: worker is optional
 
 # -----------------------------
-# MAIN APPLICATION ENTRY POINT
+# MAIN APPLICATION ENTRY POINTS
 # -----------------------------
 
-def main():
-    """Start the Flask application."""
-    port = int(os.getenv("PORT", 5000))
-    debug = os.getenv("FLASK_ENV") == "development"
-    
+def _run_platform(app_label: str, port: int, debug: bool) -> None:
+    """Start the Flask application with optimized runtime settings."""
     print("=" * 70)
-    print("SignalTrust AI Market Scanner")
+    print(app_label)
     print("=" * 70)
     print(f"Server running on: http://localhost:{port}")
     print(f"Debug mode: {debug}")
@@ -3212,19 +3210,56 @@ def main():
     print(f"Learning System: {ai_learning.get_learning_summary()['total_predictions']} predictions tracked")
     print("Press CTRL+C to stop the server")
     print("=" * 70)
-    
     log_event("SERVER_STARTED", {
         "host": "0.0.0.0",
         "port": port,
-        "background_worker": "enabled"
+        "background_worker": "enabled",
+        "platform": app_label
     })
     
     try:
-        app.run(host="0.0.0.0", port=port, debug=debug)
+        # use_reloader=False prevents extra forked processes in production,
+        # threaded=True improves concurrent request handling.
+        app.run(host="0.0.0.0", port=port, debug=debug, use_reloader=False, threaded=True)
     finally:
         background_worker.stop()
-        log_event("SERVER_STOPPED", {"time": datetime.datetime.now(datetime.timezone.utc).isoformat()})
+        log_event("SERVER_STOPPED", {
+            "time": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "platform": app_label
+        })
+
+
+def _resolve_debug(primary_env: str, secondary_env: str = None) -> bool:
+    """Parse debug flags consistently from environment variables."""
+    value = os.getenv(primary_env)
+    if value is None and secondary_env:
+        value = os.getenv(secondary_env)
+    return str(value).lower() in ("1", "true", "yes", "on", "development") if value else False
+
+
+def main():
+    """Start the Flask application for the web platform."""
+    port = int(os.getenv("PORT", 5000))
+    debug = _resolve_debug("FLASK_DEBUG", "FLASK_ENV")
+    _run_platform("SignalTrust AI Market Scanner", port, debug)
+
+
+def signal_trust_app():
+    """Start the Flask application for the mobile SignalTrustAPP platform."""
+    mobile_port = int(os.getenv("MOBILE_PORT", os.getenv("PORT", 5000)))
+    mobile_debug_env = os.getenv("MOBILE_DEBUG")
+    mobile_debug = _resolve_debug("MOBILE_DEBUG") if mobile_debug_env is not None else _resolve_debug("FLASK_ENV")
+    _run_platform("SignalTrustAPP", mobile_port, mobile_debug)
+
+
+def SignalTrustAPP():
+    """Backward-compatible alias keeping the required public name."""
+    warnings.warn(
+        "SignalTrustAPP is deprecated. Use signal_trust_app() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    signal_trust_app()
 
 if __name__ == "__main__":
     main()
-
