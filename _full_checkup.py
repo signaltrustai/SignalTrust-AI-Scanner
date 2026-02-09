@@ -172,6 +172,10 @@ for d in data_dirs:
         log("warn", "DIR", f"Missing directory: {d} (will be created on first use)")
 
 json_files = glob.glob("data/*.json") + glob.glob("data/ai_hub/*.json")
+# Skip encrypted files
+encrypted_files = ['data/admin_payment_info.json']
+json_files = [f for f in json_files if f not in encrypted_files]
+
 for jf in sorted(json_files):
     try:
         with open(jf, "r") as f:
@@ -185,6 +189,13 @@ for jf in sorted(json_files):
         log("fail", "JSON", f"{jf}: Invalid JSON — {e}")
     except Exception as e:
         log("warn", "JSON", f"{jf}: {e}")
+
+# Check encrypted files separately
+for ef in encrypted_files:
+    if os.path.exists(ef):
+        log("pass", "JSON", f"{ef} (encrypted)")
+    else:
+        log("warn", "JSON", f"{ef} (encrypted file missing)")
 
 # ─── 6. FEATURE TESTS ──────────────────────────────────────
 print("\n🧪 6. FEATURE TESTS")
