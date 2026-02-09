@@ -145,12 +145,13 @@ class MacroEconomicsAgent:
     
     async def _get_economic_calendar(self, region: str, timeframe: str) -> List[Dict]:
         """Get full economic calendar"""
-        # Simulated calendar
+        # Simulated calendar with dynamic dates
+        now = datetime.now()
         return [
-            {"date": "2026-02-10", "event": "FOMC Minutes", "impact": "medium"},
-            {"date": "2026-02-12", "event": "Retail Sales", "impact": "low"},
-            {"date": "2026-02-13", "event": "CPI Data", "impact": "high"},
-            {"date": "2026-02-15", "event": "Industrial Production", "impact": "low"},
+            {"date": (now + timedelta(days=3)).strftime("%Y-%m-%d"), "event": "FOMC Minutes", "impact": "medium"},
+            {"date": (now + timedelta(days=5)).strftime("%Y-%m-%d"), "event": "Retail Sales", "impact": "low"},
+            {"date": (now + timedelta(days=6)).strftime("%Y-%m-%d"), "event": "CPI Data", "impact": "high"},
+            {"date": (now + timedelta(days=8)).strftime("%Y-%m-%d"), "event": "Industrial Production", "impact": "low"},
         ]
     
     def _calculate_impact_score(self, indicators: Dict, events: List[Dict]) -> float:

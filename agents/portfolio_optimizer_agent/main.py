@@ -249,7 +249,7 @@ class PortfolioOptimizer:
         avg_vol = np.mean([a.get("volatility", 0.2) for a in allocations])
         
         # VaR (Value at Risk) - 95% confidence
-        var_95 = 1.65 * avg_vol * np.sqrt(total_weight)
+        var_95 = 1.65 * avg_vol
         
         # CVaR (Conditional VaR)
         cvar_95 = var_95 * 1.3
