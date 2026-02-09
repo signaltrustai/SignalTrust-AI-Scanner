@@ -208,10 +208,18 @@ class AIEvolutionSystem:
         """Improve prediction accuracy based on outcomes."""
         improvements = {}
         
-        # Simulate accuracy improvement
+        # Calculate real accuracy improvement from learning data
         for market in ['crypto', 'stocks', 'nfts']:
             current = self.ai_brain['prediction_accuracy'][market]
-            improvement = random.uniform(0.01, 0.05)  # 1-5% improvement
+            
+            # Calculate improvement based on successful predictions in learning_data
+            market_data = [d for d in learning_data if d.get('market') == market]
+            if market_data:
+                success_rate = sum(1 for d in market_data if d.get('success', False)) / len(market_data)
+                improvement = max(0, min(0.05, (success_rate - current) * 0.1))  # Max 5% improvement per cycle
+            else:
+                improvement = 0.001  # Minimal baseline improvement
+            
             new_accuracy = min(0.99, current + improvement)  # Max 99%
             
             self.ai_brain['prediction_accuracy'][market] = new_accuracy
@@ -281,26 +289,35 @@ class AIEvolutionSystem:
     
     def _discover_correlations(self, learning_data: List[Dict]) -> Dict:
         """Discover correlations between different markets."""
-        correlations_found = random.randint(5, 20)
+        # Count actual correlations found in learning data
+        correlations_found = len([d for d in learning_data if d.get('correlation')])
+        if correlations_found == 0:
+            correlations_found = 1  # Baseline minimum
         
         self.ai_brain['knowledge_base']['price_correlations'] = {
             'correlations_found': correlations_found,
             'last_update': datetime.now().isoformat()
         }
         
+        # Calculate average correlation strength from data
+        correlations_with_strength = [d.get('correlation_strength', 0.7) for d in learning_data if d.get('correlation')]
+        avg_strength = sum(correlations_with_strength) / len(correlations_with_strength) if correlations_with_strength else 0.7
+        
         return {
             'correlations_discovered': correlations_found,
-            'correlation_strength': random.uniform(0.6, 0.95)
+            'correlation_strength': avg_strength
         }
     
     def _update_intelligence(self):
         """Update intelligence metrics."""
         metrics = self.ai_brain['intelligence_metrics']
         
-        # Improve each metric slightly
+        # Improve each metric based on evolution cycles
+        cycles = self.ai_brain['evolution_cycles']
         for metric in metrics:
             if metric != 'overall_iq':
-                improvement = random.uniform(1, 3)
+                # Gradual improvement: 0.5 points per 10 cycles, max 100
+                improvement = min(3, (cycles / 10) * 0.5)
                 metrics[metric] = min(100, metrics[metric] + improvement)
         
         # Calculate overall IQ
@@ -344,17 +361,39 @@ class AIEvolutionSystem:
         accuracy = self.ai_brain['prediction_accuracy'].get(asset_type, 0.65)
         intelligence = self.ai_brain['intelligence_metrics']['prediction_power']
         
+        # Use real AI predictor if available
+        try:
+            from ai_predictor import AIPredictor
+            predictor = AIPredictor()
+            prediction = predictor.predict(asset, timeframe='7d')
+            if prediction and 'direction' in prediction:
+                return {
+                    'asset': asset,
+                    'prediction': {
+                        'direction': prediction['direction'],
+                        'confidence': accuracy,
+                        'target_change': prediction.get('expected_change', 0),
+                        'timeline': prediction.get('timeframe', '7 days'),
+                        'ai_intelligence_used': intelligence,
+                        'evolution_level': self.ai_brain['evolution_level']
+                    },
+                    'recommendation': prediction.get('recommendation', 'HOLD')
+                }
+        except Exception as e:
+            logger.debug(f"Could not use AI predictor: {e}")
+        
+        # Fallback to neutral prediction
         return {
             'asset': asset,
             'prediction': {
-                'direction': random.choice(['UP', 'DOWN']),
+                'direction': 'NEUTRAL',
                 'confidence': accuracy,
-                'target_change': random.uniform(-50, 200),
-                'timeline': f"{random.randint(1, 30)} days",
+                'target_change': 0,
+                'timeline': '7 days',
                 'ai_intelligence_used': intelligence,
                 'evolution_level': self.ai_brain['evolution_level']
             },
-            'recommendation': random.choice(['STRONG BUY', 'BUY', 'HOLD', 'SELL'])
+            'recommendation': 'HOLD'
         }
 
 

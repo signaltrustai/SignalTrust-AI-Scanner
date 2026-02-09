@@ -349,14 +349,25 @@ class AIWorkerService:
     
     def _predict_asset(self, symbol: str) -> Dict:
         """Predict individual asset"""
-        import random
-        
+        # Use AI provider or market analyzer for real predictions
+        try:
+            from ai_predictor import AIPredictor
+            predictor = AIPredictor()
+            prediction = predictor.predict(symbol, timeframe='24h')
+            return prediction if prediction else self._get_default_prediction(symbol)
+        except Exception as e:
+            logger.warning(f"Could not generate AI prediction for {symbol}: {e}")
+            return self._get_default_prediction(symbol)
+    
+    def _get_default_prediction(self, symbol: str) -> Dict:
+        """Return neutral default prediction"""
         return {
             'symbol': symbol,
-            'prediction': random.choice(['bullish', 'bearish', 'neutral']),
+            'prediction': 'neutral',
             'confidence': self.stats['current_accuracy'],
             'timeframe': '24h',
-            'expected_change': round(random.uniform(-5, 5), 2)
+            'expected_change': 0.0,
+            'note': 'Default prediction - AI analysis unavailable'
         }
     
     def _optimize_performance(self):

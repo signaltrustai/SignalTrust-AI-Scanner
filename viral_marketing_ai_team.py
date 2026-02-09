@@ -585,13 +585,18 @@ class SocialMediaManagerAI:
         """
         logger.info(f"Engaging with audience on {platform}")
         
-        # Simulation d'engagement
+        # TODO: In production, integrate with real social media APIs for automated engagement
+        logger.warning("Using placeholder engagement data - connect to social media APIs for production")
+        
+        # Placeholder for testing
         engagements = {
-            'likes_given': random.randint(50, 200),
-            'comments_posted': random.randint(20, 50),
-            'follows': random.randint(30, 100),
-            'shares': random.randint(10, 30),
-            'timestamp': datetime.now().isoformat()
+            'likes_given': 0,
+            'comments_posted': 0,
+            'follows': 0,
+            'shares': 0,
+            'timestamp': datetime.now().isoformat(),
+            'is_placeholder': True,
+            'note': 'Connect to social media APIs for real engagement tracking'
         }
         
         return engagements
@@ -810,24 +815,29 @@ class AnalyticsAI:
         """
         logger.info(f"Tracking {metric_type} metrics for {platform}")
         
-        # Simulation de métriques (en production, récupérer les vraies données)
+        # TODO: In production, integrate with real analytics APIs (Meta/Twitter/LinkedIn)
+        # This is placeholder data for testing - replace with real API calls
+        logger.warning("Using placeholder metrics - connect to real analytics APIs for production")
+        
         metrics = {
             'platform': platform,
             'metric_type': metric_type,
             'timestamp': datetime.now().isoformat(),
+            'is_placeholder': True,
             'data': {
-                'impressions': random.randint(10000, 100000),
-                'reach': random.randint(5000, 50000),
-                'engagement': random.randint(500, 5000),
-                'clicks': random.randint(100, 1000),
-                'conversions': random.randint(10, 100),
-                'engagement_rate': round(random.uniform(0.03, 0.08), 4),
-                'ctr': round(random.uniform(0.01, 0.05), 4),
-                'conversion_rate': round(random.uniform(0.01, 0.03), 4)
+                'impressions': 0,
+                'reach': 0,
+                'engagement': 0,
+                'clicks': 0,
+                'conversions': 0,
+                'engagement_rate': 0.0,
+                'ctr': 0.0,
+                'conversion_rate': 0.0,
+                'note': 'Connect to real analytics API for actual metrics'
             }
         }
         
-        # Stocker les métriques
+        # Store metrics
         if platform not in self.metrics:
             self.metrics[platform] = []
         self.metrics[platform].append(metrics)
