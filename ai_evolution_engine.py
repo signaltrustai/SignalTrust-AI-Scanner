@@ -773,7 +773,8 @@ class AIEvolutionEngine:
     
     def flush(self):
         """Flush any pending knowledge base writes to disk."""
-        self.knowledge_base._save()
+        with self.knowledge_base.lock:
+            self.knowledge_base._save()
     
     def _collect_learning_data(self, agent: AIAgent) -> Dict[str, Any]:
         """Collecter les données d'apprentissage pour un agent depuis les systèmes réels."""
