@@ -56,15 +56,17 @@ class LLM:
             print(f"LLM error: {e}")
             return self._mock_response(prompt)
     
-    def _mock_response(self, prompt: str) -> List[str]:
+    def _mock_response(self, prompt: str) -> Dict[str, Any]:
         """Mock response when API key is not available"""
-        return [
-            "Market sentiment is bullish with increased institutional interest",
-            "Federal Reserve policy remains accommodative, supporting risk assets",
-            "Crypto regulation discussions heating up in major economies",
-            "Technology sector showing strong earnings growth",
-            "Energy sector volatile due to geopolitical tensions"
-        ]
+        return {
+            "insights": [
+                "Market sentiment is bullish with increased institutional interest",
+                "Federal Reserve policy remains accommodative, supporting risk assets",
+                "Crypto regulation discussions heating up in major economies",
+                "Technology sector showing strong earnings growth",
+                "Energy sector volatile due to geopolitical tensions"
+            ]
+        }
 
 
 class NewsCatcher:
@@ -154,8 +156,8 @@ Réponds avec un array JSON de 5 strings (insights).
         insights = llm.run(prompt, output_format="list")
         
         # Ensure insights is a list
-        if isinstance(insights, dict) and "response" in insights:
-            insights = [insights["response"]]
+        if isinstance(insights, dict):
+            insights = insights.get("insights", [insights.get("response", "")])
         elif not isinstance(insights, list):
             insights = [str(insights)]
         

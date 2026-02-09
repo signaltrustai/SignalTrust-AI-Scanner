@@ -11,6 +11,12 @@ import pandas as pd
 import requests
 from datetime import datetime, timedelta
 
+try:
+    import openai
+    OPENAI_AVAILABLE = True
+except ImportError:
+    OPENAI_AVAILABLE = False
+
 app = FastAPI(title="SignalTrust Crypto Analyst EU", version="1.0.0")
 
 
@@ -23,11 +29,10 @@ class CryptoLLM:
         
     def run(self, prompt: str, output_format: str = "json") -> Dict[str, Any]:
         """Run LLM inference"""
-        if not self.api_key:
+        if not self.api_key or not OPENAI_AVAILABLE:
             return self._mock_response(prompt)
             
         try:
-            import openai
             client = openai.OpenAI(api_key=self.api_key)
             
             response = client.chat.completions.create(

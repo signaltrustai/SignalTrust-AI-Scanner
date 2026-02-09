@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 import os
+import random
 from datetime import datetime, timedelta, timezone
 import logging
 
@@ -111,10 +112,11 @@ class SocialSentimentAgent:
         NOTE: This is a placeholder implementation with simulated data.
         In production, integrate with Twitter API v2 and BERT-finance model.
         """
-        # Simulated data (would use Twitter API + BERT-finance)
+        # Simulated data with variance
+        sentiment_score = random.uniform(0.5, 0.8)
         return {
             "mention_count": 1250,
-            "sentiment_score": 0.65,
+            "sentiment_score": sentiment_score,
             "engagement_rate": 0.78,
             "top_influencers": ["@crypto_expert", "@trader_pro"],
             "sentiment_distribution": {
@@ -131,10 +133,11 @@ class SocialSentimentAgent:
         NOTE: This is a placeholder implementation with simulated data.
         In production, integrate with Reddit API (PRAW) and BERT-finance model.
         """
-        # Simulated data (would use Reddit API + BERT-finance)
+        # Simulated data with variance
+        sentiment_score = random.uniform(0.5, 0.8)
         return {
             "mention_count": 450,
-            "sentiment_score": 0.55,
+            "sentiment_score": sentiment_score,
             "upvote_ratio": 0.72,
             "top_subreddits": ["r/cryptocurrency", "r/wallstreetbets"],
             "sentiment_distribution": {

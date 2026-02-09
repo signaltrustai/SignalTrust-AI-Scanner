@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import os
 import json
+import random
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
@@ -85,7 +86,7 @@ class WhaleAlertClient:
             transactions = []
             for i in range(limit):
                 transactions.append({
-                    "hash": f"0x{'a' * 64}",
+                    "hash": f"0x{random.randbytes(32).hex()}",
                     "from": f"0x{'1' * 40}",
                     "to": f"0x{'2' * 40}",
                     "amount": min_usd + i * 1000000,
