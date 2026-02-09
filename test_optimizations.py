@@ -25,7 +25,7 @@ def test_save_learning_data_is_append_only():
     # Patch the file path for the test
     import app
     original = app.LEARNING_DATA_FILE
-    tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False, dir='/tmp')
+    tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False)
     tmp.close()
     app.LEARNING_DATA_FILE = tmp.name
 

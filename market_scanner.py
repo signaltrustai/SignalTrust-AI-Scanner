@@ -104,12 +104,16 @@ class MarketScanner:
                 pool.submit(self._fetch_indices): 'indices',
                 pool.submit(self._get_forex_pairs, 5): 'forex',
             }
-            for f in as_completed(futures, timeout=20):
-                key = futures[f]
-                try:
-                    results[key] = f.result()
-                except Exception:
-                    results[key] = {} if key != 'forex' else []
+            try:
+                for f in as_completed(futures, timeout=20):
+                    key = futures[f]
+                    try:
+                        results[key] = f.result()
+                    except Exception as exc:
+                        logger.warning("Market fetch %s failed: %s", key, exc)
+                        results[key] = {} if key != 'forex' else []
+            except TimeoutError:
+                logger.warning("Market overview timed out; returning partial results")
 
         return {
             'stocks': results.get('stocks', {}),

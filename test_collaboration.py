@@ -13,11 +13,12 @@ Validates:
 import os
 import sys
 import shutil
+import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Use a temp directory for test storage
-TEST_STORAGE = "/tmp/test_collaborations"
+TEST_STORAGE = os.path.join(tempfile.gettempdir(), "test_collaborations")
 
 
 def _fresh_generator():
