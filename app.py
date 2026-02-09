@@ -14,6 +14,7 @@ import subprocess
 import sys
 import uuid
 import logging
+import warnings
 
 logger = logging.getLogger(__name__)
 
@@ -3228,23 +3229,37 @@ def _run_platform(app_label: str, port: int, debug: bool) -> None:
         })
 
 
+def _resolve_debug(primary_env: str, secondary_env: str = None) -> bool:
+    """Parse debug flags consistently from environment variables."""
+    value = os.getenv(primary_env)
+    if value is None and secondary_env:
+        value = os.getenv(secondary_env)
+    return str(value).lower() in ("1", "true", "yes", "on", "development") if value else False
+
+
 def main():
     """Start the Flask application for the web platform."""
     port = int(os.getenv("PORT", 5000))
-    debug = os.getenv("FLASK_ENV") == "development"
+    debug = _resolve_debug("FLASK_DEBUG", "FLASK_ENV")
     _run_platform("SignalTrust AI Market Scanner", port, debug)
 
 
-def SignalTrustAPP():
+def signal_trust_app():
     """Start the Flask application for the mobile SignalTrustAPP platform."""
     mobile_port = int(os.getenv("MOBILE_PORT", os.getenv("PORT", 5000)))
     mobile_debug_env = os.getenv("MOBILE_DEBUG")
-    mobile_debug = (
-        mobile_debug_env.lower() in ("1", "true", "yes", "on")
-        if mobile_debug_env
-        else os.getenv("FLASK_ENV") == "development"
-    )
+    mobile_debug = _resolve_debug("MOBILE_DEBUG") if mobile_debug_env is not None else _resolve_debug("FLASK_ENV")
     _run_platform("SignalTrustAPP", mobile_port, mobile_debug)
+
+
+def SignalTrustAPP():
+    """Backward-compatible alias keeping the required public name."""
+    warnings.warn(
+        "SignalTrustAPP is deprecated. Use signal_trust_app() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    signal_trust_app()
 
 if __name__ == "__main__":
     main()
