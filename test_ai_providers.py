@@ -96,7 +96,7 @@ def test_gemini_provider_attributes():
 
     gp = GeminiProvider()
     assert gp.model == "gemini-2.0-flash"
-    assert "generativelanguage.googleapis.com" in gp.base_url
+    assert gp.base_url == "https://generativelanguage.googleapis.com/v1beta"  # noqa
     assert hasattr(gp, 'generate_response')
     assert hasattr(gp, 'analyze_market_data')
 
