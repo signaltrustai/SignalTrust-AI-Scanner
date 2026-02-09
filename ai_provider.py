@@ -203,6 +203,137 @@ Return JSON with: trends, risk_level, opportunities, prediction, recommendations
         return "AI analysis unavailable. Please check API configuration."
 
 
+class DeepSeekProvider(AIProvider):
+    """DeepSeek AI provider — strong at reasoning and code analysis."""
+
+    def __init__(self, api_key: Optional[str] = None, model: str = "deepseek-chat"):
+        """Initialize DeepSeek provider.
+
+        Args:
+            api_key: DeepSeek API key
+            model: Model to use (deepseek-chat, deepseek-reasoner)
+        """
+        self.api_key = api_key or os.environ.get('DEEPSEEK_API_KEY', '')
+        self.model = model
+        self.base_url = "https://api.deepseek.com/v1"
+
+    def generate_response(self, prompt: str, context: Optional[Dict] = None) -> str:
+        """Generate response using DeepSeek."""
+        try:
+            import requests as _requests
+
+            system_msg = (
+                "You are SignalTrust AI, an expert financial market analyst. "
+                "Provide data-driven analysis with risk warnings. Use markdown."
+            )
+            messages = [
+                {"role": "system", "content": system_msg},
+                {"role": "user", "content": prompt},
+            ]
+            if context and context.get('history'):
+                messages = [{"role": "system", "content": system_msg}] + context['history'] + [{"role": "user", "content": prompt}]
+
+            resp = _requests.post(
+                f"{self.base_url}/chat/completions",
+                headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+                json={"model": self.model, "messages": messages, "temperature": 0.3, "max_tokens": 2000},
+                timeout=30,
+            )
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"]
+        except Exception as e:
+            print(f"⚠️ DeepSeek error: {e}")
+            return self._fallback_response(prompt)
+
+    def analyze_market_data(self, market_data: Dict) -> Dict:
+        """Analyze market data with DeepSeek."""
+        prompt = (
+            "Analyze this market data and return JSON with keys: "
+            "trends, risk_level, opportunities, prediction, recommendations.\n\n"
+            f"{json.dumps(market_data, indent=2)}"
+        )
+        try:
+            response = self.generate_response(prompt)
+            try:
+                return json.loads(response)
+            except json.JSONDecodeError:
+                return {'analysis': response, 'success': True, 'provider': 'deepseek', 'model': self.model}
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'provider': 'deepseek'}
+
+    def _fallback_response(self, prompt: str) -> str:
+        return "DeepSeek AI unavailable. Please check API configuration."
+
+
+class GeminiProvider(AIProvider):
+    """Google Gemini AI provider — strong at multimodal analysis."""
+
+    def __init__(self, api_key: Optional[str] = None, model: str = "gemini-2.0-flash"):
+        """Initialize Gemini provider.
+
+        Args:
+            api_key: Google AI API key
+            model: Model to use (gemini-2.0-flash, gemini-2.5-pro, etc.)
+        """
+        self.api_key = api_key or os.environ.get('GOOGLE_AI_API_KEY', os.environ.get('GEMINI_API_KEY', ''))
+        self.model = model
+        self.base_url = "https://generativelanguage.googleapis.com/v1beta"
+
+    def generate_response(self, prompt: str, context: Optional[Dict] = None) -> str:
+        """Generate response using Google Gemini."""
+        try:
+            import requests as _requests
+
+            contents = []
+            if context and context.get('history'):
+                for msg in context['history']:
+                    role = "model" if msg.get("role") == "assistant" else "user"
+                    contents.append({"role": role, "parts": [{"text": msg["content"]}]})
+            contents.append({"role": "user", "parts": [{"text": prompt}]})
+
+            resp = _requests.post(
+                f"{self.base_url}/models/{self.model}:generateContent",
+                params={"key": self.api_key},
+                headers={"Content-Type": "application/json"},
+                json={
+                    "contents": contents,
+                    "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2000},
+                    "systemInstruction": {
+                        "parts": [{"text": (
+                            "You are SignalTrust AI, an expert financial market analyst. "
+                            "Provide data-driven analysis with risk warnings."
+                        )}]
+                    },
+                },
+                timeout=30,
+            )
+            resp.raise_for_status()
+            body = resp.json()
+            return body["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            print(f"⚠️ Gemini error: {e}")
+            return self._fallback_response(prompt)
+
+    def analyze_market_data(self, market_data: Dict) -> Dict:
+        """Analyze market data with Gemini."""
+        prompt = (
+            "Analyze this market data and return JSON with keys: "
+            "trends, risk_level, opportunities, prediction, recommendations.\n\n"
+            f"{json.dumps(market_data, indent=2)}"
+        )
+        try:
+            response = self.generate_response(prompt)
+            try:
+                return json.loads(response)
+            except json.JSONDecodeError:
+                return {'analysis': response, 'success': True, 'provider': 'gemini', 'model': self.model}
+        except Exception as e:
+            return {'success': False, 'error': str(e), 'provider': 'gemini'}
+
+    def _fallback_response(self, prompt: str) -> str:
+        return "Google Gemini AI unavailable. Please check API configuration."
+
+
 class LocalModelProvider(AIProvider):
     """Local model provider using Ollama or similar"""
     
@@ -276,7 +407,7 @@ class AIProviderFactory:
         """Create AI provider instance.
         
         Args:
-            provider_type: Type of provider (openai, anthropic, local)
+            provider_type: Type of provider (openai, anthropic, deepseek, gemini, local)
             **kwargs: Provider-specific arguments
             
         Returns:
@@ -287,11 +418,15 @@ class AIProviderFactory:
             provider_type = os.environ.get('AI_PROVIDER', '').lower()
         
         if not provider_type:
-            # Auto-detect based on available API keys
+            # Auto-detect based on available API keys (priority order)
             if os.environ.get('OPENAI_API_KEY'):
                 provider_type = 'openai'
             elif os.environ.get('ANTHROPIC_API_KEY'):
                 provider_type = 'anthropic'
+            elif os.environ.get('DEEPSEEK_API_KEY'):
+                provider_type = 'deepseek'
+            elif os.environ.get('GOOGLE_AI_API_KEY') or os.environ.get('GEMINI_API_KEY'):
+                provider_type = 'gemini'
             else:
                 provider_type = 'local'
         
@@ -299,6 +434,10 @@ class AIProviderFactory:
             return OpenAIProvider(**kwargs)
         elif provider_type == 'anthropic':
             return AnthropicProvider(**kwargs)
+        elif provider_type == 'deepseek':
+            return DeepSeekProvider(**kwargs)
+        elif provider_type == 'gemini':
+            return GeminiProvider(**kwargs)
         elif provider_type == 'local':
             return LocalModelProvider(**kwargs)
         else:

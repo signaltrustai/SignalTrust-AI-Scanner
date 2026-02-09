@@ -180,7 +180,14 @@ def _build_session() -> requests.Session:
 class AIWorker:
     """Wraps a single AI provider with stats tracking and pooled HTTP."""
 
-    PROVIDER_PRIORITY = {"openai": 1, "anthropic": 2, "ollama": 3, "rule_based": 4}
+    PROVIDER_PRIORITY = {
+        "openai": 1,
+        "anthropic": 2,
+        "deepseek": 3,
+        "gemini": 4,
+        "ollama": 5,
+        "rule_based": 6,
+    }
 
     def __init__(self, name: str, provider: str, config: dict, session: requests.Session):
         self.name = name
@@ -263,6 +270,10 @@ class AIWorker:
             return self._call_openai(task_type, full_prompt, data)
         elif self.provider == "anthropic":
             return self._call_anthropic(task_type, full_prompt, data)
+        elif self.provider == "deepseek":
+            return self._call_deepseek(task_type, full_prompt, data)
+        elif self.provider == "gemini":
+            return self._call_gemini(task_type, full_prompt, data)
         elif self.provider == "ollama":
             return self._call_ollama(task_type, full_prompt, data)
         elif self.provider == "rule_based":
@@ -384,6 +395,94 @@ class AIWorker:
             parsed = {"raw_response": content}
 
         return {"success": True, "analysis": parsed, "model": model}
+
+    # ---- DeepSeek ---------------------------------------------------------
+
+    def _call_deepseek(self, task_type: str, prompt: str, data: dict) -> dict:
+        api_key = self.config.get("api_key") or os.getenv("DEEPSEEK_API_KEY", "")
+        model = self.config.get("model", "deepseek-chat")
+        if not api_key:
+            return {"success": False, "error": "No DeepSeek API key"}
+
+        system_msg = (
+            "You are SignalTrust AI — an elite financial market analyst. "
+            "Respond ONLY with valid JSON. Include: direction (BULLISH/BEARISH/NEUTRAL), "
+            "confidence (0-1), key_factors (list), risk_level (LOW/MEDIUM/HIGH), "
+            "summary (one paragraph)."
+        )
+
+        messages = [
+            {"role": "system", "content": system_msg},
+            {"role": "user", "content": f"Task: {task_type}\n\nData: {json.dumps(data, default=str)}\n\nPrompt: {prompt}"},
+        ]
+
+        resp = self.session.post(
+            "https://api.deepseek.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={"model": model, "messages": messages, "temperature": 0.3, "max_tokens": 1500},
+            timeout=30,
+        )
+        resp.raise_for_status()
+        body = resp.json()
+        content = body["choices"][0]["message"]["content"]
+
+        try:
+            parsed = json.loads(content)
+        except json.JSONDecodeError:
+            parsed = {"raw_response": content}
+
+        return {
+            "success": True,
+            "analysis": parsed,
+            "model": model,
+            "tokens_used": body.get("usage", {}).get("total_tokens", 0),
+        }
+
+    # ---- Google Gemini ----------------------------------------------------
+
+    def _call_gemini(self, task_type: str, prompt: str, data: dict) -> dict:
+        api_key = self.config.get("api_key") or os.getenv("GOOGLE_AI_API_KEY", os.getenv("GEMINI_API_KEY", ""))
+        model = self.config.get("model", "gemini-2.0-flash")
+        if not api_key:
+            return {"success": False, "error": "No Google AI / Gemini API key"}
+
+        system_msg = (
+            "You are SignalTrust AI — an elite financial market analyst. "
+            "Respond ONLY with valid JSON. Include: direction (BULLISH/BEARISH/NEUTRAL), "
+            "confidence (0-1), key_factors (list), risk_level (LOW/MEDIUM/HIGH), "
+            "summary (one paragraph)."
+        )
+
+        contents = [
+            {"role": "user", "parts": [{"text": f"Task: {task_type}\nData: {json.dumps(data, default=str)}\nPrompt: {prompt}"}]},
+        ]
+
+        resp = self.session.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            params={"key": api_key},
+            headers={"Content-Type": "application/json"},
+            json={
+                "contents": contents,
+                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 1500},
+                "systemInstruction": {"parts": [{"text": system_msg}]},
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        body = resp.json()
+        content = body["candidates"][0]["content"]["parts"][0]["text"]
+
+        try:
+            parsed = json.loads(content)
+        except json.JSONDecodeError:
+            parsed = {"raw_response": content}
+
+        return {
+            "success": True,
+            "analysis": parsed,
+            "model": model,
+            "tokens_used": body.get("usageMetadata", {}).get("totalTokenCount", 0),
+        }
 
     # ---- Rule-based (instant, zero cost) ----------------------------------
 
@@ -509,15 +608,20 @@ class MultiAICoordinator:
         redundant   - All workers, take highest-confidence result
     """
 
+    # Optimal AI assignment: each task type routed to the best-suited model
     TASK_SPECIALISTS = {
-        "technical_analysis": "rule_based",
-        "sentiment_analysis": "openai",
-        "price_prediction": "openai",
-        "risk_assessment": "rule_based",
-        "market_overview": "anthropic",
-        "whale_analysis": "rule_based",
-        "gem_analysis": "rule_based",
-        "portfolio_analysis": "openai",
+        "technical_analysis": "rule_based",     # instant, deterministic
+        "sentiment_analysis": "openai",         # GPT-4o: best for nuanced sentiment
+        "price_prediction": "deepseek",         # DeepSeek: strong reasoning for forecasts
+        "risk_assessment": "rule_based",        # instant, deterministic
+        "market_overview": "gemini",            # Gemini: fast, great for broad summaries
+        "whale_analysis": "rule_based",         # instant, deterministic
+        "gem_analysis": "deepseek",             # DeepSeek: deep reasoning for hidden gems
+        "portfolio_analysis": "openai",         # GPT-4o: complex multi-asset analysis
+        "news_analysis": "gemini",              # Gemini: fast news processing
+        "deep_analysis": "anthropic",           # Claude: careful, thorough analysis
+        "correlation_analysis": "deepseek",     # DeepSeek: quantitative reasoning
+        "pattern_recognition": "openai",        # GPT-4o: strong pattern recognition
     }
 
     def __init__(self, max_workers: int = 8, cache_ttl: int = 300):
@@ -553,6 +657,22 @@ class MultiAICoordinator:
             self._register("Anthropic-Claude", "anthropic", {
                 "api_key": anthropic_key,
                 "model": "claude-sonnet-4-20250514",
+            })
+
+        # DeepSeek
+        deepseek_key = os.getenv("DEEPSEEK_API_KEY", "")
+        if deepseek_key and not deepseek_key.startswith("your_"):
+            self._register("DeepSeek-R1", "deepseek", {
+                "api_key": deepseek_key,
+                "model": os.getenv("DEEPSEEK_MODEL", "deepseek-chat"),
+            })
+
+        # Gemini
+        gemini_key = os.getenv("GOOGLE_AI_API_KEY", os.getenv("GEMINI_API_KEY", ""))
+        if gemini_key and not gemini_key.startswith("your_"):
+            self._register("Gemini-Flash", "gemini", {
+                "api_key": gemini_key,
+                "model": os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
             })
 
         # Ollama (local)

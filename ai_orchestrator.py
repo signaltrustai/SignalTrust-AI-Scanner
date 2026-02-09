@@ -36,42 +36,48 @@ class AIOrchestrator:
             'started_at': None
         }
         
-        # Agent configuration
+        # Agent configuration — each agent has a preferred AI model
         self.agent_config = {
             'market_scanner': {
                 'name': 'Market Scanner Agent',
                 'role': 'Scan markets 24/7 for opportunities',
                 'priority': 'high',
+                'preferred_ai': 'gemini',
                 'status': 'idle'
             },
             'data_collector': {
                 'name': 'Data Collector Agent',
                 'role': 'Collect and aggregate market data',
                 'priority': 'high',
+                'preferred_ai': 'rule_based',
                 'status': 'idle'
             },
             'pattern_analyzer': {
                 'name': 'Pattern Analyzer Agent',
-                'role': 'Analyze patterns and trends',
+                'role': 'Analyze patterns and trends using deep reasoning',
                 'priority': 'medium',
+                'preferred_ai': 'deepseek',
                 'status': 'idle'
             },
             'predictor': {
                 'name': 'Predictor Agent',
-                'role': 'Generate predictions and forecasts',
+                'role': 'Generate AI-powered predictions and forecasts',
                 'priority': 'high',
+                'preferred_ai': 'openai',
                 'status': 'idle'
             },
             'learning_agent': {
                 'name': 'Learning Agent',
-                'role': 'Continuously learn and improve',
+                'role': 'Continuously learn and improve models',
                 'priority': 'medium',
+                'preferred_ai': 'anthropic',
                 'status': 'idle'
             },
             'optimizer': {
                 'name': 'Optimizer Agent',
-                'role': 'Optimize system performance',
+                'role': 'Optimize system performance and strategies',
                 'priority': 'low',
+                'preferred_ai': 'deepseek',
                 'status': 'idle'
             }
         }
