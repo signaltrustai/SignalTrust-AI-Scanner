@@ -29,8 +29,8 @@ Objectif : rassembler les travaux des PR #20, #21 et #23 dans un seul pull reque
 - 🧹 Conflits de branches nettoyés pour éviter plusieurs PR concurrentes.
 - 🧪 Tests : import `app`, démarrage serveur, vérification `/manifest.json`.
 
-## Nouvelle vague d’unification (PR #29, #30, #32, #33, #34, #35, #37, #38, #39, #40, #41, #42, #43, #44)
-- Liste cible : les PR demandées (#29, #30, #32, #33, #34, #35, #37, #38, #39, #40, #41, #42, #43, #44) — #31 et #36 ne figurent pas dans la demande.
+## Nouvelle vague d’unification (PR #29, #30, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, #44)
+- Liste cible : les PR demandées (#29, #30, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, #44) — #31 ne figure pas dans la demande.
 - Objectif : regrouper toutes les PR listées ci-dessus en un seul merge propre sur `main` sans doublons (la demande initiale listait #35 deux fois, à vérifier).
 - Étapes proposées :
   1. Lister les fichiers touchés par chaque PR et marquer les overlaps (notamment la double mention de #35).
