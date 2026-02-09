@@ -2,6 +2,7 @@
 Usage: python test_openai.py
 """
 import os
+import pytest
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -11,9 +12,10 @@ API_KEY = os.getenv('OPENAI_API_KEY')
 MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
 
 if not API_KEY:
-    print("ERROR: OPENAI_API_KEY not set in environment (.env)")
-    print("Please add your key to the .env file in the project root.")
-    raise SystemExit(1)
+    pytest.skip(
+        "OPENAI_API_KEY not set in environment (.env) - skipping OpenAI live test",
+        allow_module_level=True,
+    )
 
 client = OpenAI(api_key=API_KEY)
 

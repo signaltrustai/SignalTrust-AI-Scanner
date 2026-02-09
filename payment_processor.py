@@ -118,6 +118,7 @@ class PaymentProcessor:
                 'scans_per_day': -1,
                 'symbols_per_scan': -1,
                 'ai_predictions_per_day': -1,
+                'ai_predictions': -1,
                 'gems_discoveries_per_day': -1,
                 'whale_tracking': True,
                 'advanced_analytics': True,
