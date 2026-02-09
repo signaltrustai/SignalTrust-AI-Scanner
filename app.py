@@ -71,6 +71,7 @@ from ai_learning_system import get_learning_system
 from agent_client import get_agent_client
 from api_processor import get_api_processor
 from ai_evolution_engine import get_evolution_engine
+from asi_collaboration import CollaborationGenerator
 
 # Import optimizer safely (new module)
 try:
@@ -200,6 +201,9 @@ try:
 except Exception as e:
     logger.warning(f"AI Evolution Engine initialization failed: {e}")
     evolution_engine = None
+
+# Initialize ASI Collaboration Generator
+collab_generator = CollaborationGenerator()
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -1906,6 +1910,103 @@ def api_agents_complete_analysis():
         }), 200
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+# -----------------------------
+# API ROUTES - ASI COLLABORATION
+# -----------------------------
+
+@app.route("/api/collaboration/agents", methods=["GET"])
+def api_collaboration_agents():
+    """List agents available for collaboration."""
+    return jsonify({
+        "success": True,
+        "agents": collab_generator.get_available_agents(),
+    }), 200
+
+
+@app.route("/api/collaboration/create", methods=["POST"])
+def api_collaboration_create():
+    """Create a new collaboration invitation.
+
+    Body JSON:
+        to_user (str): User email or identifier (required).
+        from_agent (str): Initiating agent key, e.g. "ASI6" (default "ASI6").
+        participants (list[str]): Agent IDs to include.
+        collaboration_type (str): Label (default "full_collaboration").
+        permissions (list[str]): e.g. ["read","execute"] (optional).
+        expiry_hours (int): Hours until expiry, 1-168 (default 24).
+    """
+    data = request.get_json() or {}
+    to_user = (data.get("to_user") or "").strip()
+    if not to_user:
+        return jsonify({"success": False, "error": "to_user is required"}), 400
+
+    from_agent = data.get("from_agent", "ASI6")
+    participants = data.get("participants")
+    if not participants:
+        from asi_collaboration import ALL_AGENT_IDS
+        participants = ALL_AGENT_IDS
+
+    try:
+        invitation = collab_generator.create_invitation(
+            from_agent=from_agent,
+            to_user=to_user,
+            participants=participants,
+            collaboration_type=data.get("collaboration_type", "full_collaboration"),
+            permissions=data.get("permissions"),
+            expiry_hours=data.get("expiry_hours", 24),
+        )
+        return jsonify({"success": True, "invitation": invitation.to_dict()}), 201
+    except ValueError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/collaboration/accept", methods=["POST"])
+def api_collaboration_accept():
+    """Accept a collaboration invitation.
+
+    Body JSON:
+        invitation_id (str): ID of the invitation.
+        token (str): Secure token from the invitation.
+    """
+    data = request.get_json() or {}
+    invitation_id = data.get("invitation_id", "")
+    token = data.get("token", "")
+
+    if not invitation_id or not token:
+        return jsonify({"success": False, "error": "invitation_id and token are required"}), 400
+
+    accepted = collab_generator.accept_invitation(invitation_id, token)
+    if accepted:
+        return jsonify({"success": True, "status": "ACCEPTED"}), 200
+    return jsonify({"success": False, "error": "Invalid, expired, or already processed invitation"}), 400
+
+
+@app.route("/api/collaboration/list", methods=["GET"])
+def api_collaboration_list():
+    """List collaboration invitations.
+
+    Query params:
+        user (str): Filter by user.
+        status (str): Filter by status (PENDING, ACCEPTED, EXPIRED).
+    """
+    user = request.args.get("user")
+    status = request.args.get("status")
+    invitations = collab_generator.list_invitations(user=user, status=status)
+    return jsonify({"success": True, "invitations": invitations}), 200
+
+
+@app.route("/api/collaboration/<invitation_id>", methods=["GET"])
+def api_collaboration_get(invitation_id):
+    """Get details of a specific invitation (token excluded)."""
+    inv = collab_generator.get_invitation(invitation_id)
+    if inv is None:
+        return jsonify({"success": False, "error": "Invitation not found"}), 404
+    d = inv.to_dict()
+    d.pop("token", None)
+    return jsonify({"success": True, "invitation": d}), 200
 
 # -----------------------------
 # API ROUTES - API PROCESSOR

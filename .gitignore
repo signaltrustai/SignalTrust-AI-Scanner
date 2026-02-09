@@ -30,6 +30,9 @@ backups/
 *.tar.gz
 *_metadata.json
 
+# Runtime data
+data/collaborations/
+
 # Test files
 test_*.txt
 test_*.json
