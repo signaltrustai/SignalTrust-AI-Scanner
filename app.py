@@ -3195,16 +3195,13 @@ if os.getenv("GUNICORN_WORKER") or not hasattr(sys, 'ps1'):
         pass  # Non-fatal: worker is optional
 
 # -----------------------------
-# MAIN APPLICATION ENTRY POINT
+# MAIN APPLICATION ENTRY POINTS
 # -----------------------------
 
-def main():
-    """Start the Flask application."""
-    port = int(os.getenv("PORT", 5000))
-    debug = os.getenv("FLASK_ENV") == "development"
-    
+def _run_platform(app_label: str, port: int, debug: bool) -> None:
+    """Start the Flask application with optimized runtime settings."""
     print("=" * 70)
-    print("SignalTrust AI Market Scanner")
+    print(app_label)
     print("=" * 70)
     print(f"Server running on: http://localhost:{port}")
     print(f"Debug mode: {debug}")
@@ -3212,19 +3209,42 @@ def main():
     print(f"Learning System: {ai_learning.get_learning_summary()['total_predictions']} predictions tracked")
     print("Press CTRL+C to stop the server")
     print("=" * 70)
-    
     log_event("SERVER_STARTED", {
         "host": "0.0.0.0",
         "port": port,
-        "background_worker": "enabled"
+        "background_worker": "enabled",
+        "platform": app_label
     })
     
     try:
-        app.run(host="0.0.0.0", port=port, debug=debug)
+        # use_reloader=False prevents extra forked processes in production,
+        # threaded=True improves concurrent request handling.
+        app.run(host="0.0.0.0", port=port, debug=debug, use_reloader=False, threaded=True)
     finally:
         background_worker.stop()
-        log_event("SERVER_STOPPED", {"time": datetime.datetime.now(datetime.timezone.utc).isoformat()})
+        log_event("SERVER_STOPPED", {
+            "time": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "platform": app_label
+        })
+
+
+def main():
+    """Start the Flask application for the web platform."""
+    port = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_ENV") == "development"
+    _run_platform("SignalTrust AI Market Scanner", port, debug)
+
+
+def SignalTrustAPP():
+    """Start the Flask application for the mobile SignalTrustAPP platform."""
+    mobile_port = int(os.getenv("MOBILE_PORT", os.getenv("PORT", 5000)))
+    mobile_debug_env = os.getenv("MOBILE_DEBUG")
+    mobile_debug = (
+        mobile_debug_env.lower() in ("1", "true", "yes", "on")
+        if mobile_debug_env
+        else os.getenv("FLASK_ENV") == "development"
+    )
+    _run_platform("SignalTrustAPP", mobile_port, mobile_debug)
 
 if __name__ == "__main__":
     main()
-
