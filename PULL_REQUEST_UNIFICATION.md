@@ -1,24 +1,33 @@
-# Pull Request Unifiée
+# Unified Pull Request Plan (PR #20, #21, #23)
 
+## Quick English summary
+- Purpose: consolidate PR #20 (Admin Payment/Render config), #21 (Finalisation), and #23 (PWA manifest fix) into a single clean PR.
+- Status: #23 already adds the `/manifest.json` route and manifest; #20 and #21 currently conflict with `main`.
+- Merge plan: branch from `main` → cherry-pick/apply #23 then #20 then #21 → resolve conflicts → verify `app` imports, server starts, and `/manifest.json` is reachable.
+- Follow-up: open one PR titled “Unified PR (#20, #21, #23)” and close/archive the individual PRs.
+
+---
+
+## Plan en français
 Objectif : rassembler les travaux des PR #20, #21 et #23 dans un seul pull request propre.
 
-## État actuel
+### État actuel
 - PR #23 – Manifest PWA manquant : corrigé (manifest.json servi via `/manifest.json` dans `app.py`).
 - PR #20 – Admin Payment Management & Render Config : conflits avec `main`.
 - PR #21 – Finalisation : conflits car basé sur une branche divergente.
 
-## Plan d’unification en une seule PR
+### Plan d’unification en une seule PR
 1. Créer une branche `unified-pr` depuis `main`.
 2. Rejouer ou cherry-pick les changements utiles des PR dans cet ordre : #23 (manifest), #20 (paiements/admin/render), #21 (finalisation).
 3. Résoudre les conflits manuellement et vérifier les paramètres Render/admin avant de pousser.
 4. Exécuter les vérifications de base : import `app`, démarrage Flask, accès `/manifest.json`.
 5. Ouvrir un unique pull request « Unified PR (#20, #21, #23) » vers `main` avec ce résumé et la checklist de validation.
 
-## Résumé prêt à coller dans le PR unifié
-- ✅ Manifest PWA servie et icônes vérifiées.
+### Résumé prêt à coller dans le PR unifié
+- ✅ Manifest PWA disponible et icônes vérifiées.
 - 🔄 Admin Payment + Render config consolidés.
 - 🧹 Conflits de branches nettoyés pour éviter plusieurs PR concurrentes.
 - 🧪 Tests : import `app`, démarrage serveur, vérification `/manifest.json`.
 
-## À retenir
+### À retenir
 - Après fusion, fermer ou archiver les PR individuels (#20, #21, #23) pour éviter les doublons.
