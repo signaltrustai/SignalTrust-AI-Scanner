@@ -27,18 +27,20 @@ Each agent specializes in a specific domain and collaborates through a central o
 
 ---
 
-## 📘 Official Google Colab Notebook
+## 📘 Google Colab — Full AI & Multi‑Agent Environment
 
-Launch SignalTrust AI directly in Google Colab — no installation required.
+Lancez SignalTrust AI dans un environnement cloud prêt à l'emploi :
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/signaltrustai/SignalTrust-AI-Scanner/blob/main/SignalTrust_AI_Scanner.ipynb)
 
-The notebook includes:
-- Automatic environment setup
-- Flask server launch
-- ngrok exposure
-- Multi‑agent startup
-- API testing examples
+Ce notebook inclut :
+- Installation automatique
+- Lancement du serveur Flask
+- Exposition via ngrok
+- Démarrage des 9 agents
+- Tests API multi‑agents
+- Monitoring en temps réel
+- Lancement de campagne virale multi‑réseaux
 
 ---
 
@@ -240,6 +242,17 @@ Each agent exposes Swagger docs:
 | On-Chain Agent | http://localhost:8006/docs |
 | Macro Economics | http://localhost:8007/docs |
 | Portfolio Optimizer | http://localhost:8008/docs |
+
+### Viral Campaign API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/campaign/launch` | POST | Launch a viral marketing campaign |
+| `/api/campaign/status` | GET | Get real-time campaign status |
+| `/api/campaign/generate` | POST | Generate content for a specific platform |
+| `/api/campaign/calendar` | POST | Generate a content calendar |
+| `/api/campaign/report` | GET | Get full performance report |
+| `/api/system/health` | GET | Comprehensive system health check |
 
 ---
 

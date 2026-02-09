@@ -72,6 +72,7 @@ from agent_client import get_agent_client
 from api_processor import get_api_processor
 from ai_evolution_engine import get_evolution_engine
 from asi_collaboration import CollaborationGenerator
+from viral_marketing_ai_team import ViralMarketingCampaign
 
 # Import optimizer safely (new module)
 try:
@@ -204,6 +205,9 @@ except Exception as e:
 
 # Initialize ASI Collaboration Generator
 collab_generator = CollaborationGenerator()
+
+# Initialize Viral Marketing Campaign
+viral_campaign = ViralMarketingCampaign()
 
 # Initialize ASI1 and AI Chat System with dependencies
 from asi1_integration import ASI1AIIntegration
@@ -2007,6 +2011,147 @@ def api_collaboration_get(invitation_id):
     d = inv.to_dict()
     d.pop("token", None)
     return jsonify({"success": True, "invitation": d}), 200
+
+# -----------------------------
+# API ROUTES - VIRAL CAMPAIGN
+# -----------------------------
+
+@app.route("/api/campaign/launch", methods=["POST"])
+def api_campaign_launch():
+    """Launch a viral marketing campaign across all social platforms."""
+    data = request.get_json() or {}
+    duration = data.get("duration_days", 30)
+    if not isinstance(duration, int) or duration < 1:
+        duration = 30
+    duration = min(duration, 90)
+
+    try:
+        report = viral_campaign.launch_campaign(duration_days=duration)
+        return jsonify({"success": True, "campaign": report}), 201
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/campaign/status", methods=["GET"])
+def api_campaign_status():
+    """Get the current campaign status and real-time dashboard."""
+    try:
+        status = viral_campaign.get_campaign_status()
+        return jsonify({"success": True, "data": status}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/campaign/generate", methods=["POST"])
+def api_campaign_generate_content():
+    """Generate viral content for a specific platform.
+
+    Body JSON:
+        platform (str): twitter, tiktok, instagram, youtube, reddit (required).
+        topic (str): Content topic (default "new_feature").
+        style (str): engaging, educational, humorous, urgent (default "engaging").
+    """
+    data = request.get_json() or {}
+    platform = (data.get("platform") or "").lower().strip()
+    valid_platforms = {"twitter", "tiktok", "instagram", "youtube", "reddit",
+                       "discord", "telegram"}
+    if platform not in valid_platforms:
+        return jsonify({
+            "success": False,
+            "error": f"Invalid platform. Choose from: {sorted(valid_platforms)}",
+        }), 400
+
+    topic = data.get("topic", "new_feature")
+    style = data.get("style", "engaging")
+
+    try:
+        post = viral_campaign.content_creator.generate_viral_post(
+            platform=platform, topic=topic, style=style,
+        )
+        return jsonify({"success": True, "post": post}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/campaign/calendar", methods=["POST"])
+def api_campaign_calendar():
+    """Generate a content calendar for the campaign.
+
+    Body JSON:
+        days (int): Number of days to plan (default 7, max 90).
+    """
+    data = request.get_json() or {}
+    days = data.get("days", 7)
+    if not isinstance(days, int) or days < 1:
+        days = 7
+    days = min(days, 90)
+
+    try:
+        calendar = viral_campaign.content_creator.create_content_calendar(days=days)
+        return jsonify({
+            "success": True,
+            "days": days,
+            "total_posts": len(calendar),
+            "calendar": calendar,
+        }), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/campaign/report", methods=["GET"])
+def api_campaign_report():
+    """Get the full campaign performance report."""
+    try:
+        report = viral_campaign.generate_viral_report()
+        return jsonify({"success": True, "report": report}), 200
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/system/health", methods=["GET"])
+def api_system_health():
+    """Comprehensive system health check across all AI components."""
+    components = {}
+
+    # Core modules
+    for name, obj in [
+        ("market_scanner", market_scanner),
+        ("market_analyzer", market_analyzer),
+        ("ai_predictor", ai_predictor),
+        ("ai_intelligence", ai_intelligence),
+        ("whale_watcher", whale_watcher),
+        ("notification_center", notification_center),
+        ("realtime_data", realtime_data),
+        ("gem_finder", gem_finder),
+        ("universal_analyzer", universal_analyzer),
+        ("total_collector", total_collector),
+        ("ai_evolution", ai_evolution),
+        ("collab_generator", collab_generator),
+        ("viral_campaign", viral_campaign),
+    ]:
+        components[name] = "ok" if obj is not None else "unavailable"
+
+    # Optional modules
+    for name, obj in [
+        ("ai_coordinator", ai_coordinator),
+        ("ai_learning", ai_learning),
+        ("ai_optimizer", ai_optimizer),
+        ("agent_client", agent_client),
+        ("api_processor", api_processor),
+        ("evolution_engine", evolution_engine),
+    ]:
+        components[name] = "ok" if obj is not None else "unavailable"
+
+    ok_count = sum(1 for v in components.values() if v == "ok")
+
+    return jsonify({
+        "success": True,
+        "status": "healthy" if ok_count >= 13 else "degraded",
+        "components_ok": ok_count,
+        "components_total": len(components),
+        "components": components,
+        "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    }), 200
 
 # -----------------------------
 # API ROUTES - API PROCESSOR
