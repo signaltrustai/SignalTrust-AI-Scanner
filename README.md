@@ -2,6 +2,11 @@
 
 [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/signaltrustai/SignalTrust-AI-Scanner/blob/main/example_openai_usage.py)
 
+**SignalTrust** est votre copilote complet pour repérer, analyser et agir sur les marchés en quelques secondes. Vous obtenez dans une seule plateforme :
+- scans temps réel (actions, crypto, NFT), analyses techniques et prédictions IA,
+- architecture multi-agents prête à l’emploi (CrewAI) avec 10+ agents spécialisés,
+- parcours rapide : badge Colab ci-dessus pour tester immédiatement, dashboard web (`http://localhost:5000`) pour piloter tout le système.
+
 The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
 
 ## 🧠 NEW: AI Evolution System ✨✨✨
