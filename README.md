@@ -1,5 +1,7 @@
 # SignalTrust AI Market Scanner
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/signaltrustai/SignalTrust-AI-Scanner/blob/main/example_openai_usage.py)
+
 The **Ultimate AI-Powered Market Scanner** for intelligent trading and investment decisions. A comprehensive web-based platform that combines real-time market scanning, technical analysis, AI predictions, and secure payment processing.
 
 ## 🧠 NEW: AI Evolution System ✨✨✨
@@ -487,4 +489,3 @@ For support, email support@signaltrust.ai or visit our support portal.
 ---
 
 **Made with ❤️ by SignalTrust AI**
-
