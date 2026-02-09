@@ -227,7 +227,7 @@ class SubscriptionManager:
             'description': 'All features included',
             'features': 'all',
             'price_monthly': 149.99,  # Huge savings
-            'savings': 200+,
+            'savings': 200.00,
             'icon': '👑'
         }
     }
