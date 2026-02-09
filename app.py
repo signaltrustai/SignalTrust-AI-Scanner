@@ -160,6 +160,7 @@ AGENT_IDS = {
 }
 
 LEARNING_DATA_FILE = "data/ai_learning_data.json"
+_MAX_CAMPAIGN_DAYS = 90
 
 # Initialize system components
 user_auth = UserAuth()
@@ -2023,7 +2024,7 @@ def api_campaign_launch():
     duration = data.get("duration_days", 30)
     if not isinstance(duration, int) or duration < 1:
         duration = 30
-    duration = min(duration, 90)
+    duration = min(duration, _MAX_CAMPAIGN_DAYS)
 
     try:
         report = viral_campaign.launch_campaign(duration_days=duration)
@@ -2084,7 +2085,7 @@ def api_campaign_calendar():
     days = data.get("days", 7)
     if not isinstance(days, int) or days < 1:
         days = 7
-    days = min(days, 90)
+    days = min(days, _MAX_CAMPAIGN_DAYS)
 
     try:
         calendar = viral_campaign.content_creator.create_content_calendar(days=days)
@@ -2143,12 +2144,13 @@ def api_system_health():
         components[name] = "ok" if obj is not None else "unavailable"
 
     ok_count = sum(1 for v in components.values() if v == "ok")
+    total = len(components)
 
     return jsonify({
         "success": True,
-        "status": "healthy" if ok_count >= 13 else "degraded",
+        "status": "healthy" if ok_count >= total * 0.7 else "degraded",
         "components_ok": ok_count,
-        "components_total": len(components),
+        "components_total": total,
         "components": components,
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     }), 200

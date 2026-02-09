@@ -30,9 +30,10 @@ def test_system_health():
     data = resp.get_json()
     assert data["success"] is True
     assert data["status"] in ("healthy", "degraded")
-    assert data["components_ok"] >= 10
+    assert data["components_ok"] >= data["components_total"] * 0.5
     assert "components" in data
     assert "viral_campaign" in data["components"]
+    assert "market_scanner" in data["components"]
     print("  ✅ system health: returns component statuses")
     return True
 
