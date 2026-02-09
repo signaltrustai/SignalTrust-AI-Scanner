@@ -12,6 +12,9 @@ from typing import Dict, List
 
 class AIEvolutionSystem:
     """AI system that evolves using collected market data."""
+
+    # Accuracy threshold used when bullish/bearish signals are balanced
+    NEUTRAL_ACCURACY_THRESHOLD = 0.65
     
     def __init__(self):
         """Initialize AI evolution system."""
@@ -375,7 +378,7 @@ class AIEvolutionSystem:
         elif bearish_count > bullish_count:
             direction = 'DOWN'
         else:
-            direction = 'UP' if accuracy >= 0.65 else 'DOWN'
+            direction = 'UP' if accuracy >= self.NEUTRAL_ACCURACY_THRESHOLD else 'DOWN'
 
         # Derive target_change from accuracy and intelligence
         base_change = (accuracy - 0.5) * 100

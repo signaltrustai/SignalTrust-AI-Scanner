@@ -470,6 +470,10 @@ class ContentGeneratorAgent(AIAgent):
 class SecurityGuardAgent(AIAgent):
     """Agent spécialisé dans la détection de fraudes et menaces"""
 
+    HIGH_RISK_ACTIVITIES = ("bulk_trade", "large_withdrawal")
+    HIGH_RISK_SCORE = 20
+    UNKNOWN_IP_SCORE = 30
+
     def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
         activity_type = input_data.get("activity_type", "login")
         ip_address = input_data.get("ip_address", "unknown")
@@ -479,14 +483,14 @@ class SecurityGuardAgent(AIAgent):
         anomalies = []
 
         # Check high-risk activity types regardless of patterns
-        if activity_type in ("bulk_trade", "large_withdrawal"):
-            threat_score += 20
+        if activity_type in self.HIGH_RISK_ACTIVITIES:
+            threat_score += self.HIGH_RISK_SCORE
             anomalies.append("high_risk_activity")
 
         if patterns:
             known_ips = [p["value"] for p in patterns if isinstance(p.get("value"), str)]
             if ip_address not in known_ips and known_ips:
-                threat_score += 30
+                threat_score += self.UNKNOWN_IP_SCORE
                 anomalies.append("unknown_ip")
 
         if threat_score > 50:
@@ -567,16 +571,16 @@ class PatternRecognizerAgent(AIAgent):
 class SentimentAnalyzerAgent(AIAgent):
     """Agent spécialisé dans l'analyse de sentiment du marché"""
 
+    POSITIVE_WORDS = frozenset({"buy", "bull", "up", "gain", "profit", "growth", "rise", "strong"})
+    NEGATIVE_WORDS = frozenset({"sell", "bear", "down", "loss", "crash", "drop", "weak", "decline"})
+
     def _generate_prediction(self, input_data: Dict, patterns: List[Dict]) -> Dict[str, Any]:
         text = input_data.get("text", "")
         source = input_data.get("source", "unknown")
 
-        positive_words = {"buy", "bull", "up", "gain", "profit", "growth", "rise", "strong"}
-        negative_words = {"sell", "bear", "down", "loss", "crash", "drop", "weak", "decline"}
-
         words = text.lower().split()
-        pos_count = sum(1 for w in words if w in positive_words)
-        neg_count = sum(1 for w in words if w in negative_words)
+        pos_count = sum(1 for w in words if w in self.POSITIVE_WORDS)
+        neg_count = sum(1 for w in words if w in self.NEGATIVE_WORDS)
         total = pos_count + neg_count
 
         if total > 0:
