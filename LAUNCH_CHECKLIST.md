@@ -3,7 +3,7 @@
 Comprehensive pre-launch checklist for SignalTrust AI.
 
 ## Technical Readiness
-- [ ] Agents running and healthy (crypto, stock, whale, news, coordinator, supervisor).
+- [ ] Agents running and healthy (crypto, stock, whale, news, coordinator, supervisor) — confirm against current production roster.
 - [ ] Core API endpoints responding with 200s (auth, scan, analysis, notifications).
 - [ ] Web app loads without console errors; critical flows exercised (login, scan, dashboard).
 - [ ] Render deployment uses correct environment variables and secrets; latest image deployed.

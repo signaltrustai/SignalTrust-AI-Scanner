@@ -24,7 +24,7 @@ Multi-platform launch plan with schedules, hooks, and tracking.
 - Hooks: “Stop missing catalysts,” “Alerts before the crowd,” “Proof-of-safety: enforced limits,” “One-click insights.”
 
 ## Example Captions & CTAs
-- “SignalTrust AI catches moves before they trend. Ready to scan smarter? 👉 sign up today.” (CTA: Join waitlist / Start trial)
+- “SignalTrust AI catches moves before they trend. Ready to scan smarter? 👉 sign up today.” (CTA: Join waitlist pre-open; switch to Start trial once live)
 - “Agents watching crypto, stocks, and whales 24/7. You get one clean signal stream.” (CTA: Try the live demo)
 - “We ship with payment guardrails and rate limits baked in. Safety first.” (CTA: See how limits work)
 - “Day 3 launch diary: what broke, what we fixed, and today’s wins.” (CTA: Follow for daily drops)
