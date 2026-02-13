@@ -25,10 +25,8 @@ class KeyValidator:
     
     # API key format patterns
     KEY_PATTERNS = {
-        # OpenAI: Supports both legacy (sk-) and project (sk-proj-) keys
-        # Legacy format: sk-{20+ alphanumeric chars}
-        # Project format: sk-proj-{20+ alphanumeric chars}
-        'OPENAI_API_KEY': r'^sk-(proj-)?[a-zA-Z0-9]{20,}$',
+        # Groq: API keys start with gsk_
+        'GROQ_API_KEY': r'^gsk_[a-zA-Z0-9]{20,}$',
         'ANTHROPIC_API_KEY': r'^sk-ant-[a-zA-Z0-9\-_]{95,}$',
         'COINGECKO_API_KEY': r'^CG-[a-zA-Z0-9]{32}$',
         'ALPHAVANTAGE_API_KEY': r'^[A-Z0-9]{16}$',
@@ -38,8 +36,8 @@ class KeyValidator:
     
     # API test endpoints
     TEST_ENDPOINTS = {
-        'OPENAI_API_KEY': {
-            'url': 'https://api.openai.com/v1/models',
+        'GROQ_API_KEY': {
+            'url': 'https://api.groq.com/openai/v1/models',
             'method': 'GET',
             'headers': lambda key: {'Authorization': f'Bearer {key}'},
         },
@@ -88,7 +86,7 @@ class KeyValidator:
         Validate API key format.
         
         Args:
-            key_name: Name of the key (e.g., 'OPENAI_API_KEY')
+            key_name: Name of the key (e.g., 'GROQ_API_KEY')
             key_value: The key value to validate
             
         Returns:
@@ -260,10 +258,10 @@ class KeyValidator:
             return 'stale'
 
 
-def validate_openai_key(key: str, test: bool = False) -> bool:
-    """Quick validation for OpenAI key."""
+def validate_groq_key(key: str, test: bool = False) -> bool:
+    """Quick validation for Groq key."""
     validator = KeyValidator()
-    result = validator.validate_key('OPENAI_API_KEY', key, test_connection=test)
+    result = validator.validate_key('GROQ_API_KEY', key, test_connection=test)
     return result['valid']
 
 
@@ -287,7 +285,7 @@ if __name__ == "__main__":
     
     # Test with environment variables
     test_keys = [
-        'OPENAI_API_KEY',
+        'GROQ_API_KEY',
         'ANTHROPIC_API_KEY',
         'COINGECKO_API_KEY',
         'ALPHAVANTAGE_API_KEY',

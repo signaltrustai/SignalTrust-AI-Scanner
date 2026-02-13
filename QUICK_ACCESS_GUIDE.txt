@@ -76,7 +76,7 @@ Actions:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Required:
 • ADMIN_PASSWORD - Your admin password
-• OPENAI_API_KEY or ANTHROPIC_API_KEY - AI provider
+• GROQ_API_KEY or ANTHROPIC_API_KEY - AI provider
 
 Already Configured:
 • All crypto wallet addresses

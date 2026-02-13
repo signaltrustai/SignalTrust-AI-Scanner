@@ -180,7 +180,7 @@ def _build_session() -> requests.Session:
 class AIWorker:
     """Wraps a single AI provider with stats tracking and pooled HTTP."""
 
-    PROVIDER_PRIORITY = {"openai": 1, "anthropic": 2, "ollama": 3, "rule_based": 4}
+    PROVIDER_PRIORITY = {"groq": 1, "anthropic": 2, "ollama": 3, "rule_based": 4}
 
     def __init__(self, name: str, provider: str, config: dict, session: requests.Session):
         self.name = name
@@ -259,8 +259,8 @@ class AIWorker:
 
         full_prompt = f"{prompt}{ctx_block}"
 
-        if self.provider == "openai":
-            return self._call_openai(task_type, full_prompt, data)
+        if self.provider == "groq":
+            return self._call_groq(task_type, full_prompt, data)
         elif self.provider == "anthropic":
             return self._call_anthropic(task_type, full_prompt, data)
         elif self.provider == "ollama":
@@ -270,13 +270,13 @@ class AIWorker:
         else:
             return {"success": False, "error": f"Unknown provider: {self.provider}"}
 
-    # ---- OpenAI -----------------------------------------------------------
+    # ---- Groq -----------------------------------------------------------
 
-    def _call_openai(self, task_type: str, prompt: str, data: dict) -> dict:
-        api_key = self.config.get("api_key") or os.getenv("OPENAI_API_KEY", "")
-        model = self.config.get("model") or os.getenv("OPENAI_MODEL", "gpt-4o")
+    def _call_groq(self, task_type: str, prompt: str, data: dict) -> dict:
+        api_key = self.config.get("api_key") or os.getenv("GROQ_API_KEY", "")
+        model = self.config.get("model") or os.getenv("GROQ_MODEL", "llama3-70b-8192")
         if not api_key:
-            return {"success": False, "error": "No OpenAI API key"}
+            return {"success": False, "error": "No Groq API key"}
 
         system_msg = (
             "You are SignalTrust AI — an elite financial market analyst. "
@@ -291,7 +291,7 @@ class AIWorker:
         ]
 
         resp = self.session.post(
-            "https://api.openai.com/v1/chat/completions",
+            "https://api.groq.com/openai/v1/chat/completions",
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
             json={"model": model, "messages": messages, "temperature": 0.3, "max_tokens": 1500},
             timeout=30,
@@ -511,13 +511,13 @@ class MultiAICoordinator:
 
     TASK_SPECIALISTS = {
         "technical_analysis": "rule_based",
-        "sentiment_analysis": "openai",
-        "price_prediction": "openai",
+        "sentiment_analysis": "groq",
+        "price_prediction": "groq",
         "risk_assessment": "rule_based",
         "market_overview": "anthropic",
         "whale_analysis": "rule_based",
         "gem_analysis": "rule_based",
-        "portfolio_analysis": "openai",
+        "portfolio_analysis": "groq",
     }
 
     def __init__(self, max_workers: int = 8, cache_ttl: int = 300):
@@ -539,12 +539,12 @@ class MultiAICoordinator:
         # Rule-based (always available, instant)
         self._register("RuleEngine", "rule_based", {})
 
-        # OpenAI
-        openai_key = os.getenv("OPENAI_API_KEY", "")
-        if openai_key and not openai_key.startswith("your_"):
-            self._register("OpenAI-GPT4", "openai", {
-                "api_key": openai_key,
-                "model": os.getenv("OPENAI_MODEL", "gpt-4o"),
+        # Groq
+        groq_key = os.getenv("GROQ_API_KEY", "")
+        if groq_key and not groq_key.startswith("your_"):
+            self._register("Groq-Llama", "groq", {
+                "api_key": groq_key,
+                "model": os.getenv("GROQ_MODEL", "llama3-70b-8192"),
             })
 
         # Anthropic

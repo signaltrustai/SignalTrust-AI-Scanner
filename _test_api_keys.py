@@ -52,17 +52,17 @@ except Exception as e:
     print(f"   ❌ FAIL: {e}")
     results.append(False)
 
-# 3. OpenAI
-print("\n[3] OpenAI GPT-4...")
+# 3. Groq
+print("\n[3] Groq LLM...")
 try:
     r = requests.get(
-        "https://api.openai.com/v1/models",
-        headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY', '')}"},
+        "https://api.groq.com/openai/v1/models",
+        headers={"Authorization": f"Bearer {os.getenv('GROQ_API_KEY', '')}"},
         timeout=10
     )
     if r.status_code == 200:
-        models = [m["id"] for m in r.json().get("data", []) if "gpt-4" in m["id"]]
-        print(f"   ✅ OK — {len(models)} modèles GPT-4 disponibles")
+        models = [m["id"] for m in r.json().get("data", []) if "llama" in m["id"]]
+        print(f"   ✅ OK — {len(models)} modèles Llama disponibles")
         results.append(True)
     else:
         print(f"   ❌ ERREUR: HTTP {r.status_code}")

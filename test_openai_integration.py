@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Test script for OpenAI integration
-Tests the basic functionality of the OpenAI-powered AI system
+Test script for Groq integration
+Tests the basic functionality of the Groq-powered AI system
 """
 
 import os
@@ -11,38 +11,38 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-def test_openai_configuration():
-    """Test if OpenAI is configured"""
-    print("Testing OpenAI Configuration...")
+def test_groq_configuration():
+    """Test if Groq is configured"""
+    print("Testing Groq Configuration...")
     print("-" * 60)
     
-    api_key = os.getenv('OPENAI_API_KEY')
-    model = os.getenv('OPENAI_MODEL', 'gpt-4')
+    api_key = os.getenv('GROQ_API_KEY')
+    model = os.getenv('GROQ_MODEL', 'llama3-70b-8192')
     
-    if not api_key or api_key == 'your_openai_api_key_here':
-        print("❌ OPENAI_API_KEY not configured")
+    if not api_key or api_key == 'your_groq_api_key_here':
+        print("❌ GROQ_API_KEY not configured")
         print()
         print("To fix this:")
         print("1. Copy .env.example to .env: cp .env.example .env")
-        print("2. Get your API key from: https://platform.openai.com/api-keys")
-        print("3. Add it to .env file: OPENAI_API_KEY=sk-proj-your-key-here")
+        print("2. Get your API key from: https://console.groq.com/keys")
+        print("3. Add it to .env file: GROQ_API_KEY=gsk_your-key-here")
         print()
         return False
     
-    print(f"✓ OPENAI_API_KEY is configured")
+    print(f"✓ GROQ_API_KEY is configured")
     print(f"✓ Using model: {model}")
     print(f"✓ API key starts with: {api_key[:15]}...")
     print()
     return True
 
 def test_openai_import():
-    """Test if OpenAI library is installed"""
-    print("Testing OpenAI Library...")
+    """Test if OpenAI library is installed (used for Groq compatibility)"""
+    print("Testing OpenAI Library (Groq-compatible)...")
     print("-" * 60)
     
     try:
         from openai import OpenAI
-        print("✓ OpenAI library is installed")
+        print("✓ OpenAI library is installed (used for Groq API compatibility)")
         print()
         return True
     except ImportError:
@@ -117,12 +117,12 @@ def main():
     """Run all tests"""
     print()
     print("=" * 60)
-    print("SignalTrust AI Scanner - OpenAI Integration Test")
+    print("SignalTrust AI Scanner - Groq Integration Test")
     print("=" * 60)
     print()
     
     tests = [
-        ("Configuration", test_openai_configuration),
+        ("Configuration", test_groq_configuration),
         ("OpenAI Library", test_openai_import),
         ("AI Integration", test_asi1_integration),
     ]
@@ -157,17 +157,13 @@ def main():
     print()
     
     if all(r[1] for r in results):
-        print("🎉 All tests passed! OpenAI integration is working correctly.")
+        print("🎉 All tests passed! Groq integration is working correctly.")
         print()
         print("Next steps:")
-        print("  - Run the full example: python example_openai_usage.py")
         print("  - Start the web application: python start.py")
-        print("  - Read the setup guide: cat OPENAI_SETUP_GUIDE.md")
         return 0
     else:
         print("⚠️ Some tests failed. Please fix the issues above.")
-        print()
-        print("For help, see: OPENAI_SETUP_GUIDE.md")
         return 1
 
 if __name__ == "__main__":

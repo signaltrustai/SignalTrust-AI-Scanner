@@ -22,23 +22,23 @@ def main():
     """Main example function"""
     
     print("=" * 60)
-    print("SignalTrust AI Scanner - OpenAI Integration Example")
+    print("SignalTrust AI Scanner - Groq Integration Example")
     print("=" * 60)
     print()
     
     # Check if API key is configured
-    api_key = os.getenv('OPENAI_API_KEY')
+    api_key = os.getenv('GROQ_API_KEY')
     if not api_key:
-        print("❌ OPENAI_API_KEY not found in environment variables")
+        print("❌ GROQ_API_KEY not found in environment variables")
         print()
-        print("Please create a .env file with your OpenAI API key:")
-        print("  OPENAI_API_KEY=sk-proj-your-api-key-here")
+        print("Please create a .env file with your Groq API key:")
+        print("  GROQ_API_KEY=gsk_your-api-key-here")
         print()
-        print("Get your API key from: https://platform.openai.com/api-keys")
+        print("Get your API key from: https://console.groq.com/keys")
         return
     
-    print("✓ OpenAI API key found")
-    print(f"✓ Using model: {os.getenv('OPENAI_MODEL', 'gpt-4')}")
+    print("✓ Groq API key found")
+    print(f"✓ Using model: {os.getenv('GROQ_MODEL', 'llama3-70b-8192')}")
     print()
     
     # Initialize AI integration

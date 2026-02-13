@@ -1,4 +1,4 @@
-"""Test script for OpenAI integration.
+"""Test script for Groq integration.
 Usage: python test_openai.py
 """
 import os
@@ -7,15 +7,18 @@ from openai import OpenAI
 
 load_dotenv()
 
-API_KEY = os.getenv('OPENAI_API_KEY')
-MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
+API_KEY = os.getenv('GROQ_API_KEY')
+MODEL = os.getenv('GROQ_MODEL', 'llama3-70b-8192')
 
 if not API_KEY:
-    print("ERROR: OPENAI_API_KEY not set in environment (.env)")
+    print("ERROR: GROQ_API_KEY not set in environment (.env)")
     print("Please add your key to the .env file in the project root.")
     raise SystemExit(1)
 
-client = OpenAI(api_key=API_KEY)
+client = OpenAI(
+    api_key=API_KEY,
+    base_url="https://api.groq.com/openai/v1"
+)
 
 payload = "Donne-moi une phrase courte de salutation en français."
 
@@ -35,12 +38,12 @@ try:
             content = resp.choices[0].message['content']
         except Exception:
             content = str(resp)
-    print("OpenAI response:\n", content)
+    print("Groq response:\n", content)
 
 except Exception as e:
     # Provide clearer guidance on API errors
     err_text = str(e)
-    print("OpenAI client error:", err_text)
+    print("Groq client error:", err_text)
     if 'invalid_api_key' in err_text or '401' in err_text:
-        print("→ 401 Invalid API key: check your .env value or regenerate the key at https://platform.openai.com/account/api-keys")
+        print("→ 401 Invalid API key: check your .env value or regenerate the key at https://console.groq.com/keys")
     raise SystemExit(2)

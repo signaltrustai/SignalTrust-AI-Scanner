@@ -15,11 +15,11 @@ app = FastAPI(title="SignalTrust Stock Analyst EU", version="1.0.0")
 
 
 class StockLLM:
-    """Wrapper for OpenAI LLM for stock analysis"""
+    """Wrapper for Groq LLM for stock analysis (OpenAI-compatible)"""
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "llama3-70b-8192"):
         self.model = model
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY")
         
     def run(self, prompt: str, output_format: str = "json") -> Dict[str, Any]:
         """Run LLM inference"""
@@ -28,7 +28,10 @@ class StockLLM:
             
         try:
             import openai
-            client = openai.OpenAI(api_key=self.api_key)
+            client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.groq.com/openai/v1"
+            )
             
             response = client.chat.completions.create(
                 model=self.model,
@@ -71,7 +74,7 @@ class StockLLM:
                 "7d": {"price": "182.00", "probability": 0.72},
                 "30d": {"price": "195.00", "probability": 0.65}
             },
-            "note": "Mock response - configure OPENAI_API_KEY for real analysis"
+            "note": "Mock response - configure GROQ_API_KEY for real analysis"
         }
 
 
@@ -115,7 +118,7 @@ class PredictRequest(BaseModel):
 
 
 # Initialize components
-llm = StockLLM(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
+llm = StockLLM(model=os.getenv("GROQ_MODEL", "llama3-70b-8192"))
 price_fetcher = PriceFetcher(key=os.getenv("ALPHAVANTAGE_API_KEY"))
 
 

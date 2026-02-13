@@ -83,7 +83,7 @@ class KeyManager:
         Store an API key.
         
         Args:
-            key_name: Name of the key (e.g., 'OPENAI_API_KEY')
+            key_name: Name of the key (e.g., 'GROQ_API_KEY')
             key_value: The actual key value
             save: Whether to save to disk immediately
             
@@ -327,10 +327,10 @@ class KeyManager:
 
 
 # Convenience functions for common operations
-def get_openai_key() -> Optional[str]:
-    """Get OpenAI API key."""
+def get_groq_key() -> Optional[str]:
+    """Get Groq API key."""
     manager = KeyManager()
-    return manager.get_key('OPENAI_API_KEY')
+    return manager.get_key('GROQ_API_KEY')
 
 
 def get_anthropic_key() -> Optional[str]:

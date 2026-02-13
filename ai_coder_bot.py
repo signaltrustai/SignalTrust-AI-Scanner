@@ -109,17 +109,20 @@ class AICoderBot:
 
     def _init_ai(self):
         """Initialize the best available AI provider."""
-        # Try OpenAI first
-        openai_key = os.environ.get("OPENAI_API_KEY", "")
-        if openai_key and not openai_key.startswith("sk-proj-PLACEHOLDER"):
+        # Try Groq first
+        groq_key = os.environ.get("GROQ_API_KEY", "")
+        if groq_key and not groq_key.startswith("your_"):
             try:
                 import openai
-                self._ai_engine = openai.OpenAI(api_key=openai_key)
-                self._provider_name = os.environ.get("OPENAI_MODEL", "gpt-4o")
-                logger.info("CoderBot: OpenAI provider ready")
+                self._ai_engine = openai.OpenAI(
+                    api_key=groq_key,
+                    base_url="https://api.groq.com/openai/v1"
+                )
+                self._provider_name = os.environ.get("GROQ_MODEL", "llama3-70b-8192")
+                logger.info("CoderBot: Groq provider ready")
                 return
             except Exception as e:
-                logger.warning(f"CoderBot: OpenAI init failed: {e}")
+                logger.warning(f"CoderBot: Groq init failed: {e}")
 
         # Try Anthropic
         anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -198,18 +201,18 @@ class AICoderBot:
     def _call_ai(self, session: CoderSession) -> str:
         """Route to the correct AI provider."""
         try:
-            if self._provider_name.startswith("gpt") or self._provider_name.startswith("o"):
-                return self._call_openai(session)
-            elif "claude" in self._provider_name:
+            if "claude" in self._provider_name:
                 return self._call_anthropic(session)
+            elif self._provider_name != "none":
+                return self._call_groq(session)
             else:
                 return self._fallback_response(session)
         except Exception as e:
             logger.error(f"CoderBot AI call error: {e}")
             return f"⚠️ AI Error: {str(e)}\n\nPlease try again or check the AI provider configuration."
 
-    def _call_openai(self, session: CoderSession) -> str:
-        """Call OpenAI ChatCompletion."""
+    def _call_groq(self, session: CoderSession) -> str:
+        """Call Groq ChatCompletion (OpenAI-compatible)."""
         messages = [{"role": "system", "content": SYSTEM_PROMPT}]
         # Add conversation history (last 20 messages for context window)
         for msg in session.messages[-20:]:
@@ -246,7 +249,7 @@ class AICoderBot:
             return (
                 "👋 Hello! I'm the SignalTrust Coder Bot.\n\n"
                 "I can help with code but I currently have **no AI provider configured**.\n"
-                "Set `OPENAI_API_KEY` or `ANTHROPIC_API_KEY` in your environment variables "
+                "Set `GROQ_API_KEY` or `ANTHROPIC_API_KEY` in your environment variables "
                 "to enable full AI-powered coding assistance.\n\n"
                 "In the meantime, I can still show you code templates and project info!"
             )
@@ -284,7 +287,7 @@ class AICoderBot:
         return (
             "I received your message but **no AI provider is currently configured**.\n\n"
             "To enable full AI coding assistance, set one of these environment variables:\n"
-            "- `OPENAI_API_KEY` — for GPT-4 powered responses\n"
+            "- `GROQ_API_KEY` — for Groq LLM powered responses\n"
             "- `ANTHROPIC_API_KEY` — for Claude powered responses\n\n"
             "💡 Type **help** to see what I can assist with."
         )

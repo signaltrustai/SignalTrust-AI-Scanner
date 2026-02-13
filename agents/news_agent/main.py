@@ -13,11 +13,11 @@ app = FastAPI(title="SignalTrust Market News EU", version="1.0.0")
 
 
 class LLM:
-    """Wrapper for OpenAI LLM for news analysis"""
+    """Wrapper for Groq LLM for news analysis (OpenAI-compatible)"""
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "llama3-70b-8192"):
         self.model = model
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY")
         
     def run(self, prompt: str, output_format: str = "list") -> Dict[str, Any]:
         """Run LLM inference"""
@@ -26,7 +26,10 @@ class LLM:
             
         try:
             import openai
-            client = openai.OpenAI(api_key=self.api_key)
+            client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.groq.com/openai/v1"
+            )
             
             response = client.chat.completions.create(
                 model=self.model,
@@ -102,7 +105,7 @@ class NewsRequest(BaseModel):
 
 # Initialize components
 nc = NewsCatcher(api_key=os.getenv("NEWS_CATCHER_API_KEY"))
-llm = LLM(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
+llm = LLM(model=os.getenv("GROQ_MODEL", "llama3-70b-8192"))
 
 
 @app.get("/")

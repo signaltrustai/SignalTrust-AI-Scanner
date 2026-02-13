@@ -37,7 +37,7 @@ def check_environment():
     print("\n🔍 Vérification de l'environnement...")
     
     required_vars = [
-        'OPENAI_API_KEY',
+        'GROQ_API_KEY',
         'ANTHROPIC_API_KEY'
     ]
     
@@ -338,7 +338,7 @@ def show_configuration():
     
     # AI Providers
     print("\n🤖 AI Providers:")
-    print(f"   OpenAI: {'✅ Configuré' if os.getenv('OPENAI_API_KEY') else '❌ Non configuré'}")
+    print(f"   Groq: {'✅ Configuré' if os.getenv('GROQ_API_KEY') else '❌ Non configuré'}")
     print(f"   Anthropic: {'✅ Configuré' if os.getenv('ANTHROPIC_API_KEY') else '❌ Non configuré'}")
     
     # Social Media
