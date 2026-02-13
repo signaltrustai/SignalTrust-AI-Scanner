@@ -83,7 +83,7 @@ class KeyManager:
         Store an API key.
         
         Args:
-            key_name: Name of the key (e.g., 'OPENAI_API_KEY')
+            key_name: Name of the key (e.g., 'GROQ_API_KEY')
             key_value: The actual key value
             save: Whether to save to disk immediately
             

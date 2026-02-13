@@ -95,8 +95,8 @@ def test_key_validator():
     
     # Test cases: (key_name, key_value, should_be_valid)
     test_cases = [
-        ('GROQ_API_KEY', 'gsk_abcdefghij1234567890ab', True),  # Groq key format
-        ('GROQ_API_KEY', 'gsk_abcdefghij1234567890', True),  # Groq key format
+        ('GROQ_API_KEY', 'gsk_abcdefghij1234567890ab', True),  # Groq key format (22 chars)
+        ('GROQ_API_KEY', 'gsk_abcdefghij1234567890', True),  # Groq key format (20 chars, minimum)
         ('ANTHROPIC_API_KEY', 'sk-ant-' + 'a' * 95, True),
         ('COINGECKO_API_KEY', 'CG-' + 'a' * 32, True),
         ('ALPHAVANTAGE_API_KEY', 'A' * 16, True),

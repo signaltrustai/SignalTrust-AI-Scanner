@@ -86,7 +86,7 @@ class KeyValidator:
         Validate API key format.
         
         Args:
-            key_name: Name of the key (e.g., 'OPENAI_API_KEY')
+            key_name: Name of the key (e.g., 'GROQ_API_KEY')
             key_value: The key value to validate
             
         Returns:
