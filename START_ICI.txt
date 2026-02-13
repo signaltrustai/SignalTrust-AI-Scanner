@@ -39,7 +39,7 @@ Mac/Linux (Terminal):
 
 Ouvrir .env avec Notepad/TextEdit et remplir:
 
-OPENAI_API_KEY=sk-proj-COLLER_VOTRE_CLE_ICI
+GROQ_API_KEY=gsk_COLLER_VOTRE_CLE_ICI
 SECRET_KEY=génerer_32_caractères_aléatoires
 ADMIN_PASSWORD=ChoisirMotDePasse123!
 
@@ -68,7 +68,7 @@ Ouvrir: http://localhost:5000
 
 ❌ "Invalid API key"
    → Copier la clé ENTIÈRE (51 caractères)
-   → Pas de guillemets: OPENAI_API_KEY=sk-proj-...
+   → Pas de guillemets: GROQ_API_KEY=gsk_...
 
 ❌ "Module not found"
    → Installer: pip install -r requirements.txt

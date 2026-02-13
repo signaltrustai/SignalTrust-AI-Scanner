@@ -99,7 +99,7 @@ Mac/Linux:  cp .env.example .env
 ─────────────────────────────────────
 Ouvrir .env avec Notepad/TextEdit et remplir:
 
-OPENAI_API_KEY=sk-proj-VOTRE_CLÉ_ICI
+GROQ_API_KEY=gsk_VOTRE_CLÉ_ICI
 SECRET_KEY=génerer_32_caractères_aléatoires
 ADMIN_PASSWORD=VotreMotDePasse123!
 
@@ -155,7 +155,7 @@ python start.py
 ✅ Solution:
    • Vérifier nom fichier: ".env" (pas .env.txt)
    • Fichier dans même dossier que app.py
-   • Pas d'espaces: OPENAI_API_KEY=sk-...
+   • Pas d'espaces: GROQ_API_KEY=gsk_...
 
 ❌ Erreur: "Invalid API key"
 ✅ Solution:
@@ -198,7 +198,7 @@ Budget/mois:    $20-80 (usage normal)
 
 Configuration Minimale:
 ☐ Fichier .env créé
-☐ OPENAI_API_KEY rempli
+☐ GROQ_API_KEY rempli
 ☐ SECRET_KEY généré
 ☐ ADMIN_PASSWORD défini
 ☐ python start.py lancé
@@ -221,8 +221,8 @@ Utiliser l'interface web:
 2. Votre service → Environment
 3. Add Environment Variable
 4. Ajouter chaque variable:
-   Key: OPENAI_API_KEY
-   Value: sk-proj-...
+   Key: GROQ_API_KEY
+   Value: gsk_...
 5. Save Changes
 6. ✅ Redéploiement automatique!
 
