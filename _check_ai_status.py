@@ -33,12 +33,12 @@ if rw:
 # 4. AI Provider
 print(f"\n[AI Provider] Managed by coordinator (3 providers)")
 
-# 5. OpenAI key check
-key = os.getenv("OPENAI_API_KEY", "")
+# 5. Groq key check
+key = os.getenv("GROQ_API_KEY", "")
 if key and not key.startswith("your_"):
-    print(f"[OpenAI] Key present ({key[:12]}...)")
+    print(f"[Groq] Key present ({key[:12]}...)")
 else:
-    print("[OpenAI] NO KEY — GPT-4 worker disabled")
+    print("[Groq] NO KEY — Groq LLM worker disabled")
 
 anth = os.getenv("ANTHROPIC_API_KEY", "")
 if anth and not anth.startswith("your_"):

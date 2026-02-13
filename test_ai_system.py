@@ -70,12 +70,12 @@ def test_ai_provider_detection():
         from ai_provider import AIProviderFactory
         
         # Check environment variables
-        openai_key = os.environ.get('OPENAI_API_KEY', '')
+        groq_key = os.environ.get('GROQ_API_KEY', '')
         anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
         ai_provider = os.environ.get('AI_PROVIDER', '')
         
         print(f"   AI_PROVIDER env: {ai_provider if ai_provider else 'Not set'}")
-        print(f"   OPENAI_API_KEY: {'Configured' if openai_key else 'Not set'}")
+        print(f"   GROQ_API_KEY: {'Configured' if groq_key else 'Not set'}")
         print(f"   ANTHROPIC_API_KEY: {'Configured' if anthropic_key else 'Not set'}")
         
         # Try to create provider
@@ -142,7 +142,7 @@ def test_optional_dependencies():
     print("\n🧪 Testing optional AI dependencies...")
     
     dependencies = {
-        'openai': 'OpenAI GPT support',
+        'openai': 'OpenAI SDK (used for Groq compatibility)',
         'anthropic': 'Anthropic Claude support',
         'requests': 'Local model support'
     }

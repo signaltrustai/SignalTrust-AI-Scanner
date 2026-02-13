@@ -32,7 +32,7 @@ def test_key_manager():
     # Test 1: Store keys
     print("\n1️⃣ Testing key storage...")
     test_keys = {
-        'OPENAI_API_KEY': 'sk-proj-test123456789',  # Project key format
+        'GROQ_API_KEY': 'gsk_test123456789abcdefghij',
         'ANTHROPIC_API_KEY': 'sk-ant-test987654321',
         'COINGECKO_API_KEY': 'CG-' + 'a' * 32,
     }
@@ -70,10 +70,10 @@ def test_key_manager():
     
     # Test 5: Key rotation
     print("\n5️⃣ Testing key rotation...")
-    new_value = 'sk-proj-rotated-key-456'
-    success = manager.rotate_key('OPENAI_API_KEY', new_value)
+    new_value = 'gsk_rotated_key_456abcdefghij'
+    success = manager.rotate_key('GROQ_API_KEY', new_value)
     status = "✅" if success else "❌"
-    print(f"  {status} Rotated OPENAI_API_KEY")
+    print(f"  {status} Rotated GROQ_API_KEY")
     
     # Test 6: Delete key
     print("\n6️⃣ Testing key deletion...")
@@ -95,8 +95,8 @@ def test_key_validator():
     
     # Test cases: (key_name, key_value, should_be_valid)
     test_cases = [
-        ('OPENAI_API_KEY', 'sk-proj-abcdefghij1234567890', True),  # Project key format
-        ('OPENAI_API_KEY', 'sk-abcdefghij1234567890', True),  # Legacy key format
+        ('GROQ_API_KEY', 'gsk_abcdefghij1234567890ab', True),  # Groq key format
+        ('GROQ_API_KEY', 'gsk_abcdefghij1234567890', True),  # Groq key format
         ('ANTHROPIC_API_KEY', 'sk-ant-' + 'a' * 95, True),
         ('COINGECKO_API_KEY', 'CG-' + 'a' * 32, True),
         ('ALPHAVANTAGE_API_KEY', 'A' * 16, True),

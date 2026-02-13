@@ -21,11 +21,11 @@ services:
         value: "1"
       # AI Provider Configuration
       - key: AI_PROVIDER
-        value: openai
-      - key: OPENAI_API_KEY
+        value: groq
+      - key: GROQ_API_KEY
         sync: false  # Manually set in Render dashboard
-      - key: OPENAI_MODEL
-        value: gpt-4o-mini
+      - key: GROQ_MODEL
+        value: llama3-70b-8192
       - key: AI_TEMPERATURE
         value: "0.7"
       - key: AI_MAX_TOKENS

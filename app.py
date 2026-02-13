@@ -182,12 +182,15 @@ from asi1_integration import ASI1AIIntegration
 asi1_integration = ASI1AIIntegration()
 ai_chat = AIChatSystem(asi1_integration, ai_intelligence, whale_watcher)
 
-# Initialize OpenAI client (for ChatKit sessions)
+# Initialize Groq client (for ChatKit sessions, uses OpenAI-compatible SDK)
 try:
     from openai import OpenAI
-    openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY', ''))
+    groq_client = OpenAI(
+        api_key=os.getenv('GROQ_API_KEY', ''),
+        base_url="https://api.groq.com/openai/v1"
+    )
 except Exception:
-    openai_client = None
+    groq_client = None
 
 # -----------------------------
 # HELPER FUNCTIONS
@@ -359,21 +362,21 @@ def agent_router(message: str):
 # -----------------------------
 @app.route("/api/chatkit/session", methods=["POST"])
 def create_chatkit_session():
-    """Create a ChatKit session via OpenAI and return a client_secret to the frontend.
+    """Create a ChatKit session via Groq and return a client_secret to the frontend.
 
     The server must NOT expose its API key. The returned `client_secret` is safe
-    for the client to use with @openai/chatkit-react.
+    for the client to use with the chat interface.
     """
     # Allow bypassing authentication for quick local testing when ALLOW_UNAUTH_TESTING=true
     allow_unauth = os.getenv('ALLOW_UNAUTH_TESTING', 'false').lower() in ('1', 'true')
     if not allow_unauth and 'user_email' not in session:
         return redirect(url_for('login'))
 
-    if not openai_client:
-        return jsonify({"error": "OpenAI client not configured on server"}), 500
+    if not groq_client:
+        return jsonify({"error": "Groq client not configured on server"}), 500
     try:
-        # Use OpenAI chat completions API (ChatKit SDK not available)
-        return jsonify({"success": True, "provider": "openai", "status": "ready"}), 200
+        # Use Groq chat completions API (OpenAI-compatible)
+        return jsonify({"success": True, "provider": "groq", "status": "ready"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

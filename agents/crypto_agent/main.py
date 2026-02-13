@@ -15,11 +15,11 @@ app = FastAPI(title="SignalTrust Crypto Analyst EU", version="1.0.0")
 
 
 class CryptoLLM:
-    """Wrapper for OpenAI LLM for crypto analysis"""
+    """Wrapper for Groq LLM for crypto analysis (OpenAI-compatible)"""
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "llama3-70b-8192"):
         self.model = model
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY")
         
     def run(self, prompt: str, output_format: str = "json") -> Dict[str, Any]:
         """Run LLM inference"""
@@ -28,7 +28,10 @@ class CryptoLLM:
             
         try:
             import openai
-            client = openai.OpenAI(api_key=self.api_key)
+            client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.groq.com/openai/v1"
+            )
             
             response = client.chat.completions.create(
                 model=self.model,
@@ -72,7 +75,7 @@ class CryptoLLM:
                 "7d": {"price": "51000", "probability": 0.65},
                 "30d": {"price": "55000", "probability": 0.58}
             },
-            "note": "Mock response - configure OPENAI_API_KEY for real analysis"
+            "note": "Mock response - configure GROQ_API_KEY for real analysis"
         }
 
 
@@ -121,7 +124,7 @@ class PredictRequest(BaseModel):
 
 
 # Initialize components
-llm = CryptoLLM(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
+llm = CryptoLLM(model=os.getenv("GROQ_MODEL", "llama3-70b-8192"))
 fetcher = DataFetcher(exchange=os.getenv("CCXT_EXCHANGE", "binance"))
 
 

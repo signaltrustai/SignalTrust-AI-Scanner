@@ -29,7 +29,7 @@ if [ ! -f ".env" ]; then
     echo "✅ Created .env file"
     echo ""
     echo "⚠️  IMPORTANT: Please edit .env and add your API keys:"
-    echo "   - OPENAI_API_KEY"
+    echo "   - GROQ_API_KEY"
     echo "   - COINGECKO_API_KEY"
     echo "   - ALPHAVANTAGE_API_KEY"
     echo "   - WHALEALERT_API_KEY"

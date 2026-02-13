@@ -13,11 +13,11 @@ app = FastAPI(title="SignalTrust Whale Watcher EU", version="1.0.0")
 
 
 class Summarizer:
-    """LLM-based transaction summarizer"""
+    """LLM-based transaction summarizer (uses Groq via OpenAI-compatible API)"""
     
-    def __init__(self, model: str = "gpt-4o-mini"):
+    def __init__(self, model: str = "llama3-70b-8192"):
         self.model = model
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY")
         
     def run(self, prompt: str, output_format: str = "json") -> Dict[str, Any]:
         """Run LLM inference"""
@@ -26,7 +26,10 @@ class Summarizer:
             
         try:
             import openai
-            client = openai.OpenAI(api_key=self.api_key)
+            client = openai.OpenAI(
+                api_key=self.api_key,
+                base_url="https://api.groq.com/openai/v1"
+            )
             
             response = client.chat.completions.create(
                 model=self.model,
@@ -68,7 +71,7 @@ class Summarizer:
                 "Multiple whale wallets showing similar patterns",
                 "Potential bullish signal"
             ],
-            "note": "Mock response - configure OPENAI_API_KEY and WHALEALERT_API_KEY for real analysis"
+            "note": "Mock response - configure GROQ_API_KEY and WHALEALERT_API_KEY for real analysis"
         }
 
 
@@ -101,7 +104,7 @@ class WhaleAlertClient:
 
 # Initialize components
 client = WhaleAlertClient(api_key=os.getenv("WHALEALERT_API_KEY"))
-summarizer = Summarizer(model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
+summarizer = Summarizer(model=os.getenv("GROQ_MODEL", "llama3-70b-8192"))
 
 
 @app.get("/")

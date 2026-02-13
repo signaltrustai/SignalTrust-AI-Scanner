@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 ASI1 AI Integration Module
-Integrates with OpenAI for advanced market analysis
+Integrates with Groq for advanced market analysis
 """
 
 import os
@@ -11,20 +11,20 @@ from datetime import datetime
 
 
 class ASI1AIIntegration:
-    """AI Integration for market analysis using OpenAI
+    """AI Integration for market analysis using Groq
     
-    Note: Despite the class name 'ASI1AIIntegration', this now uses OpenAI.
+    Note: Despite the class name 'ASI1AIIntegration', this now uses Groq.
     The name is kept for backward compatibility with existing code.
     """
     
     def __init__(self, api_key: Optional[str] = None):
-        """Initialize OpenAI integration.
+        """Initialize Groq integration.
         
         Args:
-            api_key: OpenAI API key (defaults to environment variable)
+            api_key: Groq API key (defaults to environment variable)
         """
-        self.api_key = api_key or os.environ.get('OPENAI_API_KEY', '')
-        self.model = os.environ.get('OPENAI_MODEL', 'gpt-4o')
+        self.api_key = api_key or os.environ.get('GROQ_API_KEY', '')
+        self.model = os.environ.get('GROQ_MODEL', 'llama3-70b-8192')
         self._client = None
         self.session_id = self._generate_session_id()
         
@@ -33,11 +33,14 @@ class ASI1AIIntegration:
         return f"signaltrust-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     
     def _get_client(self):
-        """Lazy load OpenAI client."""
+        """Lazy load Groq client (uses OpenAI-compatible SDK)."""
         if self._client is None and self.api_key:
             try:
                 from openai import OpenAI
-                self._client = OpenAI(api_key=self.api_key)
+                self._client = OpenAI(
+                    api_key=self.api_key,
+                    base_url="https://api.groq.com/openai/v1"
+                )
             except ImportError:
                 print("⚠️ OpenAI library not installed. Install with: pip install openai")
                 raise
@@ -74,7 +77,7 @@ Please provide:
                 'analysis': response.get('content', ''),
                 'timestamp': datetime.now().isoformat(),
                 'model': response.get('model', self.model),
-                'provider': 'openai'
+                'provider': 'groq'
             }
             
         except Exception as e:
@@ -112,7 +115,7 @@ Provide:
                 'whale_analysis': response.get('content', ''),
                 'alert_level': self._determine_alert_level(response.get('content', '')),
                 'timestamp': datetime.now().isoformat(),
-                'provider': 'openai'
+                'provider': 'groq'
             }
             
         except Exception as e:
@@ -152,7 +155,7 @@ Provide:
                 'symbol': symbol,
                 'prediction': response.get('content', ''),
                 'timestamp': datetime.now().isoformat(),
-                'provider': 'openai'
+                'provider': 'groq'
             }
             
         except Exception as e:
@@ -185,7 +188,7 @@ Please provide an expert analysis."""
                 'success': True,
                 'response': response.get('content', ''),
                 'timestamp': datetime.now().isoformat(),
-                'provider': 'openai'
+                'provider': 'groq'
             }
             
         except Exception as e:
@@ -196,22 +199,22 @@ Please provide an expert analysis."""
             }
     
     def _chat_completion(self, user_message: str, enable_agent_protocol: bool = False) -> Dict:
-        """Make chat completion request to OpenAI API.
+        """Make chat completion request to Groq API (OpenAI-compatible).
         
         Args:
             user_message: User message
-            enable_agent_protocol: Enable agent-to-agent communication (not used with OpenAI)
+            enable_agent_protocol: Enable agent-to-agent communication (not used with Groq)
             
         Returns:
             API response
         """
         if not self.api_key:
-            raise ValueError("OPENAI_API_KEY not configured. Please set it in your .env file")
+            raise ValueError("GROQ_API_KEY not configured. Please set it in your .env file")
         
         try:
             client = self._get_client()
             if not client:
-                return {'content': 'OpenAI client not initialized', 'model': '', 'usage': {}}
+                return {'content': 'Groq client not initialized', 'model': '', 'usage': {}}
             
             response = client.chat.completions.create(
                 model=self.model,
@@ -240,7 +243,7 @@ Please provide an expert analysis."""
             }
             
         except Exception as e:
-            print(f"⚠️ OpenAI API error: {e}")
+            print(f"⚠️ Groq API error: {e}")
             return {'content': f'Error: {str(e)}', 'model': '', 'usage': {}}
     
     def _determine_alert_level(self, analysis: str) -> str:
@@ -291,7 +294,7 @@ Include:
                 'success': True,
                 'summary': response.get('content', ''),
                 'timestamp': datetime.now().isoformat(),
-                'provider': 'openai'
+                'provider': 'groq'
             }
             
         except Exception as e:

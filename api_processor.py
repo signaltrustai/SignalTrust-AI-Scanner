@@ -556,7 +556,7 @@ def get_api_processor() -> APIProcessor:
         )
         
         # Register known APIs with their rate limits
-        _processor.register_api("openai", rate_limit=60, per_seconds=60)
+        _processor.register_api("groq", rate_limit=60, per_seconds=60)
         _processor.register_api("coingecko", rate_limit=50, per_seconds=60)
         _processor.register_api("alphavantage", rate_limit=5, per_seconds=60)
         _processor.register_api("coinpaprika", rate_limit=100, per_seconds=60)

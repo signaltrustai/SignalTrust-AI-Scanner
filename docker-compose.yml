@@ -11,7 +11,7 @@ services:
       - "8000:8000"
     environment:
       - COORDINATOR_LOG_LEVEL=INFO
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     depends_on:
       - crypto_agent
       - stock_agent
@@ -34,7 +34,7 @@ services:
       dockerfile: Dockerfile
     container_name: signaltrust_supervisor_eu
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     volumes:
       - ./agents/supervisor/workspace:/app/workspace
     networks:
@@ -49,7 +49,7 @@ services:
     ports:
       - "8001:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - COINGECKO_API_KEY=${COINGECKO_API_KEY}
       - CCXT_EXCHANGE=binance
     command: uvicorn main:app --host 0.0.0.0 --port 8000
@@ -65,7 +65,7 @@ services:
     ports:
       - "8002:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - ALPHAVANTAGE_API_KEY=${ALPHAVANTAGE_API_KEY}
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     networks:
@@ -81,7 +81,7 @@ services:
       - "8003:8000"
     environment:
       - WHALEALERT_API_KEY=${WHALEALERT_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     networks:
       - signaltrust_network_eu
@@ -96,7 +96,7 @@ services:
       - "8004:8000"
     environment:
       - NEWS_CATCHER_API_KEY=${NEWS_CATCHER_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
     command: uvicorn main:app --host 0.0.0.0 --port 8000
     networks:
       - signaltrust_network_eu
@@ -110,7 +110,7 @@ services:
     ports:
       - "8005:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - TWITTER_API_KEY=${TWITTER_API_KEY}
       - REDDIT_CLIENT_ID=${REDDIT_CLIENT_ID}
       - REDDIT_CLIENT_SECRET=${REDDIT_CLIENT_SECRET}

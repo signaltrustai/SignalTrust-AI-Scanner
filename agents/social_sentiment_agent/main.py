@@ -47,7 +47,7 @@ class SocialSentimentAgent:
     def __init__(self):
         self.twitter_api_key = os.getenv("TWITTER_API_KEY", "")
         self.reddit_client_id = os.getenv("REDDIT_CLIENT_ID", "")
-        self.openai_api_key = os.getenv("OPENAI_API_KEY", "")
+        self.groq_api_key = os.getenv("GROQ_API_KEY", "")
         
         # Sentiment model (would use BERT-finance in production)
         self.model_available = False

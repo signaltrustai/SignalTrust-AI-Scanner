@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 AI Provider Module
-Unified interface for multiple AI providers (OpenAI, Anthropic, local models, etc.)
+Unified interface for multiple AI providers (Groq, Anthropic, local models, etc.)
 """
 
 import os
@@ -25,33 +25,36 @@ class AIProvider(ABC):
         pass
 
 
-class OpenAIProvider(AIProvider):
-    """OpenAI GPT provider"""
+class GroqProvider(AIProvider):
+    """Groq LLM provider (OpenAI-compatible API)"""
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o"):
-        """Initialize OpenAI provider.
+    def __init__(self, api_key: Optional[str] = None, model: str = "llama3-70b-8192"):
+        """Initialize Groq provider.
         
         Args:
-            api_key: OpenAI API key
-            model: Model to use (gpt-4o, gpt-4o-mini, etc.)
+            api_key: Groq API key
+            model: Model to use (llama3-70b-8192, etc.)
         """
-        self.api_key = api_key or os.environ.get('OPENAI_API_KEY', '')
-        self.model = model
+        self.api_key = api_key or os.environ.get('GROQ_API_KEY', '')
+        self.model = model or os.environ.get('GROQ_MODEL', 'llama3-70b-8192')
         self._client = None
         
     def _get_client(self):
-        """Lazy load OpenAI client"""
+        """Lazy load Groq client (uses OpenAI-compatible SDK)"""
         if self._client is None and self.api_key:
             try:
                 import openai
-                self._client = openai.OpenAI(api_key=self.api_key)
+                self._client = openai.OpenAI(
+                    api_key=self.api_key,
+                    base_url="https://api.groq.com/openai/v1"
+                )
             except ImportError:
                 print("⚠️ OpenAI library not installed. Install with: pip install openai")
                 raise
         return self._client
     
     def generate_response(self, prompt: str, context: Optional[Dict] = None) -> str:
-        """Generate response using OpenAI"""
+        """Generate response using Groq"""
         try:
             client = self._get_client()
             if not client:
@@ -82,11 +85,11 @@ class OpenAIProvider(AIProvider):
             return response.choices[0].message.content
             
         except Exception as e:
-            print(f"⚠️ OpenAI error: {e}")
+            print(f"⚠️ Groq error: {e}")
             return self._fallback_response(prompt)
     
     def analyze_market_data(self, market_data: Dict) -> Dict:
-        """Analyze market data with OpenAI"""
+        """Analyze market data with Groq"""
         prompt = f"""Analyze the following market data and provide insights:
 
 Market Data:
@@ -107,19 +110,19 @@ Format your response as JSON with keys: trends, risk_level, opportunities, predi
             try:
                 return json.loads(response)
             except Exception as e:
-                print(f"⚠️ OpenAIProvider: failed to parse JSON response: {e}")
+                print(f"⚠️ GroqProvider: failed to parse JSON response: {e}")
                 # If not JSON, return structured text
                 return {
                     'analysis': response,
                     'success': True,
-                    'provider': 'openai',
+                    'provider': 'groq',
                     'model': self.model
                 }
         except Exception as e:
             return {
                 'success': False,
                 'error': str(e),
-                'provider': 'openai'
+                'provider': 'groq'
             }
     
     def _fallback_response(self, prompt: str) -> str:
@@ -276,7 +279,7 @@ class AIProviderFactory:
         """Create AI provider instance.
         
         Args:
-            provider_type: Type of provider (openai, anthropic, local)
+            provider_type: Type of provider (groq, anthropic, local)
             **kwargs: Provider-specific arguments
             
         Returns:
@@ -288,15 +291,15 @@ class AIProviderFactory:
         
         if not provider_type:
             # Auto-detect based on available API keys
-            if os.environ.get('OPENAI_API_KEY'):
-                provider_type = 'openai'
+            if os.environ.get('GROQ_API_KEY'):
+                provider_type = 'groq'
             elif os.environ.get('ANTHROPIC_API_KEY'):
                 provider_type = 'anthropic'
             else:
                 provider_type = 'local'
         
-        if provider_type == 'openai':
-            return OpenAIProvider(**kwargs)
+        if provider_type == 'groq':
+            return GroqProvider(**kwargs)
         elif provider_type == 'anthropic':
             return AnthropicProvider(**kwargs)
         elif provider_type == 'local':
