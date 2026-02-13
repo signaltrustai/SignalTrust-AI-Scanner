@@ -32,6 +32,15 @@ class KeyValidator:
         'ALPHAVANTAGE_API_KEY': r'^[A-Z0-9]{16}$',
         'WHALEALERT_API_KEY': r'^[a-zA-Z0-9]{32,64}$',
         'NEWS_CATCHER_API_KEY': r'^[a-zA-Z0-9_-]{32,}$',
+        'ETHERSCAN_API_KEY': r'^[A-Z0-9]{32,40}$',
+        'TWITTER_API_KEY': r'^[a-zA-Z0-9]{25,}$',
+        'REDDIT_CLIENT_ID': r'^[a-zA-Z0-9_-]{14,}$',
+        'REDDIT_CLIENT_SECRET': r'^[a-zA-Z0-9_-]{20,}$',
+        'GLASSNODE_API_KEY': r'^[a-zA-Z0-9_-]{20,}$',
+        'DUNE_API_KEY': r'^[a-zA-Z0-9_-]{20,}$',
+        'FRED_API_KEY': r'^[a-fA-F0-9]{32}$',
+        'WORLD_BANK_API_KEY': r'^[a-zA-Z0-9_-]{10,}$',
+        'EIA_API_KEY': r'^[a-zA-Z0-9]{32,}$',
     }
     
     # API test endpoints
@@ -67,6 +76,24 @@ class KeyValidator:
                 'function': 'GLOBAL_QUOTE',
                 'symbol': 'IBM',
                 'apikey': key,
+            },
+        },
+        'ETHERSCAN_API_KEY': {
+            'url': 'https://api.etherscan.io/api',
+            'method': 'GET',
+            'params': lambda key: {
+                'module': 'stats',
+                'action': 'ethprice',
+                'apikey': key,
+            },
+        },
+        'FRED_API_KEY': {
+            'url': 'https://api.stlouisfed.org/fred/series',
+            'method': 'GET',
+            'params': lambda key: {
+                'series_id': 'GDP',
+                'api_key': key,
+                'file_type': 'json',
             },
         },
     }
@@ -289,6 +316,17 @@ if __name__ == "__main__":
         'ANTHROPIC_API_KEY',
         'COINGECKO_API_KEY',
         'ALPHAVANTAGE_API_KEY',
+        'WHALEALERT_API_KEY',
+        'NEWS_CATCHER_API_KEY',
+        'ETHERSCAN_API_KEY',
+        'TWITTER_API_KEY',
+        'REDDIT_CLIENT_ID',
+        'REDDIT_CLIENT_SECRET',
+        'GLASSNODE_API_KEY',
+        'DUNE_API_KEY',
+        'FRED_API_KEY',
+        'WORLD_BANK_API_KEY',
+        'EIA_API_KEY',
     ]
     
     print("\nValidating keys from environment:")

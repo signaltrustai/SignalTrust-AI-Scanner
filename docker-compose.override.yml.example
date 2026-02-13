@@ -44,3 +44,35 @@ services:
     environment:
       - DEBUG=true
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for social_sentiment_agent
+  social_sentiment_agent:
+    volumes:
+      - ./agents/social_sentiment_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for onchain_agent
+  onchain_agent:
+    volumes:
+      - ./agents/onchain_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for macro_economics_agent
+  macro_economics_agent:
+    volumes:
+      - ./agents/macro_economics_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # Enable hot-reload for portfolio_optimizer_agent
+  portfolio_optimizer_agent:
+    volumes:
+      - ./agents/portfolio_optimizer_agent:/app:delegated
+    environment:
+      - DEBUG=true
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
